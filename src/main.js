@@ -1,29 +1,33 @@
-const { app, BrowserWindow, BrowserView } = require('electron');
-const path = require('node:path');
+const { app, BrowserWindow, BrowserView } = require("electron");
+const path = require("node:path");
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
-if (require('electron-squirrel-startup')) {
+if (require("electron-squirrel-startup")) {
   app.quit();
 }
 
+let win;
+let click;
+
 const createWindow = () => {
   // Create the browser window.
-  const win = new BrowserWindow({
+  win = new BrowserWindow({
     width: 1920,
     height: 1080,
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
-      nodeIntegration: false
+      nodeIntegration: false,
     },
   });
 
   const view = new BrowserView();
   win.setBrowserView(view);
-  view.setBounds({ x: 500, y: 0, width: 960, height: 1080 });
+  updateViewBounds();
+  // view.setBounds({ x: 960, y: 0, width: 960, height: 1080 });
   view.webContents.loadURL("https://youtube.com");
 
   // Open console on launch, comment out if dont need
-  view.webContents.openDevTools()
+  // view.webContents.openDevTools();
 
   // Inject javascript for event listeners
   view.webContents.on("dom-ready", () => {
@@ -102,7 +106,29 @@ const createWindow = () => {
   win.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  win.webContents.openDevTools();
+  // win.webContents.openDevTools();
+
+  win.on("resize", updateViewBounds);
+
+  win.on("closed", () => {
+    win = null;
+  });
+};
+
+const updateViewBounds = () => {
+  if (win) {
+    const bounds = win.getContentBounds();
+    const view = win.getBrowserView();
+    if (view) {
+      const { x, y, width } = bounds;
+      view.setBounds({
+        x: Math.floor(width / 2),
+        y: Math.floor(y - 72),
+        width: Math.floor(width / 2),
+        height: Math.floor(bounds.height),
+      });
+    }
+  }
 };
 
 // This method will be called when Electron has finished
@@ -113,7 +139,7 @@ app.whenReady().then(() => {
 
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
-  app.on('activate', () => {
+  app.on("activate", () => {
     if (BrowserWindow.getAllWindows().length === 0) {
       createWindow();
     }
@@ -123,8 +149,8 @@ app.whenReady().then(() => {
 // Quit when all windows are closed, except on macOS. There, it's common
 // for applications and their menu bar to stay active until the user quits
 // explicitly with Cmd + Q.
-app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
+app.on("window-all-closed", () => {
+  if (process.platform !== "darwin") {
     app.quit();
   }
 });

@@ -1,0 +1,26 @@
+html {
+  position: fixed;
+  left: 0;
+  right: 50%;
+}
+
+body {
+  margin: 0;
+}
+
+.main__wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+}
+
+.buttonView__wrapper {
+  background-color: aqua;
+}
+.commands__wrapper {
+  background-color: bisque;
+  flex: 1;
+}
+.controllers__wrapper {
+  margin: 2rem;
+}
