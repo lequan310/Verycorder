@@ -6,7 +6,6 @@ const App = () => {
     <div>
       <h1>PLEASE WORK</h1>
       <h2>YES IT WORKS</h2>
-      <h3>FML HOLY BALLS</h3>
     </div>
   )
 }
