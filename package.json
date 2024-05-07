@@ -1,8 +1,8 @@
 {
-  "name": "my-new-app",
-  "productName": "my-new-app",
+  "name": "recorder-app",
+  "productName": "recorder-app",
   "version": "1.0.0",
-  "description": "My Electron application description",
+  "description": "ML-based recorder for web authoring",
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
@@ -13,6 +13,7 @@
   },
   "devDependencies": {
     "@babel/core": "^7.24.5",
+    "@babel/preset-env": "^7.24.5",
     "@babel/preset-react": "^7.24.1",
     "@electron-forge/cli": "^7.4.0",
     "@electron-forge/maker-deb": "^7.4.0",
