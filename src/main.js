@@ -21,10 +21,10 @@ const createWindow = () => {
   });
 
   const view = new BrowserView();
-  // win.setBrowserView(view);
+  win.setBrowserView(view);
   updateViewBounds();
   // view.setBounds({ x: 960, y: 0, width: 960, height: 1080 });
-  view.webContents.loadURL("https://www.katalon.com");
+  view.webContents.loadURL("https://www.youtube.com");
 
   // Open console on launch, comment out if dont need
   // view.webContents.openDevTools();
@@ -55,7 +55,18 @@ const createWindow = () => {
         });
       });
       const config = { attributes: true, childList: true, subtree: true };
+
+      // Observer to detect changes in size of element
+      const resizeObserver = new ResizeObserver(entries => {
+        entries.forEach(entry => {
+
+        });
+      });
+
       mutationObserver.observe(document, config);
+      // allElements.forEach(element => {
+      //   resizeObserver.observe(element);
+      // });
 
       //------------------------------CLICK EVENTS-------------------------------
 
@@ -68,11 +79,11 @@ const createWindow = () => {
       }
 
       document.addEventListener('click', (event) => {
-        // Check if the event is made by user
-        if (event.isTrusted) {
-          // console.log('Clicked element:', event.target);
-          registerClick(event);  
-        }
+        // Log the clicked element to the console
+        //var parentElement = event.target.parentElement;
+
+        // console.log('Clicked element:', event.target);
+        registerClick(event);
       }, true);
 
       //------------------------------SCROLL EVENTS-------------------------------
@@ -85,20 +96,22 @@ const createWindow = () => {
         // Set a timeout to detect scroll end
         scrollTimer = setTimeout(function() {
           console.log('Window scrolled:', window.scrollX, window.scrollY);
-        }, 250); // Adjust the delay as needed  
+        }, 250); // Adjust the delay as needed
       });
 
       // Smaller element scroll events (navbar, div, etc.)
       allElements.forEach(function(element) {
-        element.addEventListener('scroll', function(event) {
+        element.addEventListener('scroll', function() {
           // Clear any existing timeout
           clearTimeout(scrollTimer);
 
           // Set a timeout to detect scroll end
           scrollTimer = setTimeout(function() {
-            console.log('Scrolled element:', element, ' | Scroll amount:', element.scrollLeft, element.scrollTop);
-          }, 250); // Adjust the delay as needed  
-        });
+            const scrollVerticalPercentage = (element.scrollTop / (element.scrollHeight - element.clientHeight)) * 100;
+            const scrollHorizontalPercentage = (element.scrollLeft / (element.scrollWidth - element.clientWidth)) * 100;
+            console.log('Scrolled element:', element, ' | Scroll amount:', scrollHorizontalPercentage, ' ', scrollVerticalPercentage);
+          }, 250); // Adjust the delay as needed
+          });
       });
 
       //------------------------------INPUT EVENTS-------------------------------
@@ -118,13 +131,13 @@ const createWindow = () => {
       if (message.includes("Clicked element:")) {
         // Log the console message to the main process console
         var target = message.replace("Clicked element:", "");
-        console.log(`Click:${target}\n`);
+        console.log(`Click: ${target} \n`);
       }
 
       if (message.includes("Window scrolled:")) {
         // Log the console message to the main process console
         var target = message.replace("Window scrolled:", "");
-        console.log(`Window scroll:${target}`);
+        console.log(`Window scroll: ${target} `);
       }
 
       if (message.includes("Scrolled element:")) {
@@ -133,7 +146,7 @@ const createWindow = () => {
         target = target.replace("Scroll amount:", "");
         var result = target.split("|");
 
-        console.log(`Element scroll:${result[0]}Amount:${result[1]}\n`);
+        console.log(`Element scroll: ${result[0]} Amount: ${result[1]}\n`);
       }
     }
   );
@@ -144,7 +157,7 @@ const createWindow = () => {
   win.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  win.webContents.openDevTools();
+  // win.webContents.openDevTools();
 
   win.on("resize", updateViewBounds);
 

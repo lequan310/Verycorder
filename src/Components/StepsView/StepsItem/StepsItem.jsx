@@ -6,6 +6,7 @@ const StepItem = () => {
     <div className="stepitem__container">
       <p>Click</p>
       <h5>/child.element</h5>
+      <div className="divider"></div>
     </div>
   );
 };

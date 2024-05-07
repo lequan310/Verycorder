@@ -1,8 +1,15 @@
-import React from "react";
-import { HeaderComponent, StepsView } from "./Components";
+import React, { useState } from "react";
+import { ControllerItem, HeaderComponent, StepsView } from "./Components";
 import Logo from "./Assets/katalon_logo.svg";
 
 const App = () => {
+  const [shrink, setShrink] = useState(false);
+
+  const handleButtonClick = () => {
+    setShrink((prev) => {
+      return !prev;
+    });
+  };
   return (
     <div className="main__wrapper">
       <div className="header__wrapper">
@@ -14,7 +21,18 @@ const App = () => {
         <h3>Commands</h3>
         <StepsView />
       </div>
-      <div className="controllers__wrapper">Controllers</div>
+      <div
+        className={`controllers__wrapper ${
+          shrink ? "shrink" + " change-padding-bottom" : "expand"
+        }`}
+      >
+        <button className="collapse_btn" onClick={handleButtonClick}>
+          {shrink ? "^ Expand" : " v Collapse"}
+        </button>
+        <ControllerItem hide={shrink ? "hide" : ""}></ControllerItem>
+        <ControllerItem hide={shrink ? "hide" : ""}></ControllerItem>
+        <textarea placeholder={"Comment"} />
+      </div>
     </div>
   );
 };

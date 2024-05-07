@@ -1,5 +1,6 @@
 :root {
   --border-radius: 12px;
+  --border-color: #e5e5e5;
   --arc-palette-cutoutColor: #6f00eeff;
   --arc-palette-minContrastColor: #6f00eeff;
   --arc-palette-focus: #882cf0ce;
@@ -48,6 +49,27 @@ button {
   background-color: transparent;
 }
 
+select {
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid #cfcfcf;
+  padding: 0 8px;
+  margin: 8px 0;
+}
+
+textarea {
+  height: 40px;
+  border-radius: 8px;
+  border: 1px solid #cfcfcf;
+  padding: 8px;
+  margin: 8px 0;
+}
+
+.divider {
+  background-color: var(--border-color);
+  height: 1px;
+  width: 97%;
+}
 .main__wrapper {
   display: flex;
   flex-direction: column;
@@ -64,10 +86,69 @@ button {
   margin: 0 16px;
   padding: 0 16px;
   /* box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; */
-  border: 1px solid #e5e5e5;
+  border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   flex: 1;
 }
 .controllers__wrapper {
-  margin: 2rem;
+  overflow: hidden;
+  -webkit-transition: max-height 0.3s;
+  -moz-transition: max-height 0.3s;
+  -ms-transition: max-height 0.3s;
+  -o-transition: max-height 0.3s;
+  transition: max-height 0.3s;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border-radius: var(--border-radius);
+  box-shadow: 0px -5px 10px 0px var(--border-color);
+  padding: 2rem 16px;
+}
+
+.controllers__wrapper .collapse_btn {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  -ms-transform: translateX(-50%);
+  transform: translateX(-50%);
+}
+.controllerItem__wrapper {
+  display: flex;
+  flex-direction: column;
+}
+
+.shrink {
+  max-height: 0px; /* Set a smaller value to shrink the element */
+}
+
+.expand {
+  max-height: 1000px; /* Set back to a large value to expand the element */
+  padding-bottom: 2rem;
+}
+
+@keyframes hideAnimation {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
+@keyframes changePaddingBottomAnimation {
+  0% {
+    padding-bottom: 2rem; /* Initial padding-bottom value */
+  }
+  100% {
+    padding-bottom: 8px; /* Final padding-bottom value */
+  }
+}
+
+.change-padding-bottom {
+  animation: changePaddingBottomAnimation 0.1s ease 0.2s forwards; /* Apply the animation with a 1-second delay */
+}
+
+.hide {
+  animation: hideAnimation 0.1s ease 0.2s forwards; /* Apply the animation with a 1-second delay */
 }
