@@ -5,7 +5,7 @@ const ButtonsView = () => {
   return (
     <div className="buttonView__container">
       <button>
-        <span class="material-symbols-rounded">play_arrow</span>
+        <span className="material-symbols-rounded">play_arrow</span>
       </button>
     </div>
   );
