@@ -1,0 +1,8 @@
+.stepitem__container {
+  border-bottom: 1px solid #e5e5e5;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin: 0 8px;
+  padding: 16px 0;
+}

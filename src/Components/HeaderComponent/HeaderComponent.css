@@ -1,9 +1,7 @@
-.buttonView__container {
-  margin: 12px;
+.header__container {
+  margin: 12px 0;
   width: fit-content;
   border-radius: var(--border-radius);
   /* gap: 12px; */
   display: flex;
-
-  box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px;
 }
