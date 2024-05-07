@@ -21,13 +21,13 @@ const createWindow = () => {
   });
 
   const view = new BrowserView();
-  win.setBrowserView(view);
+  // win.setBrowserView(view);
   updateViewBounds();
   // view.setBounds({ x: 960, y: 0, width: 960, height: 1080 });
   view.webContents.loadURL("https://www.katalon.com");
 
   // Open console on launch, comment out if dont need
-  view.webContents.openDevTools();
+  // view.webContents.openDevTools();
 
   // Inject javascript for event listeners
   view.webContents.on("dom-ready", () => {
@@ -144,7 +144,7 @@ const createWindow = () => {
   win.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  // win.webContents.openDevTools();
+  win.webContents.openDevTools();
 
   win.on("resize", updateViewBounds);
 

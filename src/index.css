@@ -13,10 +13,12 @@ body {
 }
 
 button {
+  display: flex;
+  justify-content: center;
   border: 0;
   border-radius: var(--border-radius);
   padding: 12px;
-  margin: 2px;
+  background-color: transparent;
 }
 
 .main__wrapper {
@@ -26,7 +28,9 @@ button {
 }
 
 .buttonView__wrapper {
-  background-color: aqua;
+  /* background-color: aqua; */
+  display: flex;
+  flex-direction: row-reverse;
 }
 .commands__wrapper {
   background-color: bisque;
