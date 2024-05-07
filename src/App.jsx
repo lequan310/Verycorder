@@ -5,7 +5,7 @@ const App = () => {
   return (
     <div className="main__wrapper">
       <div className="buttonView__wrapper">
-        <button>hello</button>
+        {/* <button>hello</button> */}
         <ButtonsView></ButtonsView>
       </div>
       <div className="commands__wrapper">Commands</div>

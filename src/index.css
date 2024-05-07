@@ -1,3 +1,7 @@
+:root {
+  --border-radius: 12px;
+}
+
 html {
   position: fixed;
   left: 0;
@@ -6,6 +10,13 @@ html {
 
 body {
   margin: 0;
+}
+
+button {
+  border: 0;
+  border-radius: var(--border-radius);
+  padding: 12px;
+  margin: 2px;
 }
 
 .main__wrapper {
