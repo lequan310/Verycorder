@@ -27,7 +27,7 @@ const createWindow = () => {
   view.webContents.loadURL("https://www.youtube.com");
 
   // Open console on launch, comment out if dont need
-  // view.webContents.openDevTools();
+  view.webContents.openDevTools();
 
   // Inject javascript for event listeners
   view.webContents.on("dom-ready", () => {
@@ -35,8 +35,8 @@ const createWindow = () => {
 
     // Execute JavaScript code in the context of the web page
     view.webContents.executeJavaScript(`
-      let target;
-      let click = false;
+      let currentEvent;
+      let click;
       let clickTimer;
       let scrollTimer;
 
@@ -49,41 +49,39 @@ const createWindow = () => {
       const mutationObserver = new MutationObserver((mutations) => {
         mutations.forEach((mutation) => {
           if (click) {
-            console.log('Clicked element:', target);
+            console.log('Clicked element:', currentEvent.target, ' | At coordinates:', currentEvent.clientX, currentEvent.clientY);
             click = false;
           }
         });
       });
       const config = { attributes: true, childList: true, subtree: true };
-
-      // Observer to detect changes in size of element
-      const resizeObserver = new ResizeObserver(entries => {
-        entries.forEach(entry => {
-
-        });
-      });
-
-      mutationObserver.observe(document, config);
-      // allElements.forEach(element => {
-      //   resizeObserver.observe(element);
-      // });
+      mutationObserver.observe(document.body, config);
 
       //------------------------------CLICK EVENTS-------------------------------
 
+      function isCursorPointer(event) {
+        const computedStyle = window.getComputedStyle(event.target);
+        return computedStyle.cursor === 'pointer';
+      }
+
       function registerClick(event) {
         click = true;
-        target = event.target;
-        clickTimer = setTimeout(function() {
-          click = false;
-        }, 100);
+        currentEvent = event;
+        // clickTimer = setTimeout(function() {
+        //   click = false;
+        // }, 100);
       }
 
       document.addEventListener('click', (event) => {
-        // Log the clicked element to the console
-        //var parentElement = event.target.parentElement;
+        // Check if the event is made by user
+        if (event.isTrusted) {
+          if (isCursorPointer(event)) {
+            console.log('Clicked element:', event.target, ' | At coordinates:', event.clientX, event.clientY);
+            return;
+          }
 
-        // console.log('Clicked element:', event.target);
-        registerClick(event);
+          registerClick(event);  
+        }
       }, true);
 
       //------------------------------SCROLL EVENTS-------------------------------
@@ -107,20 +105,20 @@ const createWindow = () => {
 
           // Set a timeout to detect scroll end
           scrollTimer = setTimeout(function() {
-            const scrollVerticalPercentage = (element.scrollTop / (element.scrollHeight - element.clientHeight)) * 100;
-            const scrollHorizontalPercentage = (element.scrollLeft / (element.scrollWidth - element.clientWidth)) * 100;
-            console.log('Scrolled element:', element, ' | Scroll amount:', scrollHorizontalPercentage, ' ', scrollVerticalPercentage);
+            console.log('Scrolled element:', element, ' | Scroll amount:', element.scrollLeft, ' ', element.scrollTop);
           }, 250); // Adjust the delay as needed
           });
       });
 
       //------------------------------INPUT EVENTS-------------------------------
 
-      
+
 
       //------------------------------HOVER EVENTS-------------------------------
 
-
+      document.addEventListener('mouseover', (event) => {
+        
+      }, true);
     `);
   });
 
@@ -131,7 +129,9 @@ const createWindow = () => {
       if (message.includes("Clicked element:")) {
         // Log the console message to the main process console
         var target = message.replace("Clicked element:", "");
-        console.log(`Click: ${target} \n`);
+        target = target.replace("At coordinates:", "")
+        var result = target.split("|");
+        console.log(`Click:${result[0]}Coordinates:${result[1]}\n`);
       }
 
       if (message.includes("Window scrolled:")) {
