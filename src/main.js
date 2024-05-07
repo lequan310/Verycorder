@@ -24,10 +24,10 @@ const createWindow = () => {
   win.setBrowserView(view);
   updateViewBounds();
   // view.setBounds({ x: 960, y: 0, width: 960, height: 1080 });
-  view.webContents.loadURL("https://youtube.com");
+  view.webContents.loadURL("https://www.youtube.com");
 
   // Open console on launch, comment out if dont need
-  // view.webContents.openDevTools();
+  view.webContents.openDevTools();
 
   // Inject javascript for event listeners
   view.webContents.on("dom-ready", () => {
@@ -35,14 +35,58 @@ const createWindow = () => {
 
     // Execute JavaScript code in the context of the web page
     view.webContents.executeJavaScript(`
-      //------------------------------CLICK EVENTS-------------------------------
-      document.addEventListener('click', (event) => {
-        // Log the clicked element to the console
-        console.log('Clicked element:', event.target);
+      let target;
+      let click = false;
+      let clickTimer;
+      let scrollTimer;
+
+      // Select all elements on the page
+      const allElements = document.querySelectorAll('*');
+
+      //-------------------------------OBSERVERS---------------------------------
+
+      // Observer to detect changes in element's attributes, child, and subtree
+      const mutationObserver = new MutationObserver((mutations) => {
+        mutations.forEach((mutation) => {
+          if (click) {
+            console.log('Clicked element:', target);
+            click = false;
+          }
+        });
+      });
+      const config = { attributes: true, childList: true, subtree: true };
+
+      // Observer to detect changes in size of element
+      const resizeObserver = new ResizeObserver(entries => {
+        entries.forEach(entry => {
+
+        });
       });
 
+      mutationObserver.observe(document, config);
+      // allElements.forEach(element => {
+      //   resizeObserver.observe(element);
+      // });
+
+      //------------------------------CLICK EVENTS-------------------------------
+
+      function registerClick(event) {
+        click = true;
+        target = event.target;
+        clickTimer = setTimeout(function() {
+          click = false;
+        }, 100);
+      }
+
+      document.addEventListener('click', (event) => {
+        // Log the clicked element to the console
+        //var parentElement = event.target.parentElement;
+
+        // console.log('Clicked element:', event.target);
+        registerClick(event);
+      }, true);
+
       //------------------------------SCROLL EVENTS-------------------------------
-      let scrollTimer;
 
       // Window (whole web) scroll events
       window.addEventListener('scroll', function(event) {
@@ -54,9 +98,6 @@ const createWindow = () => {
           console.log('Window scrolled:', window.scrollX, window.scrollY);
         }, 250); // Adjust the delay as needed
       });
-
-      // Select all elements on the page
-      const allElements = document.querySelectorAll('*');
 
       // Smaller element scroll events (navbar, div, etc.)
       allElements.forEach(function(element) {
@@ -72,6 +113,14 @@ const createWindow = () => {
           }, 250); // Adjust the delay as needed
           });
       });
+
+      //------------------------------INPUT EVENTS-------------------------------
+
+      
+
+      //------------------------------HOVER EVENTS-------------------------------
+
+
     `);
   });
 
@@ -102,6 +151,8 @@ const createWindow = () => {
     }
   );
 
+  // Disable menu bar
+  win.setMenu(null);
   // and load the index.html of the app.
   win.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
@@ -120,12 +171,12 @@ const updateViewBounds = () => {
     const bounds = win.getContentBounds();
     const view = win.getBrowserView();
     if (view) {
-      const { x, y, width } = bounds;
+      const { x, y, width, height } = bounds;
       view.setBounds({
         x: Math.floor(width / 2),
-        y: Math.floor(y - 72),
+        y: 0,
         width: Math.floor(width / 2),
-        height: Math.floor(bounds.height),
+        height: Math.floor(height),
       });
     }
   }
