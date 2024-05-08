@@ -133,11 +133,7 @@ const createWindow = () => {
           currentEvent = event;
         } else {
           // if new target is not child of current target
-          if (!currentEvent.target.contains(event.target)) {
-            hover = true;
-            // console.log('true');
-          }
-
+          hover = currentEvent.target.contains(event.target);
           currentEvent = event;  
         }
       }, true);
