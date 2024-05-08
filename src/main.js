@@ -37,11 +37,17 @@ const createWindow = () => {
     view.webContents.executeJavaScript(`
       let currentEvent;
       let click;
+      let hover;
       let clickTimer;
       let scrollTimer;
 
       // Select all elements on the page
       const allElements = document.querySelectorAll('*');
+
+      //-------------------------------UTILITY FUNCTIONS---------------------------------
+      // function differentElementGroup(current, new) {
+      //   return current.target !== new.target  && !new.target.contains(current.target) && new.target.textContent !== current.target.textContent;
+      // }
 
       //-------------------------------OBSERVERS---------------------------------
 
@@ -51,6 +57,11 @@ const createWindow = () => {
           if (click) {
             console.log('Clicked element:', currentEvent.target, ' | At coordinates:', currentEvent.clientX, currentEvent.clientY);
             click = false;
+            hover = false;
+          } 
+          else if (hover) {
+            console.log('Hover element:', currentEvent.target);
+            hover = false;
           }
         });
       });
@@ -72,7 +83,7 @@ const createWindow = () => {
         // }, 100);
       }
 
-      document.addEventListener('click', (event) => {
+      document.body.addEventListener('click', (event) => {
         // Check if the event is made by user
         if (event.isTrusted) {
           if (isCursorPointer(event)) {
@@ -116,8 +127,19 @@ const createWindow = () => {
 
       //------------------------------HOVER EVENTS-------------------------------
 
-      document.addEventListener('mouseover', (event) => {
-        
+      document.body.addEventListener('mouseover', (event) => {
+        if (!currentEvent) {
+          hover = true;
+          currentEvent = event;
+        } else {
+          // if new target is not child of current target
+          if (!currentEvent.target.contains(event.target)) {
+            hover = true;
+            // console.log('true');
+          }
+
+          currentEvent = event;  
+        }
       }, true);
     `);
   });
