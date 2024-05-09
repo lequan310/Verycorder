@@ -24,7 +24,7 @@ const createWindow = () => {
   win.setBrowserView(view);
   updateViewBounds();
   // view.setBounds({ x: 960, y: 0, width: 960, height: 1080 });
-  view.webContents.loadURL("https://www.youtube.com");
+  view.webContents.loadURL("https://www.reddit.com/r/HonkaiStarRail_leaks/");
 
   // Open console on launch, comment out if dont need
   view.webContents.openDevTools();
@@ -35,11 +35,13 @@ const createWindow = () => {
 
     // Execute JavaScript code in the context of the web page
     view.webContents.executeJavaScript(`
-      let currentEvent;
+      let currentEvent = document.body.querySelector('*');
+      let change = false;
       let click;
       let hover;
       let clickTimer;
       let scrollTimer;
+      let hoverTimer;
 
       // Select all elements on the page
       const allElements = document.querySelectorAll('*');
@@ -58,10 +60,8 @@ const createWindow = () => {
             console.log('Clicked element:', currentEvent.target, ' | At coordinates:', currentEvent.clientX, currentEvent.clientY);
             click = false;
             hover = false;
-          } 
-          else if (hover) {
-            console.log('Hover element:', currentEvent.target);
-            hover = false;
+          } else if (hover) {
+            change = true;
           }
         });
       });
@@ -128,14 +128,25 @@ const createWindow = () => {
       //------------------------------HOVER EVENTS-------------------------------
 
       document.body.addEventListener('mouseover', (event) => {
-        if (!currentEvent) {
-          hover = true;
+        hover = true;
+        clearTimeout(hoverTimer);
+
+        hoverTimer = setTimeout(function() {
+          // I hate edge cases
+          // if (isCursorPointer(event)) {
+          //   console.log("Hover element:", event.target);
+          //   return;
+          // }
+
+          // if new target is not parent of current target
+          hover = !event.target.contains(currentEvent.target) || event.target === currentEvent.target;
           currentEvent = event;
-        } else {
-          // if new target is not child of current target
-          hover = currentEvent.target.contains(event.target);
-          currentEvent = event;  
-        }
+
+          if (hover && change) {
+            change = false;
+            console.log("Hover element:", event.target);
+          }
+        }, 100);
       }, true);
     `);
   });
