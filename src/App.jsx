@@ -1,5 +1,10 @@
 import React, { useState } from "react";
-import { ControllerItem, HeaderComponent, StepsView } from "./Components";
+import {
+  ControllerItem,
+  HeaderComponent,
+  SearchBar,
+  StepsView,
+} from "./Components";
 import Logo from "./Assets/katalon_logo.svg";
 
 const App = () => {
@@ -12,6 +17,9 @@ const App = () => {
   };
   return (
     <div className="main__wrapper">
+      <div className="searchbar__wrapper">
+        <SearchBar />
+      </div>
       <div className="header__wrapper">
         {/* <button>hello</button> */}
         <img src={Logo} alt="React Logo" style={{ width: "100px" }} />

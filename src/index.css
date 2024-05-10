@@ -152,3 +152,10 @@ textarea {
 .hide {
   animation: hideAnimation 0.1s ease 0.2s forwards; /* Apply the animation with a 1-second delay */
 }
+
+.searchbar__wrapper {
+  position: fixed;
+  right: 0;
+  left: 50%;
+  height: 60px;
+}

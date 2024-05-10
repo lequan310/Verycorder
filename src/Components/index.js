@@ -2,3 +2,4 @@ export { default as HeaderComponent } from "./HeaderComponent/HeaderComponent.js
 export { default as StepsView } from "./StepsView/StepsView.jsx";
 export { default as StepItem } from "./StepsView/StepsItem/StepsItem.jsx";
 export { default as ControllerItem } from "./ControllerItem/ControllerItem.jsx";
+export { default as SearchBar } from "./SearchBar/SearchBar.jsx";

@@ -158,7 +158,7 @@ const createWindow = () => {
       if (message.includes("Clicked element:")) {
         // Log the console message to the main process console
         var target = message.replace("Clicked element:", "");
-        target = target.replace("At coordinates:", "")
+        target = target.replace("At coordinates:", "");
         var result = target.split("|");
         console.log(`Click:${result[0]}Coordinates:${result[1]}\n`);
       }
@@ -203,9 +203,9 @@ const updateViewBounds = () => {
       const { x, y, width, height } = bounds;
       view.setBounds({
         x: Math.floor(width / 2),
-        y: 0,
+        y: 60,
         width: Math.floor(width / 2),
-        height: Math.floor(height),
+        height: Math.floor(height - 60),
       });
     }
   }
