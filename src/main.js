@@ -1,4 +1,4 @@
-const { app, BrowserWindow, BrowserView } = require("electron");
+const { app, BrowserWindow, BrowserView, ipcMain } = require("electron");
 const path = require("node:path");
 const { INJECTION_SCRIPT } = require('./injectionScript')
 
@@ -8,7 +8,21 @@ if (require("electron-squirrel-startup")) {
 }
 
 let win;
+let view;
 let click;
+
+function isUrlValid(str) {
+  const pattern = new RegExp(
+    '^(https?:\\/\\/)?' + // protocol
+      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
+      '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR IP (v4) address
+      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
+      '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
+      '(\\#[-a-z\\d_]*)?$', // fragment locator
+    'i'
+  );
+  return pattern.test(str);
+} 
 
 const createWindow = () => {
   // Create the browser window.
@@ -21,7 +35,7 @@ const createWindow = () => {
     },
   });
 
-  const view = new BrowserView();
+  view = new BrowserView();
   win.setBrowserView(view);
   view.webContents.loadURL("https://www.youtube.com");
 
@@ -125,6 +139,35 @@ app.whenReady().then(() => {
       createWindow();
     }
   });
+
+  // Handle URL change in React
+  ipcMain.on('url-change', (event, arg) => {
+    // Check if URL is valid
+    if (isUrlValid(arg)) {
+      // Load URL
+      if (view) {
+        view.webContents.loadURL(arg);
+        event.returnValue = {
+          success: true,
+          message: 'Success'
+        };
+
+        return;
+      }
+
+      // Browser view error
+      event.returnValue = {
+        success: false,
+        message: 'Browser view error'
+      };
+    } else {
+      // Invalid URL
+      event.returnValue = {
+        success: false,
+        message: 'Invalid URL'
+      };
+    }
+  })
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
