@@ -1,13 +1,48 @@
-import React from 'react'
-import './index.css'
+import React, { useState } from "react";
+import {
+  ControllerItem,
+  HeaderComponent,
+  SearchBar,
+  StepsView,
+} from "./Components";
+import Logo from "./Assets/katalon_logo.svg";
 
 const App = () => {
-  return (
-    <div>
-      <h1>PLEASE WORK</h1>
-      <h2>YES IT WORKS</h2>
-    </div>
-  )
-}
+  const [shrink, setShrink] = useState(false);
 
-export default App
+  const handleButtonClick = () => {
+    setShrink((prev) => {
+      return !prev;
+    });
+  };
+  return (
+    <div className="main__wrapper">
+      <div className="searchbar__wrapper">
+        <SearchBar />
+      </div>
+      <div className="header__wrapper">
+        {/* <button>hello</button> */}
+        <img src={Logo} alt="React Logo" style={{ width: "100px" }} />
+        <HeaderComponent></HeaderComponent>
+      </div>
+      <div className="commands__wrapper">
+        <h3>Commands</h3>
+        <StepsView />
+      </div>
+      <div
+        className={`controllers__wrapper ${
+          shrink ? "shrink" + " change-padding-bottom" : "expand"
+        }`}
+      >
+        <button className="collapse_btn" onClick={handleButtonClick}>
+          {shrink ? "^ Expand" : " v Collapse"}
+        </button>
+        <ControllerItem hide={shrink ? "hide" : ""}></ControllerItem>
+        <ControllerItem hide={shrink ? "hide" : ""}></ControllerItem>
+        <textarea placeholder={"Comment"} />
+      </div>
+    </div>
+  );
+};
+
+export default App;
