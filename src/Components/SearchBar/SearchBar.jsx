@@ -11,7 +11,7 @@ const SearchBar = () => {
 
   return (
     <form className="form__wrapper" id="form" onSubmit={onSubmitHandler}>
-      <input type="text" name="search" id="search" />
+      <input type="text" name="search" id="search" placeholder="Enter URL here"/>
       <button type="submit" value="Submit" form="form" className="search_Btn">
         <span className="material-symbols-rounded">search</span>
       </button>
