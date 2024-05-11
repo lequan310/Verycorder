@@ -9,7 +9,6 @@ if (require("electron-squirrel-startup")) {
 
 let win;
 let view;
-let click;
 
 function isUrlValid(str) {
   const pattern = new RegExp(
@@ -22,7 +21,7 @@ function isUrlValid(str) {
     'i'
   );
   return pattern.test(str);
-} 
+}
 
 const createWindow = () => {
   // Create the browser window.
@@ -37,13 +36,13 @@ const createWindow = () => {
 
   view = new BrowserView();
   win.setBrowserView(view);
-  view.webContents.loadURL("https://www.youtube.com");
+  view.webContents.loadURL('https://hsr.hakush.in');
 
   // Open console on launch, comment out if dont need
   //view.webContents.openDevTools();
 
-  // Inject javascript for event listeners
-  view.webContents.on("dom-ready", () => {
+  // Inject javascript when navigate to a new web
+  view.webContents.on("did-navigate", (event, url) => {
     // Execute JavaScript code in the context of the web page
     view.webContents.executeJavaScript(INJECTION_SCRIPT);
   });
@@ -91,6 +90,8 @@ const createWindow = () => {
     }
   );
 
+  // Clear cache
+  win.webContents.session.clearCache();
   // Maximize app on launch
   win.maximize();
   // Update view bounds for the app
