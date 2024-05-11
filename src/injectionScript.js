@@ -23,6 +23,88 @@ function getElementWithoutChildren(element) {
   return element.cloneNode(false);
 }
 
+function getCssSelector(element) {
+  const selectorParts = [];
+  let currentElement = element;
+
+  while (currentElement) {
+    if (currentElement.id) {
+      // If the element has an ID, use it to construct the selector
+      selectorParts.unshift('#' + currentElement.id);
+      break; // Stop traversal since IDs are unique
+    } else if (currentElement.className) {
+      // If the element has a class, use it to construct the selector
+      const classes = currentElement.className.trim().split(/\\s+/);
+      const classSelector = classes.map(className => \`\\.\${className}\`).join('');
+      selectorParts.unshift(classSelector);
+    } else {
+      // Use the tag name for the selector
+      selectorParts.unshift(currentElement.tagName.toLowerCase());
+    }
+
+    // Move up to the parent node
+    currentElement = currentElement.parentElement;
+  }
+
+  return selectorParts.join(' > ');
+}
+
+// https://dev.to/abkarim/html-element-to-absolute-xpath-selector-javascript-4g82
+function getXPath(element) {
+  // Selector
+  let selector = '';
+  // Loop handler
+  let foundRoot;
+  // Element handler
+  let currentElement = element;
+
+  // Do action until we reach html element
+  do {
+    // Get element tag name 
+    const tagName = currentElement.tagName.toLowerCase();
+    // Get parent element
+    const parentElement = currentElement.parentElement;
+
+    // Count children
+    if (parentElement.childElementCount > 1) {
+      // Get children of parent element
+      const parentsChildren = [...parentElement.children];
+      // Count current tag 
+      let tag = [];
+      parentsChildren.forEach(child => {
+        if (child.tagName.toLowerCase() === tagName) tag.push(child) // Append to tag
+      })
+
+      // Is only of type
+      if (tag.length === 1) {
+        // Append tag to selector
+        selector = \`/\${tagName}\${selector}\`;
+      } else {
+        // Get position of current element in tag
+        const position = tag.indexOf(currentElement) + 1;
+        // Append tag to selector
+        selector = \`/\${tagName}[\${position}]\${selector}\`;
+      }
+
+    } else {
+      //* Current element has no siblings
+      // Append tag to selector
+      selector = \`/\${tagName}\${selector}\`;
+    }
+
+    // Set parent element to current element
+    currentElement = parentElement;
+    // Is root  
+    foundRoot = parentElement.tagName.toLowerCase() === 'html';
+    // Finish selector if found root element
+    if(foundRoot) selector = \`/html\${selector}\`;
+  }
+  while (foundRoot === false);
+
+  // Return selector
+  return selector;
+}
+
 //-------------------------------OBSERVERS---------------------------------
 
 // Observer to detect changes in element's attributes, child, and subtree
@@ -32,7 +114,8 @@ const mutationObserver = new MutationObserver((mutations) => {
       click = false;
       hover = false;
       change = false;
-      console.log('Clicked element:', getElementWithoutChildren(currentEvent.target).outerHTML, ' | At coordinates:', currentEvent.clientX, currentEvent.clientY);
+      //console.log('Clicked element:', getElementWithoutChildren(currentEvent.target).outerHTML, ' | At coordinates:', currentEvent.clientX, currentEvent.clientY);
+      console.log('Clicked element:', getCssSelector(currentEvent.target), ' | At coordinates:', currentEvent.clientX, currentEvent.clientY);
     } else if (hover) { // Support for hover event
       change = true;
       delay(500).then(() => change = false);
@@ -58,7 +141,8 @@ document.body.addEventListener('click', (event) => {
     currentEvent = event;
 
     if (isCursorPointer(event)) {
-      console.log('Clicked element:', getElementWithoutChildren(event.target).outerHTML, ' | At coordinates:', event.clientX, event.clientY);
+      //console.log('Clicked element:', getElementWithoutChildren(event.target).outerHTML, ' | At coordinates:', event.clientX, event.clientY);
+      console.log('Clicked element:', getCssSelector(event.target), ' | At coordinates:', event.clientX, event.clientY);
       return;
     }
 
@@ -87,7 +171,8 @@ document.addEventListener('scroll', function(event) {
 
   // Set a timeout to detect scroll end
   scrollTimer = setTimeout(function() {
-    console.log('Scrolled element:', getElementWithoutChildren(event.target).outerHTML, ' | Scroll amount:', element.scrollLeft, ' ', element.scrollTop);
+    //console.log('Scrolled element:', getElementWithoutChildren(event.target).outerHTML, ' | Scroll amount:', element.scrollLeft, ' ', element.scrollTop);
+    console.log('Scrolled element:', getCssSelector(event.target), ' | Scroll amount:', element.scrollLeft, ' ', element.scrollTop);
   }, TIMEOUT); // Adjust the delay as needed
 });
 
@@ -110,7 +195,8 @@ document.body.addEventListener('mouseenter', (event) => {
   // Check if target class name contains "hover" keyword (thanks tailwind or similar)
   if (typeof event.target.className === 'string' && event.target.className.includes('hover')) {
     hoverTimer = setTimeout(function() {
-      console.log("Hover element:", getElementWithoutChildren(event.target).outerHTML);
+      // console.log("Hover element:", getElementWithoutChildren(event.target).outerHTML);
+      console.log("Hover element:", getCssSelector(event.target));
       currentEvent = event;  
     }, TIMEOUT);
   } else {
@@ -125,7 +211,8 @@ document.body.addEventListener('mouseenter', (event) => {
         // If observer detect changes in DOM and styles, and mouse is hovering
         if (hover && change) {
           change = false;
-          console.log("Hover element:", getElementWithoutChildren(event.target).outerHTML);
+          // console.log("Hover element:", getElementWithoutChildren(event.target).outerHTML);
+          console.log("Hover element:", getCssSelector(event.target));
         }
       }, TIMEOUT);
     }
