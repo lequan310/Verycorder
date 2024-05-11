@@ -105,13 +105,15 @@ document.body.addEventListener('mouseenter', (event) => {
     return;
   }
 
+  clearTimeout(hoverTimer);
+
   // Check if target class name contains "hover" keyword (thanks tailwind or similar)
   if (typeof event.target.className === 'string' && event.target.className.includes('hover')) {
-    console.log("Hover element:", getElementWithoutChildren(event.target).outerHTML);
-    currentEvent = event;
+    hoverTimer = setTimeout(function() {
+      console.log("Hover element:", getElementWithoutChildren(event.target).outerHTML);
+      currentEvent = event;  
+    }, TIMEOUT);
   } else {
-    clearTimeout(hoverTimer);
-
     // Register hover only when pointer event (doesnt know if hover change styles or DOM)
     if (isCursorPointer(event)) {
       hover = true;
