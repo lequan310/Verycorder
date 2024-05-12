@@ -51,7 +51,7 @@ const createView = (url) => {
       if (message.includes("Window scrolled:")) {
         // Log the console message to the main process console
         var target = message.replace("Window scrolled:", "");
-        console.log(`Window scroll: ${target} `);
+        console.log(`Window scroll:${target}`);
         return;
       }
 
@@ -62,7 +62,7 @@ const createView = (url) => {
         target = target.replace("Scroll amount:", "");
         var result = target.split("|");
 
-        console.log(`Element scroll: ${result[0]} Amount: ${result[1]}\n`);
+        console.log(`Element scroll:${result[0]} Amount:${result[1]}\n`);
         return;
       }
 
@@ -70,7 +70,17 @@ const createView = (url) => {
       if (message.includes("Hover element:")) {
         // Log the console message to the main process console
         var target = message.replace("Hover element:", "");
-        console.log(`Hover element: ${target} `);
+        console.log(`Hover element:${target}\n`);
+        return;
+      }
+
+      // Input element detected
+      if (message.includes("Input element:")) {
+        // Log the console message to the main process console
+        var target = message.replace("Input element:", "");
+        target = target.replace("Value:", "");
+        var result = target.split("|");
+        console.log(`Input:${result[0]}Value:${result[1]}\n`);
         return;
       }
     }

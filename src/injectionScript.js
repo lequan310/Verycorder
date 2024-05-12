@@ -2,9 +2,11 @@
 const VARIABLES = `
   let currentEvent = document.createEvent('Event');
   let currentURL = window.location.href;
-  let change = false;
+  let focusElement;
+  let change = false; // Change observed by mutation observer
   let click = false;
   let hover = false;
+  let input = false;
 
   // Timing stuffs
   let clickTimer; // Timers so events won't register too fast
@@ -24,10 +26,15 @@ const UTILITIES = `
   function getElementWithoutChildren(element) {
     return element.cloneNode(false);
   }
+
+  // Check to see whether the current cursor is the required type (click, )
+  function isCursor(event, type) {
+    const computedStyle = window.getComputedStyle(event.target);
+    return computedStyle.cursor === type;
+  }
   
   // Function to get nth-value of class or tag
   function getNthIndex(element, value, isClass) {
-    console.log("Value: ", value);
     const parent = element.parentElement;
     var index = 1;
     var nthIndex = "";
@@ -171,24 +178,20 @@ const OBSERVERS = `
 
 // Script to handle click events
 const CLICK = `
-  // Check to see whether the current cursor is pointer
-  function isCursorPointer(event) {
-    const computedStyle = window.getComputedStyle(event.target);
-    return computedStyle.cursor === 'pointer';
-  }
-
-  document.body.addEventListener('click', (event) => {
+  document.addEventListener('click', (event) => {
     // Check if the event is made by user
     if (event.isTrusted) {
       currentEvent = event;
 
-      if (isCursorPointer(event)) {
+      // If pointer cursor or select element, return click event immediately
+      if (isCursor(event, 'pointer')) {
         console.log('Clicked element:', getCssSelector(event.target), ' | At coordinates:', event.clientX, event.clientY);
         return;
       }
 
       // Register click function called when not pointer cursor click, for observer to handle
       click = true;
+      delay(TIMEOUT).then(() => click = false);
     }
   }, true);
 `;
@@ -236,7 +239,7 @@ const HOVER = `
       hoverTimer1 = setTimeout(function() {
         console.log("Hover element:", getCssSelector(event.target));
       }, TIMEOUT);
-    } else if (isCursorPointer(event)) {
+    } else if (isCursor(event, 'pointer')) {
       // Register hover only when pointer event (doesnt know if hover change styles or DOM)
       clearTimeout(hoverTimer2);
   
@@ -257,7 +260,26 @@ const HOVER = `
 `;
 
 // Script to handle input events
-const INPUT = ``;
+const INPUT = `
+  // Handle focusing input (text or equivalent)
+  document.addEventListener('focus', function(event) {
+    if (isCursor(event, 'text') && click) {
+      click = false;
+      focusElement = event.target;
+      console.log('Clicked element:', getCssSelector(focusElement), ' | At coordinates:', currentEvent.clientX, currentEvent.clientY);
+    } else if (!click) { // Assume TAB key
+      focusElement = event.target;
+    }
+  }, true);
+
+  document.addEventListener('change', function(event) {
+    if (event.target === focusElement && focusElement.tagName.toLowerCase() !== 'select') {
+      console.log('Input element:', getCssSelector(event.target), ' | Value:', event.target.value);
+    } else if (event.target.tagName.toLowerCase() === 'select') {
+      console.log('Select element:', getCssSelector(event.target), ' | Value:', event.target.value);
+    }
+  }, true);
+`;
 
 function concatenateWithNewline(...strings) {
   return strings.join('\n');
