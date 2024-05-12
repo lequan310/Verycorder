@@ -23,6 +23,32 @@ function getElementWithoutChildren(element) {
   return element.cloneNode(false);
 }
 
+// Function to get nth-value of class or tag
+function getNthIndex(element, value, isClass) {
+  console.log("Value: ", value);
+  const parent = element.parentElement;
+  var index = 1;
+  var nthIndex = "";
+
+  if (parent) {
+    var child = isClass ? parent.getElementsByClassName(value) : parent.getElementsByTagName(value);
+    var converted = Array.from(child);
+    var filter = converted.filter(element => element.parentElement === parent);
+
+    if (filter.length > 1) {
+      for (let i = 0; i < filter.length; i++) {
+        if (filter[i] === element) break;
+        index++;
+      }
+
+      nthIndex = isClass ? ":nth-child(" : ":nth-of-type(";
+      nthIndex += index + ")";  
+    }
+  }
+
+  return nthIndex;
+}
+
 function getCssSelector(element) {
   const selectorParts = [];
   let currentElement = element;
@@ -34,12 +60,17 @@ function getCssSelector(element) {
       break; // Stop traversal since IDs are unique
     } else if (currentElement.className) {
       // If the element has a class, use it to construct the selector
-      const classes = currentElement.className.trim().split(/\\s+/);
+      const className = currentElement.className;
+      const classes = className.trim().split(/\\s+/);
       const classSelector = classes.map(className => \`\\.\${className}\`).join('');
-      selectorParts.unshift(classSelector);
+      const nthIndex = getNthIndex(currentElement, className, true);
+      selectorParts.unshift(classSelector + nthIndex);
     } else {
-      // Use the tag name for the selector
-      selectorParts.unshift(currentElement.tagName.toLowerCase());
+      // Use tag to construct the selector
+      const tag = currentElement.tagName.toLowerCase();
+      const parent = currentElement.parentElement;
+      const nthIndex = getNthIndex(currentElement, tag, false);
+      selectorParts.unshift(tag + nthIndex);
     }
 
     // Move up to the parent node
