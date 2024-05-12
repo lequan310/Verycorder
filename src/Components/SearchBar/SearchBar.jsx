@@ -1,4 +1,5 @@
 import React from "react";
+import { changeUrl } from '../../renderer.js';
 import "./SearchBar.css";
 
 const SearchBar = () => {
@@ -6,7 +7,8 @@ const SearchBar = () => {
     event.preventDefault();
     const formData = new FormData(event.target);
     const formValues = Object.fromEntries(formData.entries());
-    console.log(formValues.search);
+    const url = formValues.search;
+    changeUrl(url);
   }
 
   return (
