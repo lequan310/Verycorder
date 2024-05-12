@@ -1,4 +1,4 @@
-const { app, BrowserWindow, BrowserView, ipcMain } = require("electron");
+const { app, BrowserWindow, BrowserView, globalShortcut, ipcMain } = require("electron");
 const path = require("node:path");
 const { INJECTION_SCRIPT } = require('./injectionScript')
 
@@ -23,30 +23,16 @@ function isUrlValid(str) {
   return pattern.test(str);
 }
 
-const createWindow = () => {
-  // Create the browser window.
-  win = new BrowserWindow({
-    width: 1280,
-    height: 720,
-    webPreferences: {
-      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
-      nodeIntegration: false,
-    },
-  });
-
+const createView = (url) => {
   view = new BrowserView();
-  win.setBrowserView(view);
-  view.webContents.loadURL('https://hsr.hakush.in');
-
-  // Open console on launch, comment out if dont need
-  //view.webContents.openDevTools();
+  view.webContents.loadURL(url);
 
   // Inject javascript when navigate to a new web
   view.webContents.on("did-navigate", (event, url) => {
     // Execute JavaScript code in the context of the web page
     view.webContents.executeJavaScript(INJECTION_SCRIPT);
   });
-
+  
   // Track the web page console and retrieve our events
   view.webContents.on(
     "console-message",
@@ -89,7 +75,24 @@ const createWindow = () => {
       }
     }
   );
+}
 
+const createWindow = () => {
+  // Create the browser window.
+  win = new BrowserWindow({
+    width: 1280,
+    height: 720,
+    webPreferences: {
+      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      nodeIntegration: false,
+    },
+  });
+
+  createView('https://hsr.hakush.in');
+  win.setBrowserView(view);
+
+  // Clear cookies
+  //win.webContents.session.clearStorageData(['cookies']);
   // Clear cache
   win.webContents.session.clearCache();
   // Maximize app on launch
@@ -133,6 +136,11 @@ const updateViewBounds = () => {
 app.whenReady().then(() => {
   createWindow();
 
+  // Shortcut to toggle dev tools
+  globalShortcut.register('CommandOrControl+Shift+J', () => {
+    view.webContents.toggleDevTools();
+  });
+
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   app.on("activate", () => {
@@ -169,6 +177,11 @@ app.whenReady().then(() => {
       };
     }
   })
+});
+
+app.on('will-quit', () => {
+  // Unregister all shortcuts
+  globalShortcut.unregisterAll();
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common

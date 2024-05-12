@@ -190,32 +190,32 @@ document.body.addEventListener('mouseenter', (event) => {
     return;
   }
 
-  clearTimeout(hoverTimer);
-
   // Check if target class name contains "hover" keyword (thanks tailwind or similar)
   if (typeof event.target.className === 'string' && event.target.className.includes('hover')) {
+    clearTimeout(hoverTimer);
+    
     hoverTimer = setTimeout(function() {
       // console.log("Hover element:", getElementWithoutChildren(event.target).outerHTML);
       console.log("Hover element:", getCssSelector(event.target));
       currentEvent = event;  
     }, TIMEOUT);
-  } else {
+  } else if (isCursorPointer(event)) {
     // Register hover only when pointer event (doesnt know if hover change styles or DOM)
-    if (isCursorPointer(event)) {
-      hover = true;
-      hoverTimer = setTimeout(function() {
-        // if new target is not parent of current target
-        hover = !event.target.contains(currentEvent.target) || event.target === currentEvent.target;
-        currentEvent = event;
-      
-        // If observer detect changes in DOM and styles, and mouse is hovering
-        if (hover && change) {
-          change = false;
-          // console.log("Hover element:", getElementWithoutChildren(event.target).outerHTML);
-          console.log("Hover element:", getCssSelector(event.target));
-        }
-      }, TIMEOUT);
-    }
+    clearTimeout(hoverTimer);
+
+    hover = true;
+    hoverTimer = setTimeout(function() {
+      // if new target is not parent of current target
+      hover = !event.target.contains(currentEvent.target) || event.target === currentEvent.target;
+      currentEvent = event;
+    
+      // If observer detect changes in DOM and styles, and mouse is hovering
+      if (hover && change) {
+        change = false;
+        // console.log("Hover element:", getElementWithoutChildren(event.target).outerHTML);
+        console.log("Hover element:", getCssSelector(event.target));
+      }
+    }, TIMEOUT);
   }
 }, true);
 `
