@@ -88,7 +88,7 @@ const createWindow = () => {
     },
   });
 
-  createView('https://hsr.hakush.in');
+  createView('https://www.reddit.com/r/HonkaiStarRail_leaks/');
   win.setBrowserView(view);
 
   // Clear cookies

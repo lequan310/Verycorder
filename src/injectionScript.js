@@ -58,7 +58,7 @@ function getCssSelector(element) {
       // If the element has an ID, use it to construct the selector
       selectorParts.unshift('#' + currentElement.id);
       break; // Stop traversal since IDs are unique
-    } else if (currentElement.className) {
+    } else if (currentElement.className && typeof currentElement.className === 'string') {
       // If the element has a class, use it to construct the selector
       const className = currentElement.className;
       const classes = className.trim().split(/\\s+/);
@@ -228,7 +228,7 @@ document.body.addEventListener('mouseenter', (event) => {
     hoverTimer = setTimeout(function() {
       // console.log("Hover element:", getElementWithoutChildren(event.target).outerHTML);
       console.log("Hover element:", getCssSelector(event.target));
-      currentEvent = event;  
+      currentEvent = event;
     }, TIMEOUT);
   } else if (isCursorPointer(event)) {
     // Register hover only when pointer event (doesnt know if hover change styles or DOM)
