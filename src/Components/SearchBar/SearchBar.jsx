@@ -1,15 +1,21 @@
 import React from "react";
-import { changeUrl } from '../../renderer.js';
 import "./SearchBar.css";
 
 const SearchBar = () => {
+  // const ipcRenderer = window.api;
+  // const [searchValue, setSearchValue] = useState('');
+
   function onSubmitHandler(event) {
     event.preventDefault();
     const formData = new FormData(event.target);
     const formValues = Object.fromEntries(formData.entries());
     const url = formValues.search;
-    changeUrl(url);
-  }
+    window.api.sendSync(`url-change`,url);
+  } 
+  
+  window.api.on(`update-url`, (url) => {
+      document.getElementById('search').value = url;
+  });
 
   return (
     <form className="form__wrapper" id="form" onSubmit={onSubmitHandler}>
@@ -19,6 +25,7 @@ const SearchBar = () => {
       </button>
     </form>
   );
+  
 };
 
 export default SearchBar;

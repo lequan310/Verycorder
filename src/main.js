@@ -11,25 +11,18 @@ let win;
 let view;
 
 function isUrlValid(url) {
-  const filePattern = '^file:\/\/\/([a-zA-Z]:)?(\/[^\/:*?"<>|\r\n]*)+\/?$';
-  const urlPattern = '^((ftp|http|https):\/\/)?(www.)?(?!.*(ftp|http|https|www.))[a-zA-Z0-9_-]+(\.[a-zA-Z]+)+((\/)[\w#]+)*(\/\w+\?[a-zA-Z0-9_]+=\w+(&[a-zA-Z0-9_]+=\w+)*)?\/?$';
-
-  const combinePattern = new RegExp("(" + filePattern + ")|(" + urlPattern + ")", 'i')
-  return combinePattern.test(url);
+  return URL.canParse(url);
 }
 
 function handleUrlWithoutProtocol(url) {
-  const urlWithoutHttp = new RegExp('^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/[a-zA-Z0-9@:%._\+~#?&//=]*)?$', 'i');
-
-  const webProtocol = "http";
-  const filePrefix = "file:///";
-
-  const isPrefixFile = url.startsWith(filePrefix);
-  const isPrefixProtocol = url.startsWith(webProtocol);
-  const isRawUrl = urlWithoutHttp.test(url);
-  
-  if(!isPrefixFile && !isPrefixProtocol && isRawUrl) {
-    url = webProtocol.concat("://", url);
+  const isUrl = URL.canParse(url);
+  if(!isUrl) {
+    const urlWithoutHttp = new RegExp('^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/[a-zA-Z0-9@:%._\+~#?&//=]*)?$', 'i');
+    const isRawUrl = urlWithoutHttp.test(url);
+    
+    if(isRawUrl) {
+      url = `http://` + url;
+    }
   }
 
   return url;
@@ -57,6 +50,11 @@ const createWindow = () => {
   view.webContents.on("did-navigate", (event, url) => {
     // Execute JavaScript code in the context of the web page
     view.webContents.executeJavaScript(INJECTION_SCRIPT);
+    win.webContents.send('update-url', url);
+  });
+
+  view.webContents.on("did-navigate-in-page", (event, url) => {
+    win.webContents.send('update-url', url);
   });
 
   // Track the web page console and retrieve our events
@@ -155,33 +153,38 @@ app.whenReady().then(() => {
 
   // Handle URL change in React
   ipcMain.on('url-change', (event, url) => {
-    url = handleUrlWithoutProtocol(url);
-    // Check if URL is valid
-    if (isUrlValid(url)) {
-      // Load URL
+    url = handleUrlWithoutProtocol(url); // Assume this function properly formats the URL
+    if (isUrlValid(url)) { // Assume this function checks if the URL is properly formatted
       if (view) {
-        view.webContents.loadURL(url);
+        view.webContents.loadURL(url).then(() => {
+          // If loadURL succeeds
+          event.returnValue = {
+            success: true,
+            message: 'Success'
+          };
+        }).catch(error => {
+          // If loadURL fails
+          console.error(error);
+          event.returnValue = {
+            success: false,
+            message: 'Cannot connect to URL'
+          };
+        });
+      } else {
+        // If there is no browser view available
         event.returnValue = {
-          success: true,
-          message: 'Success'
+          success: false,
+          message: 'Browser view error'
         };
-
-        return;
       }
-
-      // Browser view error
-      event.returnValue = {
-        success: false,
-        message: 'Browser view error'
-      };
     } else {
-      // Invalid URL
+      // If the URL is invalid
       event.returnValue = {
         success: false,
         message: 'Invalid URL'
       };
     }
-  })
+  });
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
