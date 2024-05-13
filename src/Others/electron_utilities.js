@@ -29,7 +29,8 @@ function changeViewUrl(event, url, view) {
     }
   } else {
     // If the URL is invalid
-    console.log('failed');
+    console.log("failed");
+    view.webContents.loadURL("about:blank");
     event.returnValue = {
       success: false,
       message: "Invalid URL",
