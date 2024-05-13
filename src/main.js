@@ -1,4 +1,4 @@
-const { app, BrowserWindow, BrowserView, ipcMain } = require("electron");
+const { app, BrowserWindow, BrowserView, ipcMain, globalShortcut } = require("electron");
 const path = require("node:path");
 const { INJECTION_SCRIPT } = require('./injectionScript')
 
@@ -142,6 +142,10 @@ const updateViewBounds = () => {
 app.whenReady().then(() => {
   createWindow();
 
+  globalShortcut.register('CommandOrControl+Shift+J', () => {
+    view.webContents.toggleDevTools();
+  });
+
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   app.on("activate", () => {
@@ -184,6 +188,11 @@ app.whenReady().then(() => {
       };
     }
   });
+});
+
+app.on('will-quit', () => {
+  // Unregister all shortcuts
+  globalShortcut.unregisterAll();
 });
 
 // Quit when all windows are closed, except on macOS. There, it's common
