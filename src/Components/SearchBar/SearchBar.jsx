@@ -2,9 +2,6 @@ import React from "react";
 import "./SearchBar.css";
 
 const SearchBar = () => {
-  // const ipcRenderer = window.api;
-  // const [searchValue, setSearchValue] = useState('');
-
   function onSubmitHandler(event) {
     event.preventDefault();
     const formData = new FormData(event.target);

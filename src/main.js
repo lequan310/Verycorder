@@ -24,7 +24,6 @@ function handleUrlWithoutProtocol(url) {
       url = `http://` + url;
     }
   }
-
   return url;
 }
 
