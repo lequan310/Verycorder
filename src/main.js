@@ -63,7 +63,7 @@ const createWindow = () => {
   // win.webContents.openDevTools();
 
   // Handle resize app
-  win.on("resize", () => updateViewBounds(win));
+  win.on("resize", () => electron_utilities.updateViewBounds(win));
   // Handle window close
   win.on("closed", () => win = null);
 };
