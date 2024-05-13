@@ -81,6 +81,7 @@ textarea {
   display: flex;
   justify-content: space-between;
   padding: 0 16px;
+  margin-left: 12px;
 }
 .commands__wrapper {
   margin: 0 16px;
