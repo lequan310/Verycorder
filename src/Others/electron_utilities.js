@@ -29,6 +29,7 @@ function changeViewUrl(event, url, view) {
     }
   } else {
     // If the URL is invalid
+    console.log('failed');
     event.returnValue = {
       success: false,
       message: "Invalid URL",
