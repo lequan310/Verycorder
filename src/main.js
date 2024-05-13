@@ -1,6 +1,7 @@
 const { app, BrowserWindow, BrowserView, ipcMain, globalShortcut } = require("electron");
 const path = require("node:path");
-const { INJECTION_SCRIPT } = require('./injectionScript')
+const { INJECTION_SCRIPT } = require('./Others/injectionScript');
+const utilities = require('./Others/utilities');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -10,41 +11,10 @@ if (require("electron-squirrel-startup")) {
 let win;
 let view;
 
-function isUrlValid(url) {
-  return URL.canParse(url);
-}
-
-function handleUrlWithoutProtocol(url) {
-  const isUrl = URL.canParse(url);
-  if(!isUrl) {
-    const urlWithoutHttp = new RegExp('^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/[a-zA-Z0-9@:%._\+~#?&//=]*)?$', 'i');
-    const isRawUrl = urlWithoutHttp.test(url);
-    
-    if(isRawUrl) {
-      url = `http://` + url;
-    }
-  }
-  return url;
-}
-
-const createWindow = () => {
-  // Create the browser window.
-  win = new BrowserWindow({
-    width: 1280,
-    height: 720,
-    webPreferences: {
-      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
-      nodeIntegration: false,
-    },
-  });
-
+// Function to create the web view to load webs
+function createBrowserView() {
   view = new BrowserView();
-  win.setBrowserView(view);
-  // view.webContents.loadURL('https://hsr.hakush.in');
-
-  // Open console on launch, comment out if dont need
-  view.webContents.openDevTools();
-
+  
   // Inject javascript when navigate to a new web
   view.webContents.on("did-navigate", (event, url) => {
     // Execute JavaScript code in the context of the web page
@@ -60,54 +30,69 @@ const createWindow = () => {
   view.webContents.on(
     "console-message",
     (event, level, message, line, sourceId) => {
-      // Click element detected
-      if (message.includes("Clicked element:")) {
-        // Log the console message to the main process console
-        var target = message.replace("Clicked element:", "");
-        target = target.replace("At coordinates:", "");
-        var result = target.split("|");
-        console.log(`Click:${result[0]}Coordinates:${result[1]}\n`);
-        return;
-      }
-
-      // Window scroll detected
-      if (message.includes("Window scrolled:")) {
-        // Log the console message to the main process console
-        var target = message.replace("Window scrolled:", "");
-        console.log(`Window scroll:${target}`);
-        return;
-      }
-
-      // Element scroll detected
-      if (message.includes("Scrolled element:")) {
-        // Log the console message to the main process console
-        var target = message.replace("Scrolled element:", "");
-        target = target.replace("Scroll amount:", "");
-        var result = target.split("|");
-
-        console.log(`Element scroll:${result[0]} Amount:${result[1]}\n`);
-        return;
-      }
-
-      // Hover element detected
-      if (message.includes("Hover element:")) {
-        // Log the console message to the main process console
-        var target = message.replace("Hover element:", "");
-        console.log(`Hover element:${target}\n`);
-        return;
-      }
-
-      // Input element detected
-      if (message.includes("Input element:")) {
-        // Log the console message to the main process console
-        var target = message.replace("Input element:", "");
-        target = target.replace("Value:", "");
-        var result = target.split("|");
-        console.log(`Input:${result[0]}Value:${result[1]}\n`);
-        return;
-      }
+    // Click element detected
+    if (message.includes("Clicked element:")) {
+      // Log the console message to the main process console
+      var target = message.replace("Clicked element:", "");
+      target = target.replace("At coordinates:", "");
+      var result = target.split("|");
+      console.log(`Click:${result[0]}Coordinates:${result[1]}\n`);
+      return;
     }
-  );
+
+    // Window scroll detected
+    if (message.includes("Window scrolled:")) {
+      // Log the console message to the main process console
+      var target = message.replace("Window scrolled:", "");
+      console.log(`Window scroll:${target}`);
+      return;
+    }
+
+    // Element scroll detected
+    if (message.includes("Scrolled element:")) {
+      // Log the console message to the main process console
+      var target = message.replace("Scrolled element:", "");
+      target = target.replace("Scroll amount:", "");
+      var result = target.split("|");
+
+      console.log(`Element scroll:${result[0]} Amount:${result[1]}\n`);
+      return;
+    }
+
+    // Hover element detected
+    if (message.includes("Hover element:")) {
+      // Log the console message to the main process console
+      var target = message.replace("Hover element:", "");
+      console.log(`Hover element:${target}\n`);
+      return;
+    }
+
+    // Input element detected
+    if (message.includes("Input element:")) {
+      // Log the console message to the main process console
+      var target = message.replace("Input element:", "");
+      target = target.replace("Value:", "");
+      var result = target.split("|");
+      console.log(`Input:${result[0]}Value:${result[1]}\n`);
+      return;
+    }
+  });
+}
+
+// Function to create the desktop app and load UI, etc.
+const createWindow = () => {
+  // Create the browser window.
+  win = new BrowserWindow({
+    width: 1280,
+    height: 720,
+    webPreferences: {
+      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      nodeIntegration: false,
+    },
+  });
+
+  createBrowserView();
+  win.setBrowserView(view);
 
   // Clear cache
   win.webContents.session.clearCache();
@@ -130,6 +115,7 @@ const createWindow = () => {
   });
 };
 
+// Update size and location of browser view
 const updateViewBounds = () => {
   if (win) {
     const bounds = win.getContentBounds();
@@ -166,8 +152,8 @@ app.whenReady().then(() => {
 
   // Handle URL change in React
   ipcMain.on('url-change', (event, url) => {
-    url = handleUrlWithoutProtocol(url); // Assume this function properly formats the URL
-    if (isUrlValid(url)) { // Assume this function checks if the URL is properly formatted
+    url = utilities.handleUrlWithoutProtocol(url); // Assume this function properly formats the URL
+    if (utilities.isUrlValid(url)) { // Assume this function checks if the URL is properly formatted
       if (view) {
         view.webContents.loadURL(url).then(() => {
           // If loadURL succeeds
