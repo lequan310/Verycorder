@@ -2,6 +2,7 @@ const { app, BrowserWindow, BrowserView, ipcMain, globalShortcut } = require("el
 const path = require("node:path");
 const { INJECTION_SCRIPT } = require('./Others/injectionScript');
 const utilities = require('./Others/utilities');
+const electron_utilities = require('./Others/electron_utilities');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -27,55 +28,8 @@ function createBrowserView() {
   });
 
   // Track the web page console and retrieve our events
-  view.webContents.on(
-    "console-message",
-    (event, level, message, line, sourceId) => {
-    // Click element detected
-    if (message.includes("Clicked element:")) {
-      // Log the console message to the main process console
-      var target = message.replace("Clicked element:", "");
-      target = target.replace("At coordinates:", "");
-      var result = target.split("|");
-      console.log(`Click:${result[0]}Coordinates:${result[1]}\n`);
-      return;
-    }
-
-    // Window scroll detected
-    if (message.includes("Window scrolled:")) {
-      // Log the console message to the main process console
-      var target = message.replace("Window scrolled:", "");
-      console.log(`Window scroll:${target}`);
-      return;
-    }
-
-    // Element scroll detected
-    if (message.includes("Scrolled element:")) {
-      // Log the console message to the main process console
-      var target = message.replace("Scrolled element:", "");
-      target = target.replace("Scroll amount:", "");
-      var result = target.split("|");
-
-      console.log(`Element scroll:${result[0]} Amount:${result[1]}\n`);
-      return;
-    }
-
-    // Hover element detected
-    if (message.includes("Hover element:")) {
-      // Log the console message to the main process console
-      var target = message.replace("Hover element:", "");
-      console.log(`Hover element:${target}\n`);
-      return;
-    }
-
-    // Input element detected
-    if (message.includes("Input element:")) {
-      // Log the console message to the main process console
-      var target = message.replace("Input element:", "");
-      target = target.replace("Value:", "");
-      var result = target.split("|");
-      console.log(`Input:${result[0]}Value:${result[1]}\n`);
-      return;
-    }
+  view.webContents.on("console-message", (event, level, message, line, sourceId) => {
+    electron_utilities.handleMessage(message);
   });
 }
 
@@ -153,38 +107,11 @@ app.whenReady().then(() => {
   // Handle URL change in React
   ipcMain.on('url-change', (event, url) => {
     url = utilities.handleUrl(url); // Assume this function properly formats the URL
-    if (url) { // Assume this function checks if the URL is properly formatted
-      if (view) {
-        view.webContents.loadURL(url).then(() => {
-          // If loadURL succeeds
-          event.returnValue = {
-            success: true,
-            message: 'Success'
-          };
-        }).catch(error => {
-          // If loadURL fails
-          console.error(error);
-          event.returnValue = {
-            success: false,
-            message: 'Cannot connect to URL'
-          };
-        });
-      } else {
-        // If there is no browser view available
-        event.returnValue = {
-          success: false,
-          message: 'Browser view error'
-        };
-      }
-    } else {
-      // If the URL is invalid
-      event.returnValue = {
-        success: false,
-        message: 'Invalid URL'
-      };
-    }
+    electron_utilities.changeViewUrl(event, url, view);
   });
 });
+
+
 
 app.on('will-quit', () => {
   // Unregister all shortcuts

@@ -1,0 +1,104 @@
+function changeViewUrl(event, url, view) {
+    if (url) { // Assume this function checks if the URL is properly formatted
+      if (view) {
+        view.webContents.loadURL(url).then(() => {
+          // If loadURL succeeds
+          event.returnValue = {
+            success: true,
+            message: 'Success'
+          };
+        }).catch(error => {
+          // If loadURL fails
+          console.error(error);
+          event.returnValue = {
+            success: false,
+            message: 'Cannot connect to URL'
+          };
+        });
+      } else {
+        // If there is no browser view available
+        event.returnValue = {
+          success: false,
+          message: 'Browser view error'
+        };
+      }
+    } else {
+      // If the URL is invalid
+      event.returnValue = {
+        success: false,
+        message: 'Invalid URL'
+      };
+    }
+}
+
+function handleMessage(message) {
+    if (message.includes("Clicked element:")) {
+        printClickedElement(message);
+        return;
+    }
+  
+      // Window scroll detected
+    if (message.includes("Window scrolled:")) {
+        printWindowScroll(message);
+        return;
+    }
+  
+      // Element scroll detected
+    if (message.includes("Scrolled element:")) {
+        printScrolledElement(message);
+        return;
+    }
+  
+      // Hover element detected
+    if (message.includes("Hover element:")) {
+        printHoverElement(message);
+        return;
+    }
+  
+      // Input element detected
+    if (message.includes("Input element:")) {
+        printInputElement(message);
+        return;
+    }
+}
+
+function printClickedElement(message) {
+    var target = message.replace("Clicked element:", "");
+    target = target.replace("At coordinates:", "");
+    var result = target.split("|");
+
+    console.log(`Click:${result[0]}Coordinates:${result[1]}\n`);
+}
+
+function printWindowScroll(message) {
+    var target = message.replace("Window scrolled:", "");
+
+    console.log(`Window scroll:${target}`);
+}
+
+function printScrolledElement(message) {
+    var target = message.replace("Scrolled element:", "");
+    target = target.replace("Scroll amount:", "");
+    var result = target.split("|");
+
+    console.log(`Element scroll:${result[0]} Amount:${result[1]}\n`);
+}
+
+function printHoverElement(message){
+    var target = message.replace("Hover element:", "");
+
+    console.log(`Hover element:${target}\n`);
+}
+
+function printInputElement(message) {
+    var target = message.replace("Input element:", "");
+    target = target.replace("Value:", "");
+    var result = target.split("|");
+
+    console.log(`Input:${result[0]}Value:${result[1]}\n`);
+}
+
+module.exports = {
+    changeViewUrl,
+    handleMessage
+}
