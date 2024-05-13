@@ -53,7 +53,7 @@ const createWindow = () => {
   // Maximize app on launch
   win.maximize();
   // Update view bounds for the app
-  updateViewBounds();
+  electron_utilities.updateViewBounds(win);
   // Disable menu bar
   win.setMenu(null);
   // and load the index.html of the app.
@@ -62,28 +62,10 @@ const createWindow = () => {
   // Open the DevTools.
   // win.webContents.openDevTools();
 
-  win.on("resize", updateViewBounds);
-
-  win.on("closed", () => {
-    win = null;
-  });
-};
-
-// Update size and location of browser view
-const updateViewBounds = () => {
-  if (win) {
-    const bounds = win.getContentBounds();
-    const view = win.getBrowserView();
-    if (view) {
-      const { x, y, width, height } = bounds;
-      view.setBounds({
-        x: Math.floor(width / 2),
-        y: 60,
-        width: Math.floor(width / 2),
-        height: Math.floor(height - 60),
-      });
-    }
-  }
+  // Handle resize app
+  win.on("resize", () => updateViewBounds(win));
+  // Handle window close
+  win.on("closed", () => win = null);
 };
 
 // This method will be called when Electron has finished
@@ -110,8 +92,6 @@ app.whenReady().then(() => {
     electron_utilities.changeViewUrl(event, url, view);
   });
 });
-
-
 
 app.on('will-quit', () => {
   // Unregister all shortcuts

@@ -11,8 +11,6 @@ function handleUrl(url) {
     return null;
 }
 
-
-
 module.exports = {
     handleUrl
 }

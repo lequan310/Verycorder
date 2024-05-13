@@ -216,9 +216,9 @@ const SCROLL = `
 
     // Set a timeout to detect scroll end
     scrollTimer = setTimeout(function() {
-      console.log('Scrolled element:', getCssSelector(event.target), ' | Scroll amount:', element.scrollLeft, ' ', element.scrollTop);
+      console.log('Scrolled element:', getCssSelector(event.target), ' | Scroll amount:', event.target.scrollLeft, ' ', event.target.scrollTop);
     }, TIMEOUT); // Adjust the delay as needed
-  });
+  }, true);
 `;
 
 // Script to handle hover events
