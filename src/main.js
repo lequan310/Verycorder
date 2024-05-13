@@ -1,4 +1,4 @@
-const { app, BrowserWindow, BrowserView, globalShortcut, ipcMain } = require("electron");
+const { app, BrowserWindow, BrowserView, ipcMain, globalShortcut } = require("electron");
 const path = require("node:path");
 const { INJECTION_SCRIPT } = require('./injectionScript')
 
@@ -10,29 +10,52 @@ if (require("electron-squirrel-startup")) {
 let win;
 let view;
 
-function isUrlValid(str) {
-  const pattern = new RegExp(
-    '^(https?:\\/\\/)?' + // protocol
-      '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' + // domain name
-      '((\\d{1,3}\\.){3}\\d{1,3}))' + // OR IP (v4) address
-      '(\\:\\d+)?(\\/[-a-z\\d%_.~+]*)*' + // port and path
-      '(\\?[;&a-z\\d%_.~+=-]*)?' + // query string
-      '(\\#[-a-z\\d_]*)?$', // fragment locator
-    'i'
-  );
-  return pattern.test(str);
+function isUrlValid(url) {
+  return URL.canParse(url);
 }
 
-const createView = (url) => {
+function handleUrlWithoutProtocol(url) {
+  const isUrl = URL.canParse(url);
+  if(!isUrl) {
+    const urlWithoutHttp = new RegExp('^[a-zA-Z0-9-]+\.[a-zA-Z]{2,}(\/[a-zA-Z0-9@:%._\+~#?&//=]*)?$', 'i');
+    const isRawUrl = urlWithoutHttp.test(url);
+    
+    if(isRawUrl) {
+      url = `http://` + url;
+    }
+  }
+  return url;
+}
+
+const createWindow = () => {
+  // Create the browser window.
+  win = new BrowserWindow({
+    width: 1280,
+    height: 720,
+    webPreferences: {
+      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
+      nodeIntegration: false,
+    },
+  });
+
   view = new BrowserView();
-  view.webContents.loadURL(url);
+  win.setBrowserView(view);
+  // view.webContents.loadURL('https://hsr.hakush.in');
+
+  // Open console on launch, comment out if dont need
+  view.webContents.openDevTools();
 
   // Inject javascript when navigate to a new web
   view.webContents.on("did-navigate", (event, url) => {
     // Execute JavaScript code in the context of the web page
     view.webContents.executeJavaScript(INJECTION_SCRIPT);
+    win.webContents.send('update-url', url);
   });
-  
+
+  view.webContents.on("did-navigate-in-page", (event, url) => {
+    win.webContents.send('update-url', url);
+  });
+
   // Track the web page console and retrieve our events
   view.webContents.on(
     "console-message",
@@ -85,24 +108,7 @@ const createView = (url) => {
       }
     }
   );
-}
 
-const createWindow = () => {
-  // Create the browser window.
-  win = new BrowserWindow({
-    width: 1280,
-    height: 720,
-    webPreferences: {
-      preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
-      nodeIntegration: false,
-    },
-  });
-
-  createView('https://hsr.hakush.in');
-  win.setBrowserView(view);
-
-  // Clear cookies
-  //win.webContents.session.clearStorageData(['cookies']);
   // Clear cache
   win.webContents.session.clearCache();
   // Maximize app on launch
@@ -146,7 +152,6 @@ const updateViewBounds = () => {
 app.whenReady().then(() => {
   createWindow();
 
-  // Shortcut to toggle dev tools
   globalShortcut.register('CommandOrControl+Shift+J', () => {
     view.webContents.toggleDevTools();
   });
@@ -160,33 +165,39 @@ app.whenReady().then(() => {
   });
 
   // Handle URL change in React
-  ipcMain.on('url-change', (event, arg) => {
-    // Check if URL is valid
-    if (isUrlValid(arg)) {
-      // Load URL
+  ipcMain.on('url-change', (event, url) => {
+    url = handleUrlWithoutProtocol(url); // Assume this function properly formats the URL
+    if (isUrlValid(url)) { // Assume this function checks if the URL is properly formatted
       if (view) {
-        view.webContents.loadURL(arg);
+        view.webContents.loadURL(url).then(() => {
+          // If loadURL succeeds
+          event.returnValue = {
+            success: true,
+            message: 'Success'
+          };
+        }).catch(error => {
+          // If loadURL fails
+          console.error(error);
+          event.returnValue = {
+            success: false,
+            message: 'Cannot connect to URL'
+          };
+        });
+      } else {
+        // If there is no browser view available
         event.returnValue = {
-          success: true,
-          message: 'Success'
+          success: false,
+          message: 'Browser view error'
         };
-
-        return;
       }
-
-      // Browser view error
-      event.returnValue = {
-        success: false,
-        message: 'Browser view error'
-      };
     } else {
-      // Invalid URL
+      // If the URL is invalid
       event.returnValue = {
         success: false,
         message: 'Invalid URL'
       };
     }
-  })
+  });
 });
 
 app.on('will-quit', () => {
