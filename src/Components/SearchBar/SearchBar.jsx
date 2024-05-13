@@ -1,9 +1,7 @@
 import React, { useState } from "react";
 import "./SearchBar.css";
-import { handleUrl } from "../../Others/utilities";
 
 const SearchBar = ({ response }) => {
-  const [prevSearchValue, setPrevSearchValue] = useState("");
   const [searchValue, setSearchValue] = useState("");
 
   // URL change in browser view
@@ -13,20 +11,20 @@ const SearchBar = ({ response }) => {
       checkUrl = searchValue;
     }
     setSearchValue(checkUrl);
-    setPrevSearchValue(checkUrl);
   });
 
-  const onSubmitHandler = (event) => {
+  const onSubmitHandler = async (event) => {
     event.preventDefault();
-    const formData = new FormData(event.target);
-    const formValues = Object.fromEntries(formData.entries());
-    let url = formValues.search.trim();
+    let url = searchValue.trim();
+
+    // Invoke url-change event if url is not empty
     if (!url == "") {
-      const responseObject = window.api.sendSync(`url-change`, url); // Response = object { success, message}
-      response(responseObject);
-    } else {
-      console.log("else");
-      setSearchValue(prevSearchValue);
+      window.api.invoke(`url-change`, url) // Response = object { success, message}
+      .then((responseObject) => {
+        response(responseObject);
+      }).catch((error) => {
+        console.log(error);
+      });
     }
   };
 

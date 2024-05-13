@@ -70,7 +70,7 @@ const createWindow = () => {
   win.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  // win.webContents.openDevTools();
+  win.webContents.openDevTools();
 
   // Handle resize app
   win.on("resize", () => electron_utilities.updateViewBounds(win));
@@ -97,9 +97,9 @@ app.whenReady().then(() => {
   });
 
   // Handle URL change in React
-  ipcMain.on("url-change", (event, url) => {
+  ipcMain.handle("url-change", async (event, url) => {
     url = utilities.handleUrl(url); // Assume this function properly formats the URL
-    electron_utilities.changeViewUrl(event, url, view);
+    return electron_utilities.changeViewUrl(event, url, view);
   });
 });
 

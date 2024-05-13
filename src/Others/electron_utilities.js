@@ -3,26 +3,24 @@ function changeViewUrl(event, url, view) {
   if (url) {
     // Assume this function checks if the URL is properly formatted
     if (view) {
-      view.webContents
-        .loadURL(url)
+      return view.webContents.loadURL(url)
         .then(() => {
           // If loadURL succeeds
-          event.returnValue = {
+          return {
             success: true,
             message: "Success",
           };
-        })
-        .catch((error) => {
+        }).catch((error) => {
           // If loadURL fails
-          event.returnValue = {
+          view.webContents.loadURL("about:blank");
+          return {
             success: false,
             message: "Cannot connect to URL",
           };
-          view.webContents.loadURL("about:blank");
         });
     } else {
       // If there is no browser view available
-      event.returnValue = {
+      return {
         success: false,
         message: "Browser view error",
       };
@@ -31,7 +29,7 @@ function changeViewUrl(event, url, view) {
     // If the URL is invalid
     console.log("failed");
     view.webContents.loadURL("about:blank");
-    event.returnValue = {
+    return {
       success: false,
       message: "Invalid URL",
     };
