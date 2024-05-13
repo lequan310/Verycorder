@@ -152,8 +152,8 @@ app.whenReady().then(() => {
 
   // Handle URL change in React
   ipcMain.on('url-change', (event, url) => {
-    url = utilities.handleUrlWithoutProtocol(url); // Assume this function properly formats the URL
-    if (utilities.isUrlValid(url)) { // Assume this function checks if the URL is properly formatted
+    url = utilities.handleUrl(url); // Assume this function properly formats the URL
+    if (url) { // Assume this function checks if the URL is properly formatted
       if (view) {
         view.webContents.loadURL(url).then(() => {
           // If loadURL succeeds
