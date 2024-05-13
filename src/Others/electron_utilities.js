@@ -1,32 +1,37 @@
-// Load new URL on browser when user enter new URL via search bar 
+// Load new URL on browser when user enter new URL via search bar
 function changeViewUrl(event, url, view) {
-  if (url) { // Assume this function checks if the URL is properly formatted
+  if (url) {
+    // Assume this function checks if the URL is properly formatted
     if (view) {
-      view.webContents.loadURL(url).then(() => {
-        // If loadURL succeeds
-        event.returnValue = {
-          success: true,
-          message: 'Success'
-        };
-      }).catch(error => {
-        // If loadURL fails
-        event.returnValue = {
-          success: false,
-          message: 'Cannot connect to URL'
-        };
-      });
+      view.webContents
+        .loadURL(url)
+        .then(() => {
+          // If loadURL succeeds
+          event.returnValue = {
+            success: true,
+            message: "Success",
+          };
+        })
+        .catch((error) => {
+          // If loadURL fails
+          event.returnValue = {
+            success: false,
+            message: "Cannot connect to URL",
+          };
+          view.webContents.loadURL("about:blank");
+        });
     } else {
       // If there is no browser view available
       event.returnValue = {
         success: false,
-        message: 'Browser view error'
+        message: "Browser view error",
       };
     }
   } else {
     // If the URL is invalid
     event.returnValue = {
       success: false,
-      message: 'Invalid URL'
+      message: "Invalid URL",
     };
   }
 }
@@ -46,7 +51,7 @@ function updateViewBounds(win) {
       });
     }
   }
-};
+}
 
 function handleMessage(message) {
   if (message.includes("Clicked element:")) {
@@ -54,25 +59,25 @@ function handleMessage(message) {
     return;
   }
 
-    // Window scroll detected
+  // Window scroll detected
   if (message.includes("Window scrolled:")) {
     printWindowScroll(message);
     return;
   }
 
-    // Element scroll detected
+  // Element scroll detected
   if (message.includes("Scrolled element:")) {
     printScrolledElement(message);
     return;
   }
 
-    // Hover element detected
+  // Hover element detected
   if (message.includes("Hover element:")) {
     printHoverElement(message);
     return;
   }
 
-    // Input element detected
+  // Input element detected
   if (message.includes("Input element:")) {
     printInputElement(message);
     return;
@@ -101,7 +106,7 @@ function printScrolledElement(message) {
   console.log(`Element scroll:${result[0]} Amount:${result[1]}\n`);
 }
 
-function printHoverElement(message){
+function printHoverElement(message) {
   var target = message.replace("Hover element:", "");
 
   console.log(`Hover element:${target}\n`);
@@ -118,5 +123,5 @@ function printInputElement(message) {
 module.exports = {
   changeViewUrl,
   handleMessage,
-  updateViewBounds
-}
+  updateViewBounds,
+};
