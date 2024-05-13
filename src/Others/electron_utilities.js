@@ -1,3 +1,4 @@
+// Load new URL on browser when user enter new URL via search bar 
 function changeViewUrl(event, url, view) {
   if (url) { // Assume this function checks if the URL is properly formatted
     if (view) {
@@ -9,7 +10,6 @@ function changeViewUrl(event, url, view) {
         };
       }).catch(error => {
         // If loadURL fails
-        console.error(error);
         event.returnValue = {
           success: false,
           message: 'Cannot connect to URL'
