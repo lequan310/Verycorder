@@ -70,7 +70,7 @@ const createWindow = () => {
   win.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  win.webContents.openDevTools();
+  // win.webContents.openDevTools();
 
   // Handle resize app
   win.on("resize", () => electron_utilities.updateViewBounds(win));
