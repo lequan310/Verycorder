@@ -90,7 +90,9 @@ textarea {
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   flex: 1;
+  overflow: scroll;
 }
+
 .controllers__wrapper {
   overflow: hidden;
   -webkit-transition: max-height 0.3s;

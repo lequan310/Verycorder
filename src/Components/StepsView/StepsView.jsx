@@ -7,6 +7,20 @@ const StepsView = () => {
     <div className="stepview__container">
       <StepItem />
       <StepItem />
+      <StepItem />
+      <StepItem />
+      <StepItem />
+      <StepItem />
+      <StepItem />
+      <StepItem />
+      <StepItem />
+      <StepItem />
+      <StepItem />
+      <StepItem />
+      <StepItem />
+      <StepItem />
+      <StepItem />
+      <StepItem />
     </div>
   );
 };
