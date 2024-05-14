@@ -91,7 +91,8 @@ textarea {
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   flex: 1;
-  overflow: scroll;
+  overflow-x: hidden;
+  overflow-y: scroll;
 }
 
 .controllers__wrapper {
