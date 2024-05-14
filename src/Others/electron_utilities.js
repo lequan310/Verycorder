@@ -3,14 +3,16 @@ function changeViewUrl(event, url, view) {
   if (url) {
     // Assume this function checks if the URL is properly formatted
     if (view) {
-      return view.webContents.loadURL(url)
+      return view.webContents
+        .loadURL(url)
         .then(() => {
           // If loadURL succeeds
           return {
             success: true,
             message: "Success",
           };
-        }).catch((error) => {
+        })
+        .catch((error) => {
           // If loadURL fails
           view.webContents.loadURL("about:blank");
           return {
@@ -45,9 +47,9 @@ function updateViewBounds(win) {
       const { x, y, width, height } = bounds;
       view.setBounds({
         x: Math.floor(width / 2),
-        y: 60,
-        width: Math.floor(width / 2),
-        height: Math.floor(height - 60),
+        y: 70,
+        width: Math.floor(width / 2 - 12),
+        height: Math.floor(height - 70 - 12),
       });
     }
   }

@@ -1,16 +1,17 @@
 .form__wrapper {
+  margin-top: 6px;
   display: flex;
   flex-direction: row;
   align-items: center;
   height: 60px;
   position: relative;
-  margin-right: 8px;
+  margin-right: 12px;
 }
 
 .form__wrapper input {
   box-sizing: border-box;
   padding: 12px;
-  height: 70%;
+
   flex: 1;
   border: solid 1px var(--border-color);
   border-radius: var(--border-radius);
