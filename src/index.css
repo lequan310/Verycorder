@@ -47,6 +47,7 @@ button {
   border-radius: var(--border-radius);
   padding: 12px;
   background-color: transparent;
+  cursor: pointer;
 }
 
 select {
