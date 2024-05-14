@@ -223,6 +223,34 @@ const SCROLL = `
 
 // Script to handle hover events
 const HOVER = `
+  function containsHover(element) {
+    if (!element) {
+      return false;
+    }
+    
+    // Check ID
+    if (element.id && typeof element.id === 'string' && element.id.includes('hover')) {
+      return true;
+    }
+    
+    // Check class
+    if (element.className && typeof element.className === 'string' && element.className.includes('hover')) {
+      return true;
+    }
+    
+    // Check attributes
+    if (element.attributes) {
+      for (let attr of element.attributes) {
+        if (attr.name.includes('hover') || attr.value.includes('hover')) {
+          return true;
+        }
+      }
+    }
+    
+    return false;
+  }
+
+
   document.body.addEventListener('mouseenter', (event) => {
     if (currentURL !== window.location.href) {
       hover = false;
@@ -232,7 +260,7 @@ const HOVER = `
     }
   
     // Check if target class name contains "hover" keyword (thanks tailwind or similar)
-    if (typeof event.target.className === 'string' && event.target.className.includes('hover')) {
+    if (containsHover(event.target)) {
       currentEvent = event;
       clearTimeout(hoverTimer1);
       

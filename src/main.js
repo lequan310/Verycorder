@@ -1,8 +1,14 @@
-const { app, BrowserWindow, BrowserView, ipcMain, globalShortcut } = require("electron");
+const {
+  app,
+  BrowserWindow,
+  BrowserView,
+  ipcMain,
+  globalShortcut,
+} = require("electron");
 const path = require("node:path");
-const { INJECTION_SCRIPT } = require('./Others/injectionScript');
-const utilities = require('./Others/utilities');
-const electron_utilities = require('./Others/electron_utilities');
+const { INJECTION_SCRIPT } = require("./Others/injectionScript");
+const utilities = require("./Others/utilities");
+const electron_utilities = require("./Others/electron_utilities");
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -15,22 +21,26 @@ let view;
 // Function to create the web view to load webs
 function createBrowserView() {
   view = new BrowserView();
-  
-  // Inject javascript when navigate to a new web
+
+  view.webContents.loadURL("about:blank"); // Inject javascript when navigate to a new web
+
   view.webContents.on("did-navigate", (event, url) => {
     // Execute JavaScript code in the context of the web page
     view.webContents.executeJavaScript(INJECTION_SCRIPT);
-    win.webContents.send('update-url', url);
+    win.webContents.send("update-url", url);
   });
 
   view.webContents.on("did-navigate-in-page", (event, url) => {
-    win.webContents.send('update-url', url);
+    win.webContents.send("update-url", url);
   });
 
   // Track the web page console and retrieve our events
-  view.webContents.on("console-message", (event, level, message, line, sourceId) => {
-    electron_utilities.handleMessage(message);
-  });
+  view.webContents.on(
+    "console-message",
+    (event, level, message, line, sourceId) => {
+      electron_utilities.handleMessage(message);
+    }
+  );
 }
 
 // Function to create the desktop app and load UI, etc.
@@ -65,7 +75,7 @@ const createWindow = () => {
   // Handle resize app
   win.on("resize", () => electron_utilities.updateViewBounds(win));
   // Handle window close
-  win.on("closed", () => win = null);
+  win.on("closed", () => (win = null));
 };
 
 // This method will be called when Electron has finished
@@ -74,7 +84,7 @@ const createWindow = () => {
 app.whenReady().then(() => {
   createWindow();
 
-  globalShortcut.register('CommandOrControl+Shift+J', () => {
+  globalShortcut.register("CommandOrControl+Shift+J", () => {
     view.webContents.toggleDevTools();
   });
 
@@ -87,13 +97,13 @@ app.whenReady().then(() => {
   });
 
   // Handle URL change in React
-  ipcMain.on('url-change', (event, url) => {
+  ipcMain.handle("url-change", async (event, url) => {
     url = utilities.handleUrl(url); // Assume this function properly formats the URL
-    electron_utilities.changeViewUrl(event, url, view);
+    return electron_utilities.changeViewUrl(event, url, view);
   });
 });
 
-app.on('will-quit', () => {
+app.on("will-quit", () => {
   // Unregister all shortcuts
   globalShortcut.unregisterAll();
 });

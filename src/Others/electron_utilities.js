@@ -1,33 +1,39 @@
-// Load new URL on browser when user enter new URL via search bar 
+// Load new URL on browser when user enter new URL via search bar
 function changeViewUrl(event, url, view) {
-  if (url) { // Assume this function checks if the URL is properly formatted
+  if (url) {
+    // Assume this function checks if the URL is properly formatted
     if (view) {
-      view.webContents.loadURL(url).then(() => {
-        // If loadURL succeeds
-        event.returnValue = {
-          success: true,
-          message: 'Success'
-        };
-      }).catch(error => {
-        // If loadURL fails
-        event.returnValue = {
-          success: false,
-          message: 'Cannot connect to URL'
-        };
-      });
+      return view.webContents
+        .loadURL(url)
+        .then(() => {
+          // If loadURL succeeds
+          return {
+            success: true,
+            message: "Success",
+          };
+        })
+        .catch((error) => {
+          // If loadURL fails
+          view.webContents.loadURL("about:blank");
+          return {
+            success: false,
+            message: "Cannot connect to URL",
+          };
+        });
     } else {
       // If there is no browser view available
-      event.returnValue = {
+      return {
         success: false,
-        message: 'Browser view error'
+        message: "Browser view error",
       };
     }
   } else {
     // If the URL is invalid
-    console.log('failed');
-    event.returnValue = {
+    console.log("failed");
+    view.webContents.loadURL("about:blank");
+    return {
       success: false,
-      message: 'Invalid URL'
+      message: "Invalid URL",
     };
   }
 }
@@ -41,13 +47,13 @@ function updateViewBounds(win) {
       const { x, y, width, height } = bounds;
       view.setBounds({
         x: Math.floor(width / 2),
-        y: 60,
-        width: Math.floor(width / 2),
-        height: Math.floor(height - 60),
+        y: 70,
+        width: Math.floor(width / 2 - 12),
+        height: Math.floor(height - 70 - 12),
       });
     }
   }
-};
+}
 
 function handleMessage(message) {
   if (message.includes("Clicked element:")) {
@@ -55,25 +61,25 @@ function handleMessage(message) {
     return;
   }
 
-    // Window scroll detected
+  // Window scroll detected
   if (message.includes("Window scrolled:")) {
     printWindowScroll(message);
     return;
   }
 
-    // Element scroll detected
+  // Element scroll detected
   if (message.includes("Scrolled element:")) {
     printScrolledElement(message);
     return;
   }
 
-    // Hover element detected
+  // Hover element detected
   if (message.includes("Hover element:")) {
     printHoverElement(message);
     return;
   }
 
-    // Input element detected
+  // Input element detected
   if (message.includes("Input element:")) {
     printInputElement(message);
     return;
@@ -102,7 +108,7 @@ function printScrolledElement(message) {
   console.log(`Element scroll:${result[0]} Amount:${result[1]}\n`);
 }
 
-function printHoverElement(message){
+function printHoverElement(message) {
   var target = message.replace("Hover element:", "");
 
   console.log(`Hover element:${target}\n`);
@@ -119,5 +125,5 @@ function printInputElement(message) {
 module.exports = {
   changeViewUrl,
   handleMessage,
-  updateViewBounds
-}
+  updateViewBounds,
+};

@@ -47,6 +47,7 @@ button {
   border-radius: var(--border-radius);
   padding: 12px;
   background-color: transparent;
+  cursor: pointer;
 }
 
 select {
@@ -81,6 +82,7 @@ textarea {
   display: flex;
   justify-content: space-between;
   padding: 0 16px;
+  margin-left: 12px;
 }
 .commands__wrapper {
   margin: 0 16px;
@@ -89,7 +91,9 @@ textarea {
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   flex: 1;
+  overflow: scroll;
 }
+
 .controllers__wrapper {
   overflow: hidden;
   -webkit-transition: max-height 0.3s;
@@ -157,5 +161,15 @@ textarea {
   position: fixed;
   right: 0;
   left: 50%;
-  height: 60px;
+  height: 100vh;
+}
+
+.message__wrapper {
+  display: flex;
+  height: 100%;
+  justify-content: center;
+}
+
+.message__wrapper h2 {
+  color: var(--arc-palette-subtitle);
 }

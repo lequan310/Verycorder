@@ -9,16 +9,28 @@ import Logo from "./Assets/katalon_logo.svg";
 
 const App = () => {
   const [shrink, setShrink] = useState(false);
+  const [responseMessage, setResponseMessage] = useState(
+    "Please enter a link to continue"
+  );
 
   const handleButtonClick = () => {
     setShrink((prev) => {
       return !prev;
     });
   };
+
+  function handleResponse(object) {
+    console.log(object.message);
+    setResponseMessage(object.message);
+  }
+
   return (
     <div className="main__wrapper">
       <div className="searchbar__wrapper">
-        <SearchBar />
+        <SearchBar response={handleResponse} />
+        <div className="message__wrapper">
+          <h2 className="message">{responseMessage}</h2>
+        </div>
       </div>
       <div className="header__wrapper">
         {/* <button>hello</button> */}
