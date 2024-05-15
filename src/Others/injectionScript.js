@@ -1,7 +1,6 @@
 // Track current events and stuffs
 const VARIABLES = `
   let currentEvent = document.createEvent('Event');
-  let currentURL = window.location.href;
   let focusElement;
   let checkMutation = false;
   let change = false; // Change observed by mutation observer
@@ -12,16 +11,17 @@ const VARIABLES = `
   // Timing stuffs
   let clickTimer; // Timers so events won't register too fast
   let scrollTimer;
-  let hoverTimer1; // Hover timer for case 1
-  let hoverTimer2; // Hover timer for case 2
-  let TIMEOUT = 250;
+  let hoverTimer;
+  let TIMEOUT = 10000;
 `;
 
 // Utility functions
 const UTILITIES = `
+  // Wait for time (ms) and execute something
   function delay(time) {
     return new Promise(resolve => setTimeout(resolve, time));
   }
+  delay(1000).then(() => TIMEOUT = 250); // Wait for the website to load.
   
   // Get element without the children
   function getElementWithoutChildren(element) {
@@ -272,29 +272,21 @@ const HOVER = `
     return false;
   }
 
-
   document.body.addEventListener('mouseenter', (event) => {
-    if (currentURL !== window.location.href) {
-      hover = false;
-      change = false;
-      delay(1000).then(() => currentURL = window.location.href);
-      return;
-    }
-  
     // Check if target class name contains "hover" keyword (thanks tailwind or similar)
     if (containsHover(event.target)) {
       currentEvent = event;
-      clearTimeout(hoverTimer1);
+      clearTimeout(hoverTimer);
       
-      hoverTimer1 = setTimeout(function() {
+      hoverTimer = setTimeout(function() {
         console.log("Hover element:", getCssSelector(event.target));
       }, TIMEOUT);
     } else if (isCursor(event, 'pointer')) {
       // Register hover only when pointer event (doesnt know if hover change styles or DOM)
-      clearTimeout(hoverTimer2);
+      clearTimeout(hoverTimer);
   
       hover = true;
-      hoverTimer2 = setTimeout(function() {
+      hoverTimer = setTimeout(function() {
         // if new target is not parent of current target
         hover = !event.target.contains(currentEvent.target) || event.target === currentEvent.target;
         currentEvent = event;
@@ -331,4 +323,4 @@ function concatenateWithNewline(...strings) {
   return strings.join('\n');
 }
 
-exports.INJECTION_SCRIPT = concatenateWithNewline(VARIABLES, UTILITIES, OBSERVERS, CLICK, SCROLL, HOVER, INPUT);
+exports.RECORD_SCRIPT = concatenateWithNewline(VARIABLES, UTILITIES, OBSERVERS, CLICK, SCROLL, HOVER, INPUT);

@@ -6,7 +6,7 @@ const {
   globalShortcut,
 } = require("electron");
 const path = require("node:path");
-const { INJECTION_SCRIPT } = require("./Others/injectionScript");
+const { RECORD_SCRIPT } = require("./Others/injectionScript");
 const utilities = require("./Others/utilities");
 const electron_utilities = require("./Others/electron_utilities");
 
@@ -26,8 +26,8 @@ function createBrowserView() {
 
   view.webContents.on("did-navigate", async (event, url) => {
     // Execute JavaScript code in isolated world to ensure no conflict with web code
-    view.webContents.executeJavaScriptInIsolatedWorld(1, [{ code: INJECTION_SCRIPT }])
-    .then(() => console.log("Successfully injected javascript.\n"))
+    view.webContents.executeJavaScriptInIsolatedWorld(1, [{ code: RECORD_SCRIPT }])
+    .then(() => console.log(`Open link: ${url}\n`))
     .catch((error) => console.log(error));
     win.webContents.send("update-url", url); // Update URL in search bar
   });
