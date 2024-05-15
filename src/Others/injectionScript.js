@@ -3,6 +3,7 @@ const VARIABLES = `
   let currentEvent = document.createEvent('Event');
   let currentURL = window.location.href;
   let focusElement;
+  let checkMutation = false;
   let change = false; // Change observed by mutation observer
   let click = false;
   let hover = false;
@@ -31,6 +32,12 @@ const UTILITIES = `
   function isCursor(event, type) {
     const computedStyle = window.getComputedStyle(event.target);
     return computedStyle.cursor === type;
+  }
+
+  // Check if element is editable
+  function isEditable(element) {
+    let tag = element.tagName.toLowerCase();
+    return tag === "select" || tag === "input" || tag === "textarea" || event.target.isContentEditable;
   }
   
   // Function to get nth-value of class or tag
@@ -159,12 +166,12 @@ const UTILITIES = `
 const OBSERVERS = `
   const mutationObserver = new MutationObserver((mutations) => {
     mutations.forEach((mutation) => {
-      if (click) { // Handle click event
+      if (click && checkMutation) { // Handle click event
         click = false;
         hover = false;
         change = false;
         console.log('Clicked element:', getCssSelector(currentEvent.target), ' | At coordinates:', currentEvent.clientX, currentEvent.clientY);
-      } else if (hover) { // Support for hover event
+      } else if (hover && !click) { // Support for hover event
         change = true;
         delay(500).then(() => change = false);
       }
@@ -172,16 +179,32 @@ const OBSERVERS = `
   });
 
   // Observe the whole document body
-  const config = { attributes: true, childList: true, subtree: true };
+  const config = { attributes: true, childList: true, subtree: true, characterData: true };
   mutationObserver.observe(document.body, config);
 `;
 
 // Script to handle click events
 const CLICK = `
+  function registerClick(clickValue, checkMutationValue) {
+    click = clickValue;
+    checkMutation = checkMutationValue;
+    delay(TIMEOUT).then(() => {
+      click = false;
+      checkMutation = false;
+    });
+  }
+
   document.addEventListener('click', (event) => {
     // Check if the event is made by user
     if (event.isTrusted) {
       currentEvent = event;
+
+      // Clicks on editable content
+      if (isEditable(event.target)) {
+        registerClick(true, false);
+        console.log('Clicked element:', getCssSelector(event.target), ' | At coordinates:', event.clientX, event.clientY);
+        return;
+      }
 
       // If pointer cursor or select element, return click event immediately
       if (isCursor(event, 'pointer')) {
@@ -190,8 +213,7 @@ const CLICK = `
       }
 
       // Register click function called when not pointer cursor click, for observer to handle
-      click = true;
-      delay(TIMEOUT).then(() => click = false);
+      registerClick(true, true);
     }
   }, true);
 `;
@@ -291,20 +313,16 @@ const HOVER = `
 const INPUT = `
   // Handle focusing input (text or equivalent)
   document.addEventListener('focus', function(event) {
-    if (isCursor(event, 'text') && click) {
-      click = false;
-      focusElement = event.target;
-      console.log('Clicked element:', getCssSelector(focusElement), ' | At coordinates:', currentEvent.clientX, currentEvent.clientY);
-    } else if (!click) { // Assume TAB key
-      focusElement = event.target;
-    }
+    focusElement = event.target;
   }, true);
 
   document.addEventListener('change', function(event) {
-    if (event.target === focusElement && focusElement.tagName.toLowerCase() !== 'select') {
-      console.log('Input element:', getCssSelector(event.target), ' | Value:', event.target.value);
-    } else if (event.target.tagName.toLowerCase() === 'select') {
-      console.log('Select element:', getCssSelector(event.target), ' | Value:', event.target.value);
+    if (event.target === focusElement) {
+      delay(TIMEOUT).then(() => {
+        if (!click) {
+          console.log('Input element:', getCssSelector(event.target), ' | Value:', event.target.value);
+        }
+      })
     }
   }, true);
 `;

@@ -24,21 +24,23 @@ function createBrowserView() {
 
   view.webContents.loadURL("about:blank"); // Inject javascript when navigate to a new web
 
-  view.webContents.on("did-navigate", (event, url) => {
-    // Execute JavaScript code in the context of the web page
-    view.webContents.executeJavaScript(INJECTION_SCRIPT);
-    win.webContents.send("update-url", url);
+  view.webContents.on("did-navigate", async (event, url) => {
+    // Execute JavaScript code in isolated world to ensure no conflict with web code
+    view.webContents.executeJavaScriptInIsolatedWorld(1, [{ code: INJECTION_SCRIPT }])
+    .then(() => console.log("Successfully injected javascript.\n"))
+    .catch((error) => console.log(error));
+    win.webContents.send("update-url", url); // Update URL in search bar
   });
 
-  view.webContents.on("did-navigate-in-page", (event, url) => {
-    win.webContents.send("update-url", url);
+  view.webContents.on("did-navigate-in-page", async (event, url) => {
+    win.webContents.send("update-url", url); // Update URL in search bar
   });
 
   // Track the web page console and retrieve our events
   view.webContents.on(
     "console-message",
-    (event, level, message, line, sourceId) => {
-      electron_utilities.handleMessage(message);
+    async (event, level, message, line, sourceId) => {
+      electron_utilities.handleMessage(message); // Register events (soon)
     }
   );
 }
