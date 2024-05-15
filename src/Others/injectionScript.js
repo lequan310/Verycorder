@@ -280,7 +280,7 @@ const HOVER = `
 
   document.body.addEventListener('mouseenter', (event) => {
     // Check if target class name contains "hover" keyword (thanks tailwind or similar)
-    if (containsHover(event.target)) {
+    if (containsHover(event.target) || isClickable(event.target)) {
       currentEvent = event;
       clearTimeout(hoverTimer);
       
