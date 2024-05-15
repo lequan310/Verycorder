@@ -39,6 +39,12 @@ const UTILITIES = `
     let tag = element.tagName.toLowerCase();
     return tag === "select" || tag === "input" || tag === "textarea" || event.target.isContentEditable;
   }
+
+  // Check if element is clickable
+  function isClickable(element) {
+    let tag = element.tagName.toLowerCase();
+    return tag === "button" || tag === "a";
+  }
   
   // Function to get nth-value of class or tag
   function getNthIndex(element, value, isClass) {
@@ -207,7 +213,7 @@ const CLICK = `
       }
 
       // If pointer cursor or select element, return click event immediately
-      if (isCursor(event, 'pointer')) {
+      if (isCursor(event, 'pointer') || isClickable(event.target)) {
         console.log('Clicked element:', getCssSelector(event.target), ' | At coordinates:', event.clientX, event.clientY);
         return;
       }
