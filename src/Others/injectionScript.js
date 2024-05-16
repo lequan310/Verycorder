@@ -316,11 +316,14 @@ const INPUT = `
 
   document.addEventListener('change', function(event) {
     if (event.target === focusElement) {
-      delay(TIMEOUT).then(() => {
-        if (!click) {
+      if (event.target.tagName.toLowerCase() !== "input") {
+        console.log('Input element:', getCssSelector(event.target), ' | Value:', event.target.value);
+      } else {
+        const keyboardInputTypes = ['text', 'password', 'number', 'email', 'tel', 'url', 'search'];
+        if (keyboardInputTypes.includes(event.target.type)) {
           console.log('Input element:', getCssSelector(event.target), ' | Value:', event.target.value);
         }
-      })
+      }
     }
   }, true);
 `;
