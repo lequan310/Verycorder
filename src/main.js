@@ -61,7 +61,7 @@ const createWindow = () => {
   win.setBrowserView(view);
 
   // Clear cache
-  win.webContents.session.clearCache();
+  view.webContents.session.clearCache();
   // Maximize app on launch
   win.maximize();
   // Update view bounds for the app
