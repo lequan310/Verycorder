@@ -19,6 +19,7 @@
     "jsx": "react-jsx" // or "react" depending on your setup
   },
   "include": [
-    "src/**/*"
+    "src/**/*",
+    "src/Types/.d.ts"
   ]
 }

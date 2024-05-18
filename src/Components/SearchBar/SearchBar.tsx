@@ -5,7 +5,7 @@ interface SearchBarProps {
   response: (response: any) => void;
 }
 
-const SearchBar: React.FC<SearchBarProps> = ({ response }) => {
+const SearchBar = ({ response }: SearchBarProps) => {
   const [searchValue, setSearchValue] = useState("");
 
   // URL change in browser view

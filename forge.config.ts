@@ -21,6 +21,7 @@ const config: ForgeConfig = {
     new AutoUnpackNativesPlugin({}),
     new WebpackPlugin({
       mainConfig,
+      devContentSecurityPolicy: "connect-src 'self' https://fonts.googleapis.com 'unsafe-eval'",
       renderer: {
         config: rendererConfig,
         entryPoints: [
