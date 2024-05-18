@@ -328,8 +328,8 @@ const INPUT = `
   }, true);
 `;
 
-function concatenateWithNewline(...strings) {
-  return strings.join('\n');
+function concatenateWithNewline(...strings: string[]) {
+    return strings.join('\n');
 }
 
-exports.RECORD_SCRIPT = concatenateWithNewline(VARIABLES, UTILITIES, OBSERVERS, CLICK, SCROLL, HOVER, INPUT);
+export const RECORD_SCRIPT: string = concatenateWithNewline(VARIABLES, UTILITIES, OBSERVERS, CLICK, SCROLL, HOVER, INPUT);
