@@ -329,7 +329,7 @@ const INPUT = `
 `;
 
 function concatenateWithNewline(...strings: string[]) {
-    return strings.join('\n');
+  return strings.join('\n');
 }
 
 export const RECORD_SCRIPT: string = concatenateWithNewline(VARIABLES, UTILITIES, OBSERVERS, CLICK, SCROLL, HOVER, INPUT);
