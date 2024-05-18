@@ -5,7 +5,7 @@ import {
     SearchBar,
     StepsView,
 } from "./Components";
-// import { ReactComponent as Logo } from "./Assets/katalon_logo.svg";
+import Logo from "./Assets/katalon_logo.svg";
 
 const App = () => {
     const [shrink, setShrink] = useState(false);
@@ -34,7 +34,7 @@ const App = () => {
             </div>
             <div className="header__wrapper">
                 {/* <button>hello</button> */}
-                {/* <img src={Logo} alt="React Logo" style={{ width: "100px" }} /> */}
+                <img src={Logo} alt="React Logo" style={{ width: "100px" }} />
                 <HeaderComponent></HeaderComponent>
             </div>
             <div className="commands__wrapper">
