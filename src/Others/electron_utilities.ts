@@ -1,4 +1,4 @@
-import { BrowserView, BrowserWindow } from "electron";
+import { BrowserView, BrowserWindow, ipcMain } from "electron";
 
 // Load new URL on browser when user enter new URL via search bar
 export function changeViewUrl(url: string, view: BrowserView) {
@@ -57,69 +57,72 @@ export function updateViewBounds(win: BrowserWindow) {
     }
 }
 
-export function handleMessage(message: string) {
-    if (message.includes("Clicked element:")) {
-        printClickedElement(message);
-        return;
-    }
+export function handleEvents() {
+    // ipcMain.on("event-type", (event, data) 
+    // data here is an object { type: string, target: { css: string, xpath: string }, value: any }
+    // Handle these events and pass the data to React
+    // Hover no value btw, can set null in the injection script if needed
 
-    // Window scroll detected
-    if (message.includes("Window scrolled:")) {
-        printWindowScroll(message);
-        return;
-    }
+    // Click event detected
+    ipcMain.on("click-event", (event, data) => {
+        console.log(data);
+        // Create object and pass to React (CODE BELOW PLEASE)
+    });
 
-    // Element scroll detected
-    if (message.includes("Scrolled element:")) {
-        printScrolledElement(message);
-        return;
-    }
+    // Scroll event detected
+    ipcMain.on("scroll-event", (event, data) => {
+        console.log(data);
+        // Create object and pass to React (CODE BELOW PLEASE)
+    });
 
-    // Hover element detected
-    if (message.includes("Hover element:")) {
-        printHoverElement(message);
-        return;
-    }
+    // Hover event detected
+    ipcMain.on("hover-event", (event, data) => {
+        console.log(data);
+        // Create object and pass to React (CODE BELOW PLEASE)
+    });
 
-    // Input element detected
-    if (message.includes("Input element:")) {
-        printInputElement(message);
-        return;
-    }
+    // Input event detected
+    ipcMain.on("input-event", (event, data) => {
+        console.log(data);
+        // Create object and pass to React (CODE BELOW PLEASE)
+    });
 }
 
-function printClickedElement(message: string) {
-    let target = message.replace("Clicked element:", "");
-    target = target.replace("At coordinates:", "");
-    let result = target.split("|");
+// CAN TAO FUNCTION DE TAO OBJECT ROI PASS DATA VAO REACT CHO MOI CAI
+// IPCMAIN.ON O TREN THI TAO O DUOI NAY NHE :)
 
-    console.log(`Click:${result[0]}Coordinates:${result[1]}\n`);
-}
+// function printClickedElement(message: string) {
+//     let target = message.replace("Clicked element:", "");
+//     target = target.replace("At coordinates:", "");
+//     let result = target.split("|");
 
-function printWindowScroll(message: string) {
-    let target = message.replace("Window scrolled:", "");
+//     console.log(`Click:${result[0]}Coordinates:${result[1]}\n`);
+// }
 
-    console.log(`Window scroll:${target}`);
-}
+// function printWindowScroll(message: string) {
+//     let target = message.replace("Window scrolled:", "");
 
-function printScrolledElement(message: string) {
-    let target = message.replace("Scrolled element:", "");
-    target = target.replace("Scroll amount:", "");
-    let result = target.split("|");
+//     console.log(`Window scroll:${target}`);
+// }
 
-    console.log(`Element scroll:${result[0]} Amount:${result[1]}\n`);
-}
+// function printScrolledElement(message: string) {
+//     let target = message.replace("Scrolled element:", "");
+//     target = target.replace("Scroll amount:", "");
+//     let result = target.split("|");
 
-function printHoverElement(message: string) {
-    let target = message.replace("Hover element:", "");
+//     console.log(`Element scroll:${result[0]} Amount:${result[1]}\n`);
+// }
 
-    console.log(`Hover element:${target}\n`);
-}
+// function printHoverElement(message: string) {
+//     let target = message.replace("Hover element:", "");
 
-function printInputElement(message: string) {
-    let target = message.replace("Input element:", "");
-    target = target.replace("Value:", "");
-    let result = target.split("|");
+//     console.log(`Hover element:${target}\n`);
+// }
 
-    console.log(`Input:${result[0]}Value:${result[1]}\n`);
-}
+// function printInputElement(message: string) {
+//     let target = message.replace("Input element:", "");
+//     target = target.replace("Value:", "");
+//     let result = target.split("|");
+
+//     console.log(`Input:${result[0]}Value:${result[1]}\n`);
+// }

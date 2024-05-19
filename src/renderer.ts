@@ -1,1 +1,1 @@
-import "./AppRender";
+import "./index";

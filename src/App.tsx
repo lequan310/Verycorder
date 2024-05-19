@@ -20,7 +20,6 @@ const App = () => {
     };
 
     function handleResponse(object: any) {
-        console.log(object.message);
         setResponseMessage(object.message);
     }
 

@@ -22,6 +22,24 @@ const config: ForgeConfig = {
     new WebpackPlugin({
       mainConfig,
       devContentSecurityPolicy: "connect-src 'self' https://fonts.googleapis.com 'unsafe-eval'",
+      devServer: {
+        client: {
+          overlay: {
+            runtimeErrors: (error) => {
+              // Check if the error message matches the ResizeObserver error (Webpack issue smh)
+              if (
+                error.message === 'ResizeObserver loop limit exceeded' ||
+                error.message.includes('ResizeObserver loop completed with undelivered notifications')
+              ) {
+                // Return false to suppress the error
+                return false;
+              }
+              // Return true to allow other errors to show
+              return true;
+            },
+          },
+        },
+      },
       renderer: {
         config: rendererConfig,
         entryPoints: [
@@ -33,6 +51,12 @@ const config: ForgeConfig = {
               js: './src/preload.ts',
             },
           },
+          {
+            name: "browser_view",
+            preload: {
+              js: "./src/preloadView.ts"
+            }
+          }
         ],
       },
     }),
