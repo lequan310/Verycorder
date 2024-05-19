@@ -12,7 +12,7 @@ const VARIABLES = `
   let clickTimer; // Timers so events won't register too fast
   let scrollTimer;
   let hoverTimer;
-  let TIMEOUT = 10000;
+  let TIMEOUT = 250;
 `;
 
 // Utility functions
@@ -21,7 +21,6 @@ const UTILITIES = `
   function delay(time) {
     return new Promise(resolve => setTimeout(resolve, time));
   }
-  delay(1000).then(() => TIMEOUT = 250); // Wait for the website to load.
   
   // Get element without the children
   function getElementWithoutChildren(element) {
@@ -176,7 +175,15 @@ const OBSERVERS = `
         click = false;
         hover = false;
         change = false;
-        console.log('Clicked element:', getCssSelector(currentEvent.target), ' | At coordinates:', currentEvent.clientX, currentEvent.clientY);
+
+        let eventObject = {
+          type: 'click',
+          target: { css: getCssSelector(currentEvent.target), xpath: getXPath(currentEvent.target) },
+          value: { x: currentEvent.clientX, y: currentEvent.clientY }
+        };
+
+        window.renderer.send('click-event', eventObject);
+        //console.log('Clicked element:', getCssSelector(currentEvent.target), ' | At coordinates:', currentEvent.clientX, currentEvent.clientY);
       } else if (hover && !click) { // Support for hover event
         change = true;
         delay(500).then(() => change = false);
@@ -204,17 +211,24 @@ const CLICK = `
     // Check if the event is made by user
     if (event.isTrusted) {
       currentEvent = event;
+      let eventObject = {
+        type: 'click',
+        target: { css: getCssSelector(event.target), xpath: getXPath(event.target) },
+        value: { x: event.clientX, y: event.clientY }
+      };
 
       // Clicks on editable content
       if (isEditable(event.target)) {
         registerClick(true, false);
-        console.log('Clicked element:', getCssSelector(event.target), ' | At coordinates:', event.clientX, event.clientY);
+        window.renderer.send('click-event', eventObject);
+        //console.log('Clicked element:', getCssSelector(event.target), ' | At coordinates:', event.clientX, event.clientY);
         return;
       }
 
       // If pointer cursor or select element, return click event immediately
       if (isCursor(event, 'pointer') || isClickable(event.target)) {
-        console.log('Clicked element:', getCssSelector(event.target), ' | At coordinates:', event.clientX, event.clientY);
+        window.renderer.send('click-event', eventObject);
+        //console.log('Clicked element:', getCssSelector(event.target), ' | At coordinates:', event.clientX, event.clientY);
         return;
       }
 
@@ -233,7 +247,8 @@ const SCROLL = `
 
     // Set a timeout to detect scroll end
     scrollTimer = setTimeout(function() {
-      console.log('Window scrolled:', window.scrollX, window.scrollY);
+      //console.log('Window scrolled:', window.scrollX, window.scrollY);
+      window.renderer.send('scroll-event', {type: 'scroll', target: "window", value: {x: window.scrollX, y: window.scrollY}});
     }, TIMEOUT); // Adjust the delay as needed
   });
 
@@ -244,7 +259,14 @@ const SCROLL = `
 
     // Set a timeout to detect scroll end
     scrollTimer = setTimeout(function() {
-      console.log('Scrolled element:', getCssSelector(event.target), ' | Scroll amount:', event.target.scrollLeft, ' ', event.target.scrollTop);
+      let eventObject = {
+        type: 'scroll',
+        target: { css: getCssSelector(event.target), xpath: getXPath(event.target) },
+        value: { x: event.target.scrollLeft, y: event.target.scrollTop }
+      }
+
+      window.renderer.send('scroll-event', eventObject);
+      //console.log('Scrolled element:', getCssSelector(event.target), ' | Scroll amount:', event.target.scrollLeft, ' ', event.target.scrollTop);
     }, TIMEOUT); // Adjust the delay as needed
   }, true);
 `;
@@ -279,13 +301,19 @@ const HOVER = `
   }
 
   document.body.addEventListener('mouseenter', (event) => {
+    let eventObject = {
+      type: 'hover',
+      target: { css: getCssSelector(event.target), xpath: getXPath(event.target) },
+    };
+
     // Check if target class name contains "hover" keyword (thanks tailwind or similar)
     if (containsHover(event.target) || isClickable(event.target)) {
       currentEvent = event;
       clearTimeout(hoverTimer);
       
       hoverTimer = setTimeout(function() {
-        console.log("Hover element:", getCssSelector(event.target));
+        window.renderer.send('hover-event', eventObject);
+        //console.log("Hover element:", getCssSelector(event.target));
       }, TIMEOUT);
     } else if (isCursor(event, 'pointer')) {
       // Register hover only when pointer event (doesnt know if hover change styles or DOM)
@@ -300,7 +328,8 @@ const HOVER = `
         // If observer detect changes in DOM and styles, and mouse is hovering
         if (hover && change) {
           change = false;
-          console.log("Hover element:", getCssSelector(event.target));
+          window.renderer.send('hover-event', eventObject);
+          //console.log("Hover element:", getCssSelector(event.target));
         }
       }, TIMEOUT);
     }
@@ -309,24 +338,38 @@ const HOVER = `
 
 // Script to handle input events
 const INPUT = `
+  function handleInput(event) {
+    const tag = event.target.tagName.toLowerCase();
+    const keyboardInputTypes = ['text', 'password', 'number', 'email', 'tel', 'url', 'search'];
+
+    if ((tag !== "input" && tag !== "select") || keyboardInputTypes.includes(event.target.type)) {
+      let eventObject = {
+        type: 'input',
+        target: { css: getCssSelector(event.target), xpath: getXPath(event.target) },
+        value: event.target.value
+      };
+
+      window.renderer.send('input-event', eventObject);
+      //console.log('Input element:', getCssSelector(event.target), ' | Value:',event.target.value);
+    }
+  }
+
   // Handle focusing input (text or equivalent)
   document.addEventListener('focus', function(event) {
     focusElement = event.target;
   }, true);
 
+  // Handle change when not losing focus
   document.addEventListener('change', function(event) {
     if (event.target === focusElement) {
-      delay(TIMEOUT).then(() => {
-        if (!click) {
-          console.log('Input element:', getCssSelector(event.target), ' | Value:', event.target.value);
-        }
-      })
+      handleInput(event);
     }
   }, true);
 `;
 
-function concatenateWithNewline(...strings) {
+function concatenateWithNewline(...strings: string[]) {
   return strings.join('\n');
 }
 
-exports.RECORD_SCRIPT = concatenateWithNewline(VARIABLES, UTILITIES, OBSERVERS, CLICK, SCROLL, HOVER, INPUT);
+// We're still using string literals code for now :sunglasses: viet code thi uncomment ra ma viet (javascript)
+export const RECORD_SCRIPT: string = concatenateWithNewline(VARIABLES, UTILITIES, OBSERVERS, CLICK, SCROLL, HOVER, INPUT);

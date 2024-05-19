@@ -71,6 +71,7 @@ textarea {
   height: 1px;
   width: 97%;
 }
+
 .main__wrapper {
   display: flex;
   flex-direction: column;
@@ -84,6 +85,7 @@ textarea {
   padding: 0 16px;
   margin-left: 12px;
 }
+
 .commands__wrapper {
   margin: 0 16px;
   padding: 0 16px;
@@ -118,17 +120,20 @@ textarea {
   -ms-transform: translateX(-50%);
   transform: translateX(-50%);
 }
+
 .controllerItem__wrapper {
   display: flex;
   flex-direction: column;
 }
 
 .shrink {
-  max-height: 0px; /* Set a smaller value to shrink the element */
+  max-height: 0px;
+  /* Set a smaller value to shrink the element */
 }
 
 .expand {
-  max-height: 1000px; /* Set back to a large value to expand the element */
+  max-height: 1000px;
+  /* Set back to a large value to expand the element */
   padding-bottom: 2rem;
 }
 
@@ -136,6 +141,7 @@ textarea {
   0% {
     opacity: 1;
   }
+
   100% {
     opacity: 0;
   }
@@ -143,19 +149,24 @@ textarea {
 
 @keyframes changePaddingBottomAnimation {
   0% {
-    padding-bottom: 2rem; /* Initial padding-bottom value */
+    padding-bottom: 2rem;
+    /* Initial padding-bottom value */
   }
+
   100% {
-    padding-bottom: 8px; /* Final padding-bottom value */
+    padding-bottom: 8px;
+    /* Final padding-bottom value */
   }
 }
 
 .change-padding-bottom {
-  animation: changePaddingBottomAnimation 0.1s ease 0.2s forwards; /* Apply the animation with a 1-second delay */
+  animation: changePaddingBottomAnimation 0.1s ease 0.2s forwards;
+  /* Apply the animation with a 1-second delay */
 }
 
 .hide {
-  animation: hideAnimation 0.1s ease 0.2s forwards; /* Apply the animation with a 1-second delay */
+  animation: hideAnimation 0.1s ease 0.2s forwards;
+  /* Apply the animation with a 1-second delay */
 }
 
 .searchbar__wrapper {
