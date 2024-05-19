@@ -24,6 +24,7 @@ function createBrowserView() {
 
   view.webContents.on("did-navigate", async (event, url) => {
     // Execute JavaScript code in isolated world to ensure no conflict with web code
+    if (url === "about:blank") return;
     view.webContents.executeJavaScriptInIsolatedWorld(1, [{ code: RECORD_SCRIPT }])
       .then(() => console.log(`Open link: ${url}\n`))
       .catch((error) => console.log(error));

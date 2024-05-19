@@ -12,7 +12,7 @@ const VARIABLES = `
   let clickTimer; // Timers so events won't register too fast
   let scrollTimer;
   let hoverTimer;
-  let TIMEOUT = 10000;
+  let TIMEOUT = 250;
 `;
 
 // Utility functions
@@ -21,7 +21,6 @@ const UTILITIES = `
   function delay(time) {
     return new Promise(resolve => setTimeout(resolve, time));
   }
-  delay(1000).then(() => TIMEOUT = 250); // Wait for the website to load.
   
   // Get element without the children
   function getElementWithoutChildren(element) {
@@ -309,21 +308,24 @@ const HOVER = `
 
 // Script to handle input events
 const INPUT = `
+  function handleInput(event) {
+    const tag = event.target.tagName.toLowerCase();
+    const keyboardInputTypes = ['text', 'password', 'number', 'email', 'tel', 'url', 'search'];
+
+    if ((tag !== "input" && tag !== "select") || keyboardInputTypes.includes(event.target.type)) {
+      console.log('Input element:', getCssSelector(event.target), ' | Value:',event.target.value);
+    }
+  }
+
   // Handle focusing input (text or equivalent)
   document.addEventListener('focus', function(event) {
     focusElement = event.target;
   }, true);
 
+  // Handle change when not losing focus
   document.addEventListener('change', function(event) {
     if (event.target === focusElement) {
-      if (event.target.tagName.toLowerCase() !== "input") {
-        console.log('Input element:', getCssSelector(event.target), ' | Value:', event.target.value);
-      } else {
-        const keyboardInputTypes = ['text', 'password', 'number', 'email', 'tel', 'url', 'search'];
-        if (keyboardInputTypes.includes(event.target.type)) {
-          console.log('Input element:', getCssSelector(event.target), ' | Value:', event.target.value);
-        }
-      }
+      handleInput(event);
     }
   }, true);
 `;
