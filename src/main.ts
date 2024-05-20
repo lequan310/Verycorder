@@ -87,6 +87,13 @@ app.whenReady().then(() => {
     view.webContents.toggleDevTools();
   });
 
+  // Remove this after Phy finish his recording button :skull:
+  globalShortcut.register("CommandOrControl+R", () => {
+    recording = !recording;
+    view.webContents.send("toggle-record", recording);
+    console.log("Recording: ", recording);
+  });
+
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   app.on("activate", () => {
