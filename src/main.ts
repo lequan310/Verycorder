@@ -16,6 +16,8 @@ if (require('electron-squirrel-startup')) {
 
 let win: BrowserWindow;
 let view: BrowserView;
+let recording: boolean = false;
+let replaying: boolean = false;
 
 // Function to create the web view to load webs
 function createBrowserView() {
