@@ -7,9 +7,10 @@ interface SearchBarProps {
 
 const SearchBar = ({ response }: SearchBarProps) => {
   const [searchValue, setSearchValue] = useState("");
+  const ipcRenderer = (window as any).api;
 
   // URL change in browser view
-  window.api.on(`update-url`, (url: string) => {
+  ipcRenderer.on(`update-url`, (url: string) => {
     let checkUrl = url;
     if (url === "about:blank") {
       checkUrl = searchValue;
@@ -23,7 +24,7 @@ const SearchBar = ({ response }: SearchBarProps) => {
 
     // Invoke url-change event if url is not empty
     if (url !== "") {
-      window.api.invoke(`url-change`, url) // Response = object { success, message}
+      ipcRenderer.invoke(`url-change`, url) // Response = object { success, message}
         .then((responseObject: any) => {
           response(responseObject);
         }).catch((error: Error) => {

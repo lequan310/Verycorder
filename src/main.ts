@@ -16,6 +16,8 @@ if (require('electron-squirrel-startup')) {
 
 let win: BrowserWindow;
 let view: BrowserView;
+let recording: boolean = false;
+let replaying: boolean = false;
 
 // Function to create the web view to load webs
 function createBrowserView() {
@@ -83,6 +85,13 @@ app.whenReady().then(() => {
   // May consider removing this feature in production
   globalShortcut.register("CommandOrControl+Shift+J", () => {
     view.webContents.toggleDevTools();
+  });
+
+  // Remove this after Phy finish his recording button :skull:
+  globalShortcut.register("CommandOrControl+R", () => {
+    recording = !recording;
+    view.webContents.send("toggle-record", recording);
+    console.log("Recording: ", recording);
   });
 
   // On OS X it's common to re-create a window in the app when the
