@@ -1,4 +1,4 @@
-import { delay, isCursor, isEditable, isClickable, containsHover, hasEditableContent, hasValueProperty, getCssSelector, getXPath } from './utilities';
+import { delay, isCursor, isEditable, isClickable, containsHover, hasEditableContent, hasValueProperty, getCssSelector, getXPath, isVisualElement } from './utilities';
 import { ipcRenderer } from 'electron';
 
 // ------------------- GLOBAL VARIABLES -------------------
@@ -115,14 +115,16 @@ function scrollHandler(event: WheelEvent) {
 }
 
 function hoverHandler(event: MouseEvent) {
+    if (click) return;
     let target = event.target as HTMLElement;
+    if (target === document.body) return;
     let eventObject = {
         type: 'hover',
         target: { css: getCssSelector(target), xpath: getXPath(target) },
     };
 
     // Check if target class name contains "hover" keyword (thanks tailwind or similar)
-    if (containsHover(target) || isClickable(target)) {
+    if (containsHover(target) || isClickable(target) || isVisualElement(target)) {
         currentEvent = event;
         clearTimeout(hoverTimer);
 

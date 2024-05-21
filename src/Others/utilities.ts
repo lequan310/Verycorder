@@ -44,14 +44,21 @@ export function isCursor(event: Event, type: string) {
 
 // Check if element is editable
 export function isEditable(element: HTMLElement) {
-    let tag = element.tagName.toLowerCase();
-    return tag === "select" || tag === "input" || tag === "textarea" || element.isContentEditable;
+    let tag = element.tagName;
+    const editableTags = ['INPUT', 'TEXTAREA', 'SELECT'];
+    return editableTags.includes(tag) || element.isContentEditable;
 }
 
 // Check if element is clickable
 export function isClickable(element: HTMLElement) {
-    let tag = element.tagName.toLowerCase();
-    return tag === "button" || tag === "a";
+    let tag = element.tagName;
+    return tag === "BUTTON" || tag === "A";
+}
+
+export function isVisualElement(element: HTMLElement): boolean {
+    let tag = element.tagName;
+    const visualElementTypes = ['IMG', 'VIDEO', 'SVG'];
+    return visualElementTypes.includes(tag);
 }
 
 // Check if element can be hovered

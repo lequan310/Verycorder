@@ -1,4 +1,22 @@
 import { BrowserView, BrowserWindow, ipcMain } from "electron";
+import { handleUrl } from './utilities';
+
+let recording: boolean = false;
+let replaying: boolean = false;
+
+function getCurrentMode() {
+    return recording ? "record" : replaying ? "replay" : "normal";
+}
+
+export function toggleRecord(): boolean {
+    recording = !recording;
+    return recording;
+}
+
+export function toggleReplay(): boolean {
+    replaying = !replaying;
+    return replaying;
+}
 
 // Load new URL on browser when user enter new URL via search bar
 export function changeViewUrl(url: string, view: BrowserView) {
@@ -57,12 +75,16 @@ export function updateViewBounds(win: BrowserWindow) {
     }
 }
 
-export function handleEvents() {
-    // ipcMain.on("event-type", (event, data) 
-    // data here is an object { type: string, target: { css: string, xpath: string }, value: any }
-    // Handle these events and pass the data to React
-    // Hover no value btw, can set null in the injection script if needed
+export function handleUIEvents(win: BrowserWindow) {
+    const view = win.getBrowserView();
+    // Handle URL change in React
+    ipcMain.handle("url-change", async (event, url) => {
+        url = handleUrl(url); // Assume this function properly formats the URL
+        return changeViewUrl(url, view);
+    });
+}
 
+export function handleRecordEvents() {
     // Click event detected
     ipcMain.on("click-event", (event, data) => {
         console.log(data);
@@ -85,6 +107,12 @@ export function handleEvents() {
     ipcMain.on("input-event", (event, data) => {
         console.log(data);
         // Create object and pass to React (CODE BELOW PLEASE)
+    });
+}
+
+export function handleViewEvents() {
+    ipcMain.handle("get-mode", async () => {
+        return getCurrentMode();
     });
 }
 
