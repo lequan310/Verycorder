@@ -86,9 +86,7 @@ app.whenReady().then(() => {
 
   // Remove this after Phy finish his recording button :skull:
   globalShortcut.register("CommandOrControl+R", () => {
-    const recording = toggleRecord();
-    view.webContents.send("toggle-record", recording);
-    console.log("Recording: ", recording);
+    toggleRecord(win);
   });
 
   // On OS X it's common to re-create a window in the app when the

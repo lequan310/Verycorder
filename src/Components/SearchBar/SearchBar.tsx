@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FormEvent, useState } from "react";
+import React, { ChangeEvent, FormEvent, useState, useRef } from "react";
 import "./SearchBar.css";
 
 interface SearchBarProps {
@@ -7,6 +7,7 @@ interface SearchBarProps {
 
 const SearchBar = ({ response }: SearchBarProps) => {
   const [searchValue, setSearchValue] = useState("");
+  const searchBarRef = useRef<HTMLInputElement>(null);
   const ipcRenderer = (window as any).api;
 
   // URL change in browser view
@@ -16,6 +17,10 @@ const SearchBar = ({ response }: SearchBarProps) => {
       checkUrl = searchValue;
     }
     setSearchValue(checkUrl);
+  });
+
+  ipcRenderer.on(`toggle-record`, (recording: boolean) => {
+    searchBarRef.current.disabled = recording;
   });
 
   const onSubmitHandler = async (event: FormEvent<HTMLFormElement>) => {
@@ -45,6 +50,7 @@ const SearchBar = ({ response }: SearchBarProps) => {
         id="search"
         placeholder="Enter URL here"
         value={searchValue}
+        ref={searchBarRef}
         onChange={onChangeHandler}
       />
       <button type="submit" value="Submit" form="form" className="search_Btn">

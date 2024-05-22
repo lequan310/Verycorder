@@ -3,4 +3,7 @@ export type Target = {
     xpath: string;
 }
 
-export type Value = { x: number, y: number };
+export type Value = {
+    x: number
+    y: number
+};

@@ -1,16 +1,31 @@
 import { BrowserView, BrowserWindow, ipcMain } from "electron";
 import { handleUrl } from './utilities';
+import { TestCase } from "../Types/testCase";
 
 let recording: boolean = false;
 let replaying: boolean = false;
+let testCase: TestCase;
 
 function getCurrentMode() {
     return recording ? "record" : replaying ? "replay" : "normal";
 }
 
-export function toggleRecord(): boolean {
+export function toggleRecord(win: BrowserWindow) {
+    const view = win.getBrowserView();
     recording = !recording;
-    return recording;
+
+    if (recording) {
+        const { x, y, width, height } = view.getBounds();
+        testCase = {
+            url: view.webContents.getURL(),
+            events: [],
+            size: { width, height }
+        };
+    }
+
+    view.webContents.send("toggle-record", recording); // Send message to attach event listeners
+    win.webContents.send("toggle-record", recording); // Send message to change UI (disable search bar)
+    console.log(testCase);
 }
 
 export function toggleReplay(): boolean {
@@ -87,26 +102,26 @@ export function handleUIEvents(win: BrowserWindow) {
 export function handleRecordEvents() {
     // Click event detected
     ipcMain.on("click-event", (event, data) => {
+        testCase.events.push(data);
         console.log(data);
-        // Create object and pass to React (CODE BELOW PLEASE)
     });
 
     // Scroll event detected
     ipcMain.on("scroll-event", (event, data) => {
+        testCase.events.push(data);
         console.log(data);
-        // Create object and pass to React (CODE BELOW PLEASE)
     });
 
     // Hover event detected
     ipcMain.on("hover-event", (event, data) => {
+        testCase.events.push(data);
         console.log(data);
-        // Create object and pass to React (CODE BELOW PLEASE)
     });
 
     // Input event detected
     ipcMain.on("input-event", (event, data) => {
+        testCase.events.push(data);
         console.log(data);
-        // Create object and pass to React (CODE BELOW PLEASE)
     });
 }
 
@@ -115,42 +130,3 @@ export function handleViewEvents() {
         return getCurrentMode();
     });
 }
-
-// CAN TAO FUNCTION DE TAO OBJECT ROI PASS DATA VAO REACT CHO MOI CAI
-// IPCMAIN.ON O TREN THI TAO O DUOI NAY NHE :)
-
-// function printClickedElement(message: string) {
-//     let target = message.replace("Clicked element:", "");
-//     target = target.replace("At coordinates:", "");
-//     let result = target.split("|");
-
-//     console.log(`Click:${result[0]}Coordinates:${result[1]}\n`);
-// }
-
-// function printWindowScroll(message: string) {
-//     let target = message.replace("Window scrolled:", "");
-
-//     console.log(`Window scroll:${target}`);
-// }
-
-// function printScrolledElement(message: string) {
-//     let target = message.replace("Scrolled element:", "");
-//     target = target.replace("Scroll amount:", "");
-//     let result = target.split("|");
-
-//     console.log(`Element scroll:${result[0]} Amount:${result[1]}\n`);
-// }
-
-// function printHoverElement(message: string) {
-//     let target = message.replace("Hover element:", "");
-
-//     console.log(`Hover element:${target}\n`);
-// }
-
-// function printInputElement(message: string) {
-//     let target = message.replace("Input element:", "");
-//     target = target.replace("Value:", "");
-//     let result = target.split("|");
-
-//     console.log(`Input:${result[0]}Value:${result[1]}\n`);
-// }
