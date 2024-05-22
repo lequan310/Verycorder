@@ -1,4 +1,5 @@
 import { delay, isCursor, isEditable, isClickable, containsHover, hasEditableContent, hasValueProperty, getCssSelector, getXPath, isVisualElement } from './utilities';
+import { RecordedEvent } from '../Types/recordedEvent';
 import { ipcRenderer } from 'electron';
 
 // ------------------- GLOBAL VARIABLES -------------------
@@ -27,7 +28,7 @@ const mutationObserver = new MutationObserver((mutations) => {
             hover = false;
             change = false;
 
-            let eventObject = {
+            let eventObject: RecordedEvent = {
                 type: 'click',
                 target: { css: getCssSelector(target), xpath: getXPath(target) },
                 value: { x: mouseEvent.clientX, y: mouseEvent.clientY }
@@ -54,12 +55,12 @@ function registerClick(clickValue: boolean, checkMutationValue: boolean) {
     });
 }
 
-function clickHandler(event: PointerEvent) {
+function clickHandler(event: MouseEvent) {
     // Check if the event is made by user
     if (event.isTrusted) {
         currentEvent = event;
         let target = event.target as HTMLElement;
-        let eventObject = {
+        let eventObject: RecordedEvent = {
             type: 'click',
             target: { css: getCssSelector(target), xpath: getXPath(target) },
             value: { x: event.clientX, y: event.clientY }
@@ -96,14 +97,14 @@ function windowScrollHandler() {
 }
 
 // Small element scroll (div, textarea)
-function scrollHandler(event: WheelEvent) {
+function scrollHandler(event: Event) {
     // Clear any existing timeout
     clearTimeout(scrollTimer);
 
     // Set a timeout to detect scroll end
     scrollTimer = setTimeout(() => {
         let target = event.target as HTMLElement;
-        let eventObject = {
+        let eventObject: RecordedEvent = {
             type: 'scroll',
             target: { css: getCssSelector(target), xpath: getXPath(target) },
             value: { x: target.scrollLeft, y: target.scrollTop }
@@ -118,7 +119,7 @@ function hoverHandler(event: MouseEvent) {
     if (click) return;
     let target = event.target as HTMLElement;
     if (target === document.body) return;
-    let eventObject = {
+    let eventObject: RecordedEvent = {
         type: 'hover',
         target: { css: getCssSelector(target), xpath: getXPath(target) },
     };
@@ -156,13 +157,13 @@ function focusHandler(event: FocusEvent) {
     focusElement = event.target as HTMLElement;
 }
 
-function inputHandler(event: Event) {
+function changeHandler(event: Event) {
     let target = event.target as HTMLElement;
     const keyboardInputTypes = ['text', 'password', 'number', 'email', 'tel', 'url', 'search'];
 
     if (target === focusElement) {
         if (hasValueProperty(target)) {
-            let eventObject = {
+            let eventObject: RecordedEvent = {
                 type: 'input',
                 target: { css: getCssSelector(target), xpath: getXPath(target) },
                 value: target.value
@@ -172,7 +173,7 @@ function inputHandler(event: Event) {
                 ipcRenderer.send('input-event', eventObject);
             }
         } else if (hasEditableContent(target)) {
-            let eventObject = {
+            let eventObject: RecordedEvent = {
                 type: 'input',
                 target: { css: getCssSelector(target), xpath: getXPath(target) },
                 value: target.textContent
@@ -197,7 +198,7 @@ export function record() {
     window.addEventListener('scroll', windowScrollHandler);
     document.body.addEventListener('scroll', scrollHandler, true);
     document.body.addEventListener('mouseenter', hoverHandler, true);
-    document.body.addEventListener('change', inputHandler, true);
+    document.body.addEventListener('change', changeHandler, true);
     document.body.addEventListener('focus', focusHandler, true);
 }
 
@@ -207,6 +208,6 @@ export function stopRecording() {
     window.removeEventListener('scroll', windowScrollHandler);
     document.body.removeEventListener('scroll', scrollHandler, true);
     document.body.removeEventListener('mouseenter', hoverHandler, true);
-    document.body.removeEventListener('change', inputHandler, true);
+    document.body.removeEventListener('change', changeHandler, true);
     document.body.removeEventListener('focus', focusHandler, true);
 }
