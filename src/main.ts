@@ -99,10 +99,14 @@ app.whenReady().then(() => {
 
   // Handle IPC events for UI (React)
   handleUIEvents(win);
-  // Handle record events
-  handleRecordEvents();
   // Handle view events
   handleViewEvents();
+  // Handle record events
+  handleRecordEvents(win, ["click-event", "scroll-event", "hover-event", "input-event"]);
+
+  // Cai nay de test, chu scroll vs hover no detect nhieu qua
+  //handleRecordEvents(win, ["click-event", "input-event"]);
+  //handleRecordEvents(win, ["scroll-event", "hover-event"]);
 });
 
 app.on("will-quit", () => {

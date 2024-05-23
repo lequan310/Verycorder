@@ -25,7 +25,7 @@ export function toggleRecord(win: BrowserWindow) {
 
     view.webContents.send("toggle-record", recording); // Send message to attach event listeners
     win.webContents.send("toggle-record", recording); // Send message to change UI (disable search bar)
-    console.log(testCase);
+    console.log(`Recording: ${recording}`);
 }
 
 export function toggleReplay(): boolean {
@@ -92,37 +92,27 @@ export function updateViewBounds(win: BrowserWindow) {
 
 export function handleUIEvents(win: BrowserWindow) {
     const view = win.getBrowserView();
+
     // Handle URL change in React
     ipcMain.handle("url-change", async (event, url) => {
         url = handleUrl(url); // Assume this function properly formats the URL
         return changeViewUrl(url, view);
     });
+
+    ipcMain.on("update-test-case", (event, updatedEventList) => {
+        testCase.events = updatedEventList;
+        console.log(testCase);
+    });
 }
 
-export function handleRecordEvents() {
-    // Click event detected
-    ipcMain.on("click-event", (event, data) => {
-        testCase.events.push(data);
-        console.log(data);
-    });
-
-    // Scroll event detected
-    ipcMain.on("scroll-event", (event, data) => {
-        testCase.events.push(data);
-        console.log(data);
-    });
-
-    // Hover event detected
-    ipcMain.on("hover-event", (event, data) => {
-        testCase.events.push(data);
-        console.log(data);
-    });
-
-    // Input event detected
-    ipcMain.on("input-event", (event, data) => {
-        testCase.events.push(data);
-        console.log(data);
-    });
+export function handleRecordEvents(win: BrowserWindow, eventNames: string[]) {
+    for (const eventName of eventNames) {
+        ipcMain.on(eventName, (event, data) => {
+            //testCase.events.push(data);
+            win.webContents.send('add-event', data);
+            console.log(data);
+        });
+    }
 }
 
 export function handleViewEvents() {
