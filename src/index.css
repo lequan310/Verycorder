@@ -110,6 +110,7 @@ textarea {
   flex: 1;
   overflow-x: hidden;
   overflow-y: scroll;
+  margin-bottom: 12px;
 }
 
 .commands__wrapper__title {
