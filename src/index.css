@@ -37,6 +37,7 @@ h5 {
 }
 
 p {
+  font-size: 12px;
   margin: 0;
 }
 
@@ -64,6 +65,15 @@ textarea {
   border: 1px solid #cfcfcf;
   padding: 8px;
   margin: 8px 0;
+}
+
+.oneline_spacebetween_flex {
+  display: flex;
+  justify-content: space-between;
+}
+
+.baseline {
+  justify-content: baseline;
 }
 
 .divider {

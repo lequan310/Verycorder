@@ -21,6 +21,7 @@ interface InputEvent {
 interface HoverEvent {
     type: 'hover'
     target: Target
+    value: null
 }
 
 export type RecordedEvent = ClickEvent | ScrollEvent | InputEvent | HoverEvent;
