@@ -2,13 +2,13 @@ import React, { ChangeEvent, FormEvent, useState, useRef } from "react";
 import "./SearchBar.css";
 
 interface SearchBarProps {
-  response: (response: any) => void;
+  response: (response: { success: boolean; message: string }) => void;
 }
 
 const SearchBar = ({ response }: SearchBarProps) => {
   const [searchValue, setSearchValue] = useState("");
   const searchBarRef = useRef<HTMLInputElement>(null);
-  const ipcRenderer = (window as any).api;
+  const ipcRenderer = window.api;
 
   // URL change in browser view
   ipcRenderer.on(`update-url`, (url: string) => {
@@ -31,7 +31,7 @@ const SearchBar = ({ response }: SearchBarProps) => {
     if (url !== "") {
       ipcRenderer
         .invoke(`url-change`, url) // Response = object { success, message}
-        .then((responseObject: any) => {
+        .then((responseObject: { success: boolean; message: string }) => {
           response(responseObject);
         })
         .catch((error: Error) => {

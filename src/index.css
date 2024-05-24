@@ -85,7 +85,6 @@ textarea {
 .divider {
   background-color: var(--border-color);
   height: 1px;
-  width: 94%;
 }
 
 .main__wrapper {
