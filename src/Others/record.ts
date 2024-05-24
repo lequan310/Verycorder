@@ -99,7 +99,13 @@ function windowScrollHandler() {
 
     // Set a timeout to detect scroll end
     scrollTimer = setTimeout(() => {
-        ipcRenderer.send('scroll-event', { type: 'scroll', target: "window", value: { x: window.scrollX, y: window.scrollY } });
+        let eventObject: RecordedEvent = {
+            type: 'scroll',
+            target: { css: 'window', xpath: 'window' },
+            value: { x: window.scrollX, y: window.scrollY }
+        }
+
+        ipcRenderer.send('scroll-event', eventObject);
     }, TIMEOUT); // Adjust the delay as needed
 }
 
