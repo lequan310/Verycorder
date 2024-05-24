@@ -1,7 +1,8 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import StepItem from "./StepItem/StepItem";
 import "./StepsView.css";
 import { RecordedEvent } from "../../Types/recordedEvent";
+import { TargetContext } from "../../Types/targetContext";
 
 const StepsView = () => {
   const ipcRenderer = window.api;
@@ -29,10 +30,15 @@ const StepsView = () => {
     else ipcRenderer.send("update-test-case", eventList); // Send recorded events to main process when finish recording
   });
 
+  const targetContext = useContext(TargetContext);
+
+  if (!targetContext) {
+    throw new Error("UserContext must be used within UserProvider");
+  }
   return (
     <div ref={listRef} className="stepview__container">
       {eventList.map((event, index) => {
-        return <StepItem key={index} data={event} />;
+        return <StepItem key={index} data={event} target={targetContext} />;
       })}
       <div ref={bottomRef} />
     </div>

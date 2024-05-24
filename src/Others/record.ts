@@ -135,6 +135,7 @@ function hoverHandler(event: MouseEvent) {
     let eventObject: RecordedEvent = {
         type: 'hover',
         target: { css: getCssSelector(target), xpath: getXPath(target) },
+        value: null
     };
 
     // Check if target class name contains "hover" keyword (thanks tailwind or similar)

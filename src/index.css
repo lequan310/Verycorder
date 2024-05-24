@@ -32,7 +32,8 @@ h3 {
   margin-bottom: 0;
 }
 
-h5 {
+h5,
+h4 {
   margin: 0;
 }
 
@@ -79,7 +80,7 @@ textarea {
 .divider {
   background-color: var(--border-color);
   height: 1px;
-  width: 97%;
+  width: 94%;
 }
 
 .main__wrapper {
@@ -98,13 +99,35 @@ textarea {
 
 .commands__wrapper {
   margin: 0 16px;
-  padding: 0 16px;
   /* box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; */
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   flex: 1;
   overflow-x: hidden;
   overflow-y: scroll;
+}
+
+.commands__wrapper__title {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+  align-items: center;
+  position: sticky;
+  top: 0;
+  right: 0;
+  left: 0;
+  height: fit-content;
+  margin-top: 0;
+  padding: 12px;
+
+  background-color: white;
+  /* display: table-cell; */
+  vertical-align: bottom;
+  z-index: 2;
+}
+
+.commands__wrapper__title h3 {
+  margin-top: 0;
 }
 
 .controllers__wrapper {
@@ -194,4 +217,10 @@ textarea {
 
 .message__wrapper h2 {
   color: var(--arc-palette-subtitle);
+}
+
+#target {
+  min-width: 85px;
+  height: 30px;
+  margin: 0px;
 }

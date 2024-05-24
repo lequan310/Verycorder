@@ -1,12 +1,18 @@
-import React from "react";
+import React, { useContext } from "react";
 import "./StepItem.css";
 import { RecordedEvent } from "../../../Types/recordedEvent";
+import { Target, TargetEnum } from "../../../Types/eventComponents";
+import {
+  TargetContext,
+  TargetDispatchContext,
+} from "../../../Types/targetContext";
 
 interface StepItemProps {
-  data: RecordedEvent; // Define the appropriate type for `data`
+  data: RecordedEvent;
+  target: any;
 }
 
-const StepItem: React.FC<StepItemProps> = ({ data }) => {
+const StepItem: React.FC<StepItemProps> = ({ data, target }) => {
   const value = () => {
     if (data.value instanceof Object) {
       // Add your statement here
@@ -19,13 +25,26 @@ const StepItem: React.FC<StepItemProps> = ({ data }) => {
       return <p className="sub_content">{data.value}</p>;
     }
   };
+
+  const preferedTarget = () => {
+    console.log("dsada");
+    switch (target) {
+      case TargetEnum.css:
+        return <p>{data.target.css}</p>;
+      case TargetEnum["x-path"]:
+        return <p>{data.target.xpath}</p>;
+      default:
+        return <p>{data.target.css}</p>;
+    }
+  };
+
   return (
     <div className="stepitem__container">
       <div className="oneline_spacebetween_flex">
-        <h5>{data.type}</h5>
+        <h4>{data.type}</h4>
         {value()}
       </div>
-      <p>{data.target.css}</p>
+      {preferedTarget()}
       <div className="divider"></div>
     </div>
   );
