@@ -68,6 +68,11 @@ textarea {
   margin: 8px 0;
 }
 
+.flex {
+  display: flex;
+  flex-direction: row;
+}
+
 .oneline_spacebetween_flex {
   display: flex;
   justify-content: space-between;
@@ -130,6 +135,12 @@ textarea {
   margin-top: 0;
 }
 
+.select_box__wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 4px;
+}
 .controllers__wrapper {
   overflow: hidden;
   -webkit-transition: max-height 0.3s;

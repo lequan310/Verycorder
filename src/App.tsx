@@ -52,17 +52,22 @@ const App = () => {
       <div className="commands__wrapper">
         <div className="commands__wrapper__title">
           <h3>Commands</h3>
-          <select
-            name="target"
-            id="target"
-            value={state}
-            onChange={(e) => {
-              handleChangeTarget(e);
-            }}
-          >
-            <option value={TargetEnum.css}>{TargetEnum.css}</option>
-            <option value={TargetEnum["x-path"]}>{TargetEnum["x-path"]}</option>
-          </select>
+          <div className="select_box__wrapper">
+            <p>Target: </p>
+            <select
+              name="target"
+              id="target"
+              value={state}
+              onChange={(e) => {
+                handleChangeTarget(e);
+              }}
+            >
+              <option value={TargetEnum.css}>{TargetEnum.css}</option>
+              <option value={TargetEnum["x-path"]}>
+                {TargetEnum["x-path"]}
+              </option>
+            </select>
+          </div>
         </div>
         <TargetContext.Provider value={state}>
           <TargetDispatchContext.Provider value={dispatch}>
