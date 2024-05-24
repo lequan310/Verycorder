@@ -25,14 +25,16 @@ const SearchBar = ({ response }: SearchBarProps) => {
 
   const onSubmitHandler = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    let url = searchValue.trim();
+    const url = searchValue.trim();
 
     // Invoke url-change event if url is not empty
     if (url !== "") {
-      ipcRenderer.invoke(`url-change`, url) // Response = object { success, message}
+      ipcRenderer
+        .invoke(`url-change`, url) // Response = object { success, message}
         .then((responseObject: any) => {
           response(responseObject);
-        }).catch((error: Error) => {
+        })
+        .catch((error: Error) => {
           console.log(error);
         });
     }
