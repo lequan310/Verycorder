@@ -2,13 +2,13 @@ import React, { ChangeEvent, FormEvent, useState, useRef } from "react";
 import "./SearchBar.css";
 
 interface SearchBarProps {
-  response: (response: any) => void;
+  response: (response: { success: boolean; message: string }) => void;
 }
 
 const SearchBar = ({ response }: SearchBarProps) => {
   const [searchValue, setSearchValue] = useState("");
   const searchBarRef = useRef<HTMLInputElement>(null);
-  const ipcRenderer = (window as any).api;
+  const ipcRenderer = window.api;
 
   // URL change in browser view
   ipcRenderer.on(`update-url`, (url: string) => {
@@ -25,14 +25,16 @@ const SearchBar = ({ response }: SearchBarProps) => {
 
   const onSubmitHandler = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
-    let url = searchValue.trim();
+    const url = searchValue.trim();
 
     // Invoke url-change event if url is not empty
     if (url !== "") {
-      ipcRenderer.invoke(`url-change`, url) // Response = object { success, message}
-        .then((responseObject: any) => {
+      ipcRenderer
+        .invoke(`url-change`, url) // Response = object { success, message}
+        .then((responseObject: { success: boolean; message: string }) => {
           response(responseObject);
-        }).catch((error: Error) => {
+        })
+        .catch((error: Error) => {
           console.log(error);
         });
     }

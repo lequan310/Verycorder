@@ -49,10 +49,17 @@ const config = { attributes: true, childList: true, subtree: true, characterData
 function registerClick(clickValue: boolean, checkMutationValue: boolean) {
     click = clickValue;
     checkMutation = checkMutationValue;
+    handleAfterClick();
     delay(TIMEOUT).then(() => {
         click = false;
         checkMutation = false;
     });
+}
+
+// Remove hover event listener after click event, re-add after 1s
+function handleAfterClick() {
+    document.body.removeEventListener('mouseenter', hoverHandler, true);
+    delay(1000).then(() => document.body.addEventListener('mouseenter', hoverHandler, true));
 }
 
 function clickHandler(event: MouseEvent) {
@@ -76,13 +83,13 @@ function clickHandler(event: MouseEvent) {
         // If pointer cursor or select element, return click event immediately
         if (isCursor(event, 'pointer') || isClickable(target)) {
             ipcRenderer.send('click-event', eventObject);
+            handleAfterClick();
             return;
         }
 
         // Register click function called when not pointer cursor click, for observer to handle
         registerClick(true, true);
     }
-
 }
 
 // Window (whole web) scroll events
@@ -92,7 +99,13 @@ function windowScrollHandler() {
 
     // Set a timeout to detect scroll end
     scrollTimer = setTimeout(() => {
-        ipcRenderer.send('scroll-event', { type: 'scroll', target: "window", value: { x: window.scrollX, y: window.scrollY } });
+        let eventObject: RecordedEvent = {
+            type: 'scroll',
+            target: { css: 'window', xpath: 'window' },
+            value: { x: window.scrollX, y: window.scrollY }
+        }
+
+        ipcRenderer.send('scroll-event', eventObject);
     }, TIMEOUT); // Adjust the delay as needed
 }
 
@@ -122,6 +135,7 @@ function hoverHandler(event: MouseEvent) {
     let eventObject: RecordedEvent = {
         type: 'hover',
         target: { css: getCssSelector(target), xpath: getXPath(target) },
+        value: null
     };
 
     // Check if target class name contains "hover" keyword (thanks tailwind or similar)
