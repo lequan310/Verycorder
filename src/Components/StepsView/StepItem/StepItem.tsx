@@ -1,18 +1,14 @@
 import React, { useContext } from "react";
 import "./StepItem.css";
 import { RecordedEvent } from "../../../Types/recordedEvent";
-import { Target, TargetEnum } from "../../../Types/eventComponents";
-import {
-  TargetContext,
-  TargetDispatchContext,
-} from "../../../Types/targetContext";
+import { TargetEnum } from "../../../Types/eventComponents";
+import { TargetContext } from "../../../Types/targetContext";
 
 interface StepItemProps {
   data: RecordedEvent;
-  target: any;
 }
 
-const StepItem: React.FC<StepItemProps> = ({ data, target }) => {
+const StepItem: React.FC<StepItemProps> = ({ data }) => {
   const value = () => {
     if (data.value instanceof Object) {
       // Add your statement here
@@ -26,9 +22,15 @@ const StepItem: React.FC<StepItemProps> = ({ data, target }) => {
     }
   };
 
+  const targetContext = useContext(TargetContext);
+
+  if (!targetContext) {
+    throw new Error("UserContext must be used within UserProvider");
+  }
+
   const preferedTarget = () => {
     console.log("dsada");
-    switch (target) {
+    switch (targetContext) {
       case TargetEnum.css:
         return <p>{data.target.css}</p>;
       case TargetEnum["x-path"]:
