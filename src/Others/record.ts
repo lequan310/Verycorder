@@ -49,10 +49,17 @@ const config = { attributes: true, childList: true, subtree: true, characterData
 function registerClick(clickValue: boolean, checkMutationValue: boolean) {
     click = clickValue;
     checkMutation = checkMutationValue;
+    handleAfterClick();
     delay(TIMEOUT).then(() => {
         click = false;
         checkMutation = false;
     });
+}
+
+// Remove hover event listener after click event, re-add after 1s
+function handleAfterClick() {
+    document.body.removeEventListener('mouseenter', hoverHandler, true);
+    delay(1000).then(() => document.body.addEventListener('mouseenter', hoverHandler, true));
 }
 
 function clickHandler(event: MouseEvent) {
@@ -76,13 +83,13 @@ function clickHandler(event: MouseEvent) {
         // If pointer cursor or select element, return click event immediately
         if (isCursor(event, 'pointer') || isClickable(target)) {
             ipcRenderer.send('click-event', eventObject);
+            handleAfterClick();
             return;
         }
 
         // Register click function called when not pointer cursor click, for observer to handle
         registerClick(true, true);
     }
-
 }
 
 // Window (whole web) scroll events
