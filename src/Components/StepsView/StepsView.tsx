@@ -1,4 +1,4 @@
-import React, { useContext, useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import StepItem from "./StepItem/StepItem";
 import "./StepsView.css";
 import { RecordedEvent } from "../../Types/recordedEvent";

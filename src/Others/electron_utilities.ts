@@ -2,8 +2,8 @@ import { BrowserView, BrowserWindow, ipcMain } from "electron";
 import { handleUrl } from "./utilities";
 import { TestCase } from "../Types/testCase";
 
-let recording: boolean = false;
-let replaying: boolean = false;
+let recording = false;
+let replaying = false;
 let testCase: TestCase;
 
 function getCurrentMode() {

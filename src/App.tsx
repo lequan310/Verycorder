@@ -15,6 +15,7 @@ const App = () => {
   const [responseMessage, setResponseMessage] = useState(
     "Please enter a link to continue"
   );
+  const [enableRecord, setEnableRecord] = useState(false);
 
   const handleButtonClick = () => {
     setShrink((prev) => {
@@ -32,8 +33,9 @@ const App = () => {
     });
   }
 
-  function handleResponse(object: any) {
+  function handleResponse(object: { success: boolean; message: string }) {
     setResponseMessage(object.message);
+    setEnableRecord(!object.success);
   }
 
   return (
@@ -47,7 +49,7 @@ const App = () => {
       <div className="header__wrapper">
         {/* <button>hello</button> */}
         <img src={Logo} alt="React Logo" style={{ width: "100px" }} />
-        <HeaderComponent></HeaderComponent>
+        <HeaderComponent enableRecord={enableRecord}></HeaderComponent>
       </div>
       <div className="commands__wrapper">
         <div className="commands__wrapper__title">
