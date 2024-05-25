@@ -93,7 +93,7 @@ function clickHandler(event: MouseEvent) {
 }
 
 // Window (whole web) scroll events
-function windowScrollHandler() {
+function windowScrollHandler(event: Event) {
     // Clear any existing timeout
     clearTimeout(scrollTimer);
 
