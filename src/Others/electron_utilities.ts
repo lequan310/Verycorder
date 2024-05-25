@@ -1,10 +1,12 @@
 import { BrowserView, BrowserWindow, ipcMain } from "electron";
 import { handleUrl } from "./utilities";
 import { TestCase } from "../Types/testCase";
+import { ChangeUrlResult } from "../Types/urlResult";
 
 let recording = false;
 let replaying = false;
 let testCase: TestCase;
+let abortController: AbortController;
 
 function getCurrentMode() {
   return recording ? "record" : replaying ? "replay" : "normal";
@@ -39,45 +41,42 @@ export function toggleReplay(): boolean {
   return replaying;
 }
 
-// Load new URL on browser when user enter new URL via search bar
-export function changeViewUrl(url: string, view: BrowserView) {
-  if (url) {
-    // Assume this function checks if the URL is properly formatted
-    if (view) {
-      return view.webContents
-        .loadURL(url)
-        .then(() => {
-          // If loadURL succeeds
-          return {
-            success: true,
-            message: "Success",
-          };
-        })
-        .catch((error) => {
-          // If loadURL fails
-          view.webContents.loadURL("about:blank");
-          return {
-            success: false,
-            message: "Cannot connect to URL",
-          };
-        });
-    } else {
-      // If there is no browser view available
-      return {
-        success: false,
-        message: "Browser view error",
-      };
-    }
-  } else {
+// Handle URL change via search bar with abort controller
+function changeUrlWithAbort(url: string, view: BrowserView, signal: AbortSignal): Promise<ChangeUrlResult> {
+  if (!url) {
     // If the URL is invalid
-    console.log("failed");
-    view.webContents.loadURL("about:blank");
-    return {
-      success: false,
-      message: "Invalid URL",
-    };
+    return Promise.resolve({ success: false, message: "Invalid URL" });
   }
+
+  if (!view) {
+    // If there is no browser view available
+    return Promise.resolve({ success: false, message: "Browser view error" });
+  }
+
+  return new Promise<ChangeUrlResult>((resolve, reject) => {
+    if (signal.aborted) {
+      reject(new Error('Aborted'));
+      return;
+    }
+
+    const handleAbort = () => {
+      reject(new Error('Aborted'));
+    };
+
+    signal.addEventListener('abort', handleAbort);
+
+    view.webContents.loadURL(url)
+      .then(() => {
+        signal.removeEventListener('abort', handleAbort);
+        resolve({ success: true, message: "Success" });
+      })
+      .catch((error) => {
+        signal.removeEventListener('abort', handleAbort);
+        resolve({ success: false, message: "Cannot connect to URL" });
+      });
+  });
 }
+
 
 // Update size and location of browser view
 export function updateViewBounds(win: BrowserWindow) {
@@ -101,8 +100,14 @@ export function handleUIEvents(win: BrowserWindow) {
 
   // Handle URL change in React
   ipcMain.handle("url-change", async (event, url) => {
+    // Abort controller stuff
+    if (abortController) abortController.abort();
+    abortController = new AbortController();
+    const signal = abortController.signal;
+
     url = handleUrl(url); // Assume this function properly formats the URL
-    return changeViewUrl(url, view);
+    const response = await changeUrlWithAbort(url, view, signal).catch((error) => console.log("Aborted"));
+    return response;
   });
 
   ipcMain.on("update-test-case", (event, updatedEventList) => {
