@@ -1,4 +1,5 @@
 import React, { ChangeEvent, FormEvent, useState, useRef } from "react";
+import { Channel } from "../../Others/listenerConst";
 import "./SearchBar.css";
 
 interface SearchBarProps {
@@ -11,7 +12,7 @@ const SearchBar = ({ response }: SearchBarProps) => {
   const ipcRenderer = window.api;
 
   // URL change in browser view
-  ipcRenderer.on(`update-url`, (url: string) => {
+  ipcRenderer.on(Channel.UPDATE_URL, (url: string) => {
     let checkUrl = url;
     if (url === "about:blank") {
       checkUrl = searchValue;
@@ -19,18 +20,19 @@ const SearchBar = ({ response }: SearchBarProps) => {
     setSearchValue(checkUrl);
   });
 
-  ipcRenderer.on(`toggle-record`, (recording: boolean) => {
+  ipcRenderer.on(Channel.TOGGLE_RECORD, (recording: boolean) => {
     searchBarRef.current.disabled = recording;
   });
 
   const onSubmitHandler = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    searchBarRef.current.blur();
     const url = searchValue.trim();
 
     // Invoke url-change event if url is not empty
     if (url !== "") {
       ipcRenderer
-        .invoke(`url-change`, url) // Response = object { success, message}
+        .invoke(Channel.URL_CHANGE, url) // Response = object { success, message}
         .then((responseObject: { success: boolean; message: string }) => {
           response(responseObject);
         })

@@ -2,6 +2,7 @@ import { BrowserView, BrowserWindow, ipcMain } from "electron";
 import { handleUrl } from "./utilities";
 import { TestCase } from "../Types/testCase";
 import { ChangeUrlResult } from "../Types/urlResult";
+import { BLANK_PAGE, Channel } from "./listenerConst";
 
 let recording = false;
 let replaying = false;
@@ -14,12 +15,8 @@ function getCurrentMode() {
 
 export function toggleRecord(win: BrowserWindow) {
   const view = win.getBrowserView();
-  if (
-    view.webContents.getURL() === "" ||
-    view.webContents.getURL() === "about:blank"
-  ) {
-    return;
-  }
+  if (view.webContents.getURL() === "" || view.webContents.getURL() === BLANK_PAGE) return;
+
   recording = !recording;
 
   if (recording) {
@@ -31,8 +28,8 @@ export function toggleRecord(win: BrowserWindow) {
     };
   }
 
-  view.webContents.send("toggle-record", recording); // Send message to attach event listeners
-  win.webContents.send("toggle-record", recording); // Send message to change UI (disable search bar)
+  view.webContents.send(Channel.TOGGLE_RECORD, recording); // Send message to attach event listeners
+  win.webContents.send(Channel.TOGGLE_RECORD, recording); // Send message to change UI (disable search bar)
   console.log(`Recording: ${recording}`);
 }
 
@@ -45,11 +42,13 @@ export function toggleReplay(): boolean {
 function changeUrlWithAbort(url: string, view: BrowserView, signal: AbortSignal): Promise<ChangeUrlResult> {
   if (!url) {
     // If the URL is invalid
+    view.webContents.loadURL(BLANK_PAGE);
     return Promise.resolve({ success: false, message: "Invalid URL" });
   }
 
   if (!view) {
     // If there is no browser view available
+    view.webContents.loadURL(BLANK_PAGE);
     return Promise.resolve({ success: false, message: "Browser view error" });
   }
 
@@ -77,7 +76,6 @@ function changeUrlWithAbort(url: string, view: BrowserView, signal: AbortSignal)
   });
 }
 
-
 // Update size and location of browser view
 export function updateViewBounds(win: BrowserWindow) {
   if (win) {
@@ -95,11 +93,12 @@ export function updateViewBounds(win: BrowserWindow) {
   }
 }
 
+// Handle UI events from React to Electron
 export function handleUIEvents(win: BrowserWindow) {
   const view = win.getBrowserView();
 
   // Handle URL change in React
-  ipcMain.handle("url-change", async (event, url) => {
+  ipcMain.handle(Channel.URL_CHANGE, async (event, url) => {
     // Abort controller stuff
     if (abortController) abortController.abort();
     abortController = new AbortController();
@@ -110,16 +109,17 @@ export function handleUIEvents(win: BrowserWindow) {
     return response;
   });
 
-  ipcMain.on("update-test-case", (event, updatedEventList) => {
+  ipcMain.on(Channel.UPDATE_TEST_CASE, (event, updatedEventList) => {
     testCase.events = updatedEventList;
-    console.log(testCase);
+    // console.log(testCase);
   });
 
-  ipcMain.on("toggle-record-click", (event, updatedEventList) => {
+  ipcMain.on(Channel.CLICK_RECORD, (event) => {
     toggleRecord(win);
   });
 }
 
+// Function to register events (click, input, etc.) into left panel
 export function handleRecordEvents(win: BrowserWindow, eventNames: string[]) {
   for (const eventName of eventNames) {
     ipcMain.on(eventName, (event, data) => {
@@ -131,7 +131,7 @@ export function handleRecordEvents(win: BrowserWindow, eventNames: string[]) {
 }
 
 export function handleViewEvents() {
-  ipcMain.handle("get-mode", async () => {
+  ipcMain.handle(Channel.GET_MODE, async (event) => {
     return getCurrentMode();
   });
 }

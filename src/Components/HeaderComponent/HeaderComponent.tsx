@@ -1,4 +1,5 @@
 import React, { useRef, useState } from "react";
+import { Channel } from "../../Others/listenerConst"
 import "./HeaderComponent.css";
 
 const HeaderComponent = ({ enableRecord }: { enableRecord?: boolean }) => {
@@ -7,18 +8,17 @@ const HeaderComponent = ({ enableRecord }: { enableRecord?: boolean }) => {
   const [playState, setPlayState] = useState(false);
   const [disable, setDisable] = useState(true);
 
-  ipcRenderer.on(`toggle-record`, (recording: boolean) => {
-    console.log("setn");
+  ipcRenderer.on(Channel.TOGGLE_RECORD, (recording: boolean) => {
     setRecordState(recording);
   });
 
   function recordHandler() {
-    ipcRenderer.send("toggle-record-click", !recordState);
+    ipcRenderer.send(Channel.CLICK_RECORD);
     setRecordState(!recordState);
   }
 
   // URL change in browser view
-  ipcRenderer.on(`update-url`, (url: string) => {
+  ipcRenderer.on(Channel.UPDATE_URL, (url: string) => {
     console.log(url);
     if (url === "about:blank") {
       setDisable(true);

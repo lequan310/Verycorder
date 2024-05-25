@@ -1,6 +1,7 @@
 import { ipcRenderer } from 'electron';
 import { record, stopRecording } from './Others/record';
 import { replay, stopReplaying } from './Others/replay';
+import { Channel } from './Others/listenerConst';
 
 function onload(load: boolean) {
     ipcRenderer.invoke('get-mode').then((mode) => {
@@ -23,7 +24,7 @@ window.addEventListener('beforeunload', () => {
     onload(false);
 });
 
-ipcRenderer.on('toggle-record', (event, recording) => {
-    console.log("Recording: ", recording);
+// Handle when toggle record notification is received
+ipcRenderer.on(Channel.TOGGLE_RECORD, (event, recording) => {
     recording ? record() : stopRecording();
 });
