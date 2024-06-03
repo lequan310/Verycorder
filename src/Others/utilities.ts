@@ -30,11 +30,6 @@ export function delay(time: number) {
     return new Promise(resolve => setTimeout(resolve, time));
 }
 
-// Get element without the children
-// function getElementWithoutChildren(element: HTMLElement) {
-//     return element.cloneNode(false);
-// }
-
 // Check to see whether the current cursor is the required type (click, )
 export function isCursor(event: Event, type: string) {
     const target = event.target as HTMLElement;
@@ -123,6 +118,17 @@ function getNthIndex(element: HTMLElement, value: string, isClass: boolean) {
     return nthIndex;
 }
 
+// Add escape characters to special characters in selector
+function escapeSpecialCharacters(selector: string) {
+    return selector
+        .replace(/\./g, '\\.')  // Escape dots
+        .replace(/:/g, '\\:');  // Escape colons
+}
+
+function replaceNumberCssSelector(input: string): string {
+    return input.replace(/([.#])(\d)/g, '$1\\3$2');
+}
+
 // Get CSS Selector to locate element in the future
 export function getCssSelector(element: HTMLElement) {
     const selectorParts = [];
@@ -135,13 +141,25 @@ export function getCssSelector(element: HTMLElement) {
             break; // Stop traversal since IDs are unique
         } else if (currentElement.className && typeof currentElement.className === 'string') {
             // If the element has a class, use it to construct the selector
-            const className = currentElement.className;
+            const className = escapeSpecialCharacters(currentElement.className);
             const classes = className.trim().split(/\s+/);
             const classSelector = classes.map((className: string) => `.${className}`).join('');
 
+            const elementList = document.body.getElementsByClassName(className);
+
             // If only 1 occurence of class name
-            if (document.getElementsByClassName(className).length === 1) {
+            if (elementList.length === 1) {
                 selectorParts.unshift(classSelector);
+                break;
+            }
+
+            const elementArray = Array.from(elementList);
+            const filteredArray = elementArray.filter((element: HTMLElement) => element.tagName.toLowerCase() === currentElement.tagName.toLowerCase());
+
+            // If only 1 occurence of class name with that tag
+            if (filteredArray.length === 1) {
+                const newSelector = currentElement.tagName.toLowerCase() + classSelector;
+                selectorParts.unshift(newSelector);
                 break;
             }
 
@@ -158,7 +176,7 @@ export function getCssSelector(element: HTMLElement) {
         currentElement = currentElement.parentElement;
     }
 
-    return selectorParts.join(' > ');
+    return replaceNumberCssSelector(selectorParts.join(' > '));
 }
 
 // Get XPath selector to locate element in the future
