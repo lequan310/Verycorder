@@ -4,7 +4,9 @@ export const Channel = {
     // Events from BrowserWindow and BrowserView
     UPDATE_URL: 'update-url',
     TOGGLE_RECORD: 'toggle-record',
+    TOGGLE_REPLAY: 'toggle-replay',
     ADD_EVENT: 'add-event',
+    TEST_LOG: 'test-log',
 
     // Handle UI events from React to Electron
     URL_CHANGE: 'url-change',

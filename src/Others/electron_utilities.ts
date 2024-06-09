@@ -34,14 +34,16 @@ export function toggleRecord(win: BrowserWindow) {
   console.log(`Recording: ${recording}`);
 }
 
-export function toggleReplay(win: BrowserWindow): boolean {
+export function toggleReplay(win: BrowserWindow) {
   if (recording) return;
   const view = win.getBrowserView();
   if (view.webContents.getURL() === "" || view.webContents.getURL() === BLANK_PAGE) return;
 
   replaying = !replaying;
+
+  view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
   console.log('replaying : ', replaying);
-  return replaying;
+
 }
 
 // Handle URL change via search bar with abort controller
@@ -139,5 +141,11 @@ export function handleRecordEvents(win: BrowserWindow, eventNames: string[]) {
 export function handleViewEvents() {
   ipcMain.handle(Channel.GET_MODE, async (event) => {
     return getCurrentMode();
+  });
+}
+
+export function testLogEvents(){
+  ipcMain.on(Channel.TEST_LOG, (event, data) =>{
+    console.log(data);
   });
 }

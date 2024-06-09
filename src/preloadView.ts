@@ -28,3 +28,8 @@ window.addEventListener('beforeunload', () => {
 ipcRenderer.on(Channel.TOGGLE_RECORD, (event, recording) => {
     recording ? record() : stopRecording();
 });
+
+// Handle when toggle replay notification is received
+ipcRenderer.on(Channel.TOGGLE_REPLAY, (event, replaying) => {
+    replaying ? replay() : stopReplaying();
+});
