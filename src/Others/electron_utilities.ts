@@ -14,6 +14,7 @@ function getCurrentMode() {
 }
 
 export function toggleRecord(win: BrowserWindow) {
+  if (replaying) return;
   const view = win.getBrowserView();
   if (view.webContents.getURL() === "" || view.webContents.getURL() === BLANK_PAGE) return;
 
@@ -33,8 +34,13 @@ export function toggleRecord(win: BrowserWindow) {
   console.log(`Recording: ${recording}`);
 }
 
-export function toggleReplay(): boolean {
+export function toggleReplay(win: BrowserWindow): boolean {
+  if (recording) return;
+  const view = win.getBrowserView();
+  if (view.webContents.getURL() === "" || view.webContents.getURL() === BLANK_PAGE) return;
+
   replaying = !replaying;
+  console.log('replaying : ', replaying);
   return replaying;
 }
 
@@ -111,7 +117,7 @@ export function handleUIEvents(win: BrowserWindow) {
 
   ipcMain.on(Channel.UPDATE_TEST_CASE, (event, updatedEventList) => {
     testCase.events = updatedEventList;
-    // console.log(testCase);
+    console.log(testCase.events);
   });
 
   ipcMain.on(Channel.CLICK_RECORD, (event) => {
