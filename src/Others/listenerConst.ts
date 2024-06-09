@@ -6,7 +6,8 @@ export const Channel = {
     TOGGLE_RECORD: 'toggle-record',
     TOGGLE_REPLAY: 'toggle-replay',
     ADD_EVENT: 'add-event',
-    TEST_LOG: 'test-log',
+    TEST_LOG: 'test-log', // test logs for replay testing
+    SEND_EVENT: 'send-event', // send test case to replay.ts
 
     // Handle UI events from React to Electron
     URL_CHANGE: 'url-change',

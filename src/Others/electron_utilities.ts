@@ -41,8 +41,18 @@ export function toggleReplay(win: BrowserWindow) {
 
   replaying = !replaying;
 
-  view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
-  console.log('replaying : ', replaying);
+  if (testCase && testCase.events && testCase.events.length > 0) {
+      view.webContents.send(Channel.SEND_EVENT, testCase); // Send test case to process for replay.
+      view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
+      
+      console.log('replaying : ', replaying);
+    }
+  else {
+    //view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
+    console.log('There are no test cases.')
+  }
+  
+  
 
 }
 
