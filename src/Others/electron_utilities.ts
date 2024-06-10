@@ -42,18 +42,15 @@ export function toggleReplay(win: BrowserWindow) {
   replaying = !replaying;
 
   if (testCase && testCase.events && testCase.events.length > 0) {
-      view.webContents.send(Channel.SEND_EVENT, testCase); // Send test case to process for replay.
-      view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
-      
-      console.log('replaying : ', replaying);
-    }
+    view.webContents.send(Channel.SEND_EVENT, testCase); // Send test case to process for replay.
+    view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
+
+    console.log('replaying : ', replaying);
+  }
   else {
     //view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
     console.log('There are no test cases.')
   }
-  
-  
-
 }
 
 // Handle URL change via search bar with abort controller
@@ -129,7 +126,7 @@ export function handleUIEvents(win: BrowserWindow) {
 
   ipcMain.on(Channel.UPDATE_TEST_CASE, (event, updatedEventList) => {
     testCase.events = updatedEventList;
-    console.log(testCase.events);
+    console.log(testCase);
   });
 
   ipcMain.on(Channel.CLICK_RECORD, (event) => {
@@ -143,7 +140,7 @@ export function handleRecordEvents(win: BrowserWindow, eventNames: string[]) {
     ipcMain.on(eventName, (event, data) => {
       //testCase.events.push(data);
       win.webContents.send("add-event", data);
-      console.log(data);
+      //console.log(data);
     });
   }
 }
@@ -154,8 +151,8 @@ export function handleViewEvents() {
   });
 }
 
-export function testLogEvents(){
-  ipcMain.on(Channel.TEST_LOG, (event, data) =>{
-    console.log(data);
-  });
+export function testLogEvents() {
+  // ipcMain.on(Channel.TEST_LOG, (event, data) => {
+  //   console.log(data);
+  // });
 }

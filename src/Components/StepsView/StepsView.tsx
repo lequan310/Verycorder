@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from "react";
 import StepItem from "./StepItem/StepItem";
 import "./StepsView.css";
 import { RecordedEvent } from "../../Types/recordedEvent";
+import { Channel } from "../../Others/listenerConst";
 
 const StepsView = () => {
   const ipcRenderer = window.api;
@@ -20,13 +21,13 @@ const StepsView = () => {
     setEventList([...eventList, event]);
   };
 
-  ipcRenderer.on(`add-event`, (event: RecordedEvent) => {
+  ipcRenderer.on(Channel.ADD_EVENT, (event: RecordedEvent) => {
     addEvent(event);
   });
 
-  ipcRenderer.on(`toggle-record`, (recording: boolean) => {
+  ipcRenderer.on(Channel.TOGGLE_RECORD, (recording: boolean) => {
     if (recording) setEventList([]); // Reset event list when recording starts
-    else ipcRenderer.send("update-test-case", eventList); // Send recorded events to main process when finish recording
+    else ipcRenderer.send(Channel.UPDATE_TEST_CASE, eventList); // Send recorded events to main process when finish recording
   });
 
   return (
