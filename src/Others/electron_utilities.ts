@@ -44,7 +44,7 @@ export function toggleReplay(win: BrowserWindow) {
   if (testCase && testCase.events && testCase.events.length > 0) {
     view.webContents.send(Channel.SEND_EVENT, testCase); // Send test case to process for replay.
     view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
-
+    view.webContents.loadURL(testCase.url);
     console.log('replaying : ', replaying);
   }
   else {
@@ -139,7 +139,7 @@ export function handleRecordEvents(win: BrowserWindow, eventNames: string[]) {
   for (const eventName of eventNames) {
     ipcMain.on(eventName, (event, data) => {
       //testCase.events.push(data);
-      win.webContents.send("add-event", data);
+      win.webContents.send(Channel.ADD_EVENT, data);
       //console.log(data);
     });
   }
@@ -152,7 +152,7 @@ export function handleViewEvents() {
 }
 
 export function testLogEvents() {
-  // ipcMain.on(Channel.TEST_LOG, (event, data) => {
-  //   console.log(data);
-  // });
+  ipcMain.on(Channel.TEST_LOG, (event, data) => {
+    console.log(data);
+  });
 }
