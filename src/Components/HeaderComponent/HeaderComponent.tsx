@@ -1,4 +1,4 @@
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Channel } from "../../Others/listenerConst"
 import "./HeaderComponent.css";
 
@@ -8,24 +8,29 @@ const HeaderComponent = ({ enableRecord }: { enableRecord?: boolean }) => {
   const [playState, setPlayState] = useState(false);
   const [disable, setDisable] = useState(true);
 
-  ipcRenderer.on(Channel.TOGGLE_RECORD, (recording: boolean) => {
-    setRecordState(recording);
-  });
+  // Clean up stuff
+  useEffect(() => {
+    const updateUrl = (url: string) => {
+      if (url === "about:blank") {
+        setDisable(true);
+      } else {
+        setDisable(false);
+      }
+    }
+
+    const removeToggleRecord = ipcRenderer.on(Channel.TOGGLE_RECORD, setRecordState);
+    const removeUpdateUrl = ipcRenderer.on(Channel.UPDATE_URL, updateUrl);
+
+    return () => {
+      removeToggleRecord();
+      removeUpdateUrl();
+    };
+  }, []);
 
   function recordHandler() {
     ipcRenderer.send(Channel.CLICK_RECORD);
     setRecordState(!recordState);
   }
-
-  // URL change in browser view
-  ipcRenderer.on(Channel.UPDATE_URL, (url: string) => {
-    console.log(url);
-    if (url === "about:blank") {
-      setDisable(true);
-    } else {
-      setDisable(false);
-    }
-  });
 
   return (
     <div className="header__container">

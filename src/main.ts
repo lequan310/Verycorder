@@ -66,7 +66,7 @@ const createWindow = (): void => {
   win.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  // win.webContents.openDevTools();
+  //win.webContents.openDevTools({ mode: "detach" });
 
   // Handle resize app
   win.on("resize", () => updateViewBounds(win));
@@ -112,7 +112,7 @@ app.whenReady().then(() => {
   handleRecordEvents(win, ["click-event", "scroll-event", "hover-event", "input-event"]);
 
   testLogEvents();
-  
+
   // Cai nay de test, chu scroll vs hover no detect nhieu qua
   //handleRecordEvents(win, ["click-event", "input-event"]);
   //handleRecordEvents(win, ["scroll-event", "hover-event"]);

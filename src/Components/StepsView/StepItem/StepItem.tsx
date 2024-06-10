@@ -29,7 +29,6 @@ const StepItem: React.FC<StepItemProps> = ({ data }) => {
   }
 
   const preferedTarget = () => {
-    console.log("dsada");
     switch (targetContext) {
       case TargetEnum.css:
         return <p>{data.target.css}</p>;

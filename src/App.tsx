@@ -78,9 +78,8 @@ const App = () => {
         </TargetContext.Provider>
       </div>
       <div
-        className={`controllers__wrapper ${
-          shrink ? "shrink" + " change-padding-bottom" : "expand"
-        }`}
+        className={`controllers__wrapper ${shrink ? "shrink" + " change-padding-bottom" : "expand"
+          }`}
       >
         <button className="collapse_btn" onClick={handleButtonClick}>
           {shrink ? "^ Expand" : " v Collapse"}

@@ -1,4 +1,4 @@
-import React, { ChangeEvent, FormEvent, useState, useRef } from "react";
+import React, { ChangeEvent, FormEvent, useState, useRef, useEffect } from "react";
 import { Channel } from "../../Others/listenerConst";
 import "./SearchBar.css";
 
@@ -11,18 +11,28 @@ const SearchBar = ({ response }: SearchBarProps) => {
   const searchBarRef = useRef<HTMLInputElement>(null);
   const ipcRenderer = window.api;
 
-  // URL change in browser view
-  ipcRenderer.on(Channel.UPDATE_URL, (url: string) => {
-    let checkUrl = url;
-    if (url === "about:blank") {
-      checkUrl = searchValue;
+  // Clean up stuff
+  useEffect(() => {
+    const updateUrl = (url: string) => {
+      let checkUrl = url;
+      if (url === "about:blank") {
+        checkUrl = searchValue;
+      }
+      setSearchValue(checkUrl);
     }
-    setSearchValue(checkUrl);
-  });
 
-  ipcRenderer.on(Channel.TOGGLE_RECORD, (recording: boolean) => {
-    searchBarRef.current.disabled = recording;
-  });
+    const toggleRecord = (recording: boolean) => {
+      searchBarRef.current.disabled = recording;
+    }
+
+    const removeUpdateUrl = ipcRenderer.on(Channel.UPDATE_URL, updateUrl);
+    const removeToggleRecord = ipcRenderer.on(Channel.TOGGLE_RECORD, toggleRecord);
+
+    return () => {
+      removeUpdateUrl();
+      removeToggleRecord();
+    };
+  }, []);
 
   const onSubmitHandler = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

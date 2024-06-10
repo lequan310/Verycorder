@@ -6,10 +6,19 @@ import { Channel } from "../../Others/listenerConst";
 
 const StepsView = () => {
   const ipcRenderer = window.api;
-  const [eventList, setEventList] = useState([]);
+  const [eventList, setEventList] = useState<RecordedEvent[]>([]);
 
   const listRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
+
+  const addEvent = (event: RecordedEvent) => {
+    setEventList([...eventList, event]);
+  };
+
+  const toggleRecord = (recording: boolean) => {
+    if (recording) setEventList([]); // Reset event list when recording starts
+    else ipcRenderer.send(Channel.UPDATE_TEST_CASE, eventList); // Send recordedevents to main process when finish recording
+  }
 
   useEffect(() => {
     if (bottomRef.current) {
@@ -17,18 +26,17 @@ const StepsView = () => {
     }
   }, [eventList]); // This hook runs whenever eventList changes
 
-  const addEvent = (event: RecordedEvent) => {
-    setEventList([...eventList, event]);
-  };
+  // Clean up stuff
+  useEffect(() => {
+    const removeAddEvent = ipcRenderer.on(Channel.ADD_EVENT, addEvent);
+    const removeToggleRecord = ipcRenderer.on(Channel.TOGGLE_RECORD, toggleRecord);
 
-  ipcRenderer.on(Channel.ADD_EVENT, (event: RecordedEvent) => {
-    addEvent(event);
-  });
-
-  ipcRenderer.on(Channel.TOGGLE_RECORD, (recording: boolean) => {
-    if (recording) setEventList([]); // Reset event list when recording starts
-    else ipcRenderer.send(Channel.UPDATE_TEST_CASE, eventList); // Send recorded events to main process when finish recording
-  });
+    return () => {
+      removeAddEvent();
+      removeToggleRecord();
+      // ipcRenderer.removeAllListeners(Channel.TOGGLE_RECORD);
+    };
+  }, [eventList]);
 
   return (
     <div ref={listRef} className="stepview__container">

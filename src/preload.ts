@@ -4,6 +4,12 @@ import { ipcRenderer, contextBridge } from 'electron';
 contextBridge.exposeInMainWorld('api', {
     send: (channel: string, ...args: unknown[]) => ipcRenderer.send(channel, ...args),
     sendSync: (channel: string, ...args: unknown[]) => ipcRenderer.sendSync(channel, ...args),
-    on: (channel: string, func: (...args: unknown[]) => void) => ipcRenderer.on(channel, (event, ...args) => func(...args)),
+    on: (channel: string, func: (...args: unknown[]) => void) => {
+        const subscription = (event: Electron.Event, ...args: unknown[]) => func(...args);
+        ipcRenderer.on(channel, subscription);
+        return () => {
+            ipcRenderer.removeListener(channel, subscription);
+        }
+    },
     invoke: (channel: string, ...args: unknown[]) => ipcRenderer.invoke(channel, ...args),
 });
