@@ -89,8 +89,19 @@ textarea {
 
 .main__wrapper {
   display: flex;
-  flex-direction: column;
+  flex-direction: row;
   height: 100vh;
+  width: 100vw;
+}
+
+.main-content__wrapper {
+  display: flex;
+  flex-direction: column;
+  /* width: 400px; */
+}
+
+.searchbar__wrapper {
+  flex-grow: 1;
 }
 
 .header__wrapper {
@@ -101,9 +112,33 @@ textarea {
   margin-left: 12px;
 }
 
+.draggable_wrapper {
+  border: 100%;
+  cursor: col-resize;
+  display: flex;
+  align-items: center;
+  margin-right: 16px;
+  box-shadow: rgba(65, 65, 65, 0.089) 3.95px 1.95px 10.6px;
+  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+}
+
+.draggable_wrapper span {
+  rotate: 90deg;
+  width: 12px;
+}
+
+.draggable_wrapper:hover {
+  transition: background-color 0.5s ease-in-out;
+  background-color: var(--border-color);
+}
+
+.dragging {
+  transition: background-color 0.5s ease-in-out;
+  background-color: var(--border-color);
+}
+
 .commands__wrapper {
-  margin: 0 16px;
-  /* box-shadow: rgba(99, 99, 99, 0.2) 0px 2px 8px 0px; */
+  margin: 0 4px 0 16px;
   border: 1px solid var(--border-color);
   border-radius: var(--border-radius);
   flex: 1;
@@ -153,8 +188,10 @@ textarea {
   flex-direction: column;
   gap: 6px;
   border-radius: var(--border-radius);
-  box-shadow: 0px -5px 10px 0px var(--border-color);
+  box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
+  background-color: var(--arc-palette-focus);
   padding: 2rem 16px;
+  margin: 0 0 12px 12px;
 }
 
 .controllers__wrapper .collapse_btn {
@@ -211,13 +248,6 @@ textarea {
 .hide {
   animation: hideAnimation 0.1s ease 0.2s forwards;
   /* Apply the animation with a 1-second delay */
-}
-
-.searchbar__wrapper {
-  position: fixed;
-  right: 0;
-  left: 50%;
-  height: 100vh;
 }
 
 .message__wrapper {
