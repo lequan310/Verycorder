@@ -171,6 +171,57 @@ export function testLogEvents() {
   });
 }
 
+export function clicker() {
+  ipcMain.on(Channel.REPLAY_CLICK, async (event, data) => {
+    console.log('Clicker function called');
+
+    // Preserve original CSS selector by adding a backslash next to each existing backslash
+    if (typeof data === 'string') {
+      data = data.replace(/\\/g, '\\\\');
+    }
+    console.log('Modified selector:', data);
+
+    // Use executeJavaScript to select the element and log it
+    replayView.webContents.executeJavaScript(`
+      const element = document.querySelector("${data}");
+      if (element) {
+        console.log('Selected element:', element);
+        element; // Return the element for logging in Electron's console
+      } else {
+        console.log('Element not found');
+        null; // Indicate no element was found
+      }
+    `).then(element => {
+      if (element) {
+        console.log('Element found and logged in the page context:', data);
+      } else {
+        console.log('Element not found with selector:', data);
+      }
+    }).catch(error => {
+      console.error('Error executing script:', error);
+    });
+
+
+    /*
+    replayView.webContents.sendInputEvent({
+      type: 'mouseDown',
+      x: data.x,
+      y: data.y,
+      button: 'left',
+      clickCount: 1
+    });
+    replayView.webContents.sendInputEvent({
+      type: 'mouseUp',
+      x: data.x,
+      y: data.y,
+      button: 'left',
+      clickCount: 1
+    });
+    console.log('Clicked at ', data.x, data.y);
+    */
+  });
+}
+
 
 // Replay feature functions
 export function scroller() {

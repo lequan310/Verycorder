@@ -4,7 +4,7 @@ import { TestCase } from "../Types/testCase";
 
 
 let testCase : TestCase;
-let testUrl: string;
+let cssSelector: string;
 
 // Function to get the test case from main process
 export function getTestCase(newTestCase: TestCase){
@@ -17,9 +17,10 @@ export function getTestCase(newTestCase: TestCase){
 export function replayManager() {
     ipcRenderer.send(Channel.TEST_LOG, 'Replay manager started');
     for (const event of testCase.events) {
+        ipcRenderer.send(Channel.TEST_LOG, event);
         switch (event.type) {
             case 'click':
-                //await clickEvent(event);
+                clickEvent(event);
                 break;
             case 'input':
                 //await inputEvent(event);
@@ -28,13 +29,32 @@ export function replayManager() {
                 //await hoverEvent(event);
                 break;
             case 'scroll':
-                ipcRenderer.send(Channel.TEST_LOG, event);
-                scrollEvent(event);
+                //scrollEvent(event);
                 break
             
         }
         
     }
+}
+
+function clickEvent(event: any) {
+    cssSelector = event.target.css;
+    //ipcRenderer.send(Channel.REPLAY_CLICK, cssSelector);
+    ipcRenderer.send(Channel.TEST_LOG, `Clicking on ${cssSelector}`);
+    console.log(cssSelector);
+    let element = document.querySelector(cssSelector);
+    if (element) {
+        ipcRenderer.send(Channel.TEST_LOG, 'Element found');
+        if (element instanceof HTMLElement) { // Type assertion
+            element.click(); // Now TypeScript knows `click` exists
+            ipcRenderer.send(Channel.TEST_LOG, 'Clicked on element');
+        } else {
+            ipcRenderer.send(Channel.TEST_LOG, 'Element is not clickable');
+        }
+    } else {
+        ipcRenderer.send(Channel.TEST_LOG, 'Element not found');
+    }
+
 }
 
 function scrollEvent(event: any) {
