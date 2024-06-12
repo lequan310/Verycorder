@@ -1,5 +1,5 @@
 import { BrowserView, BrowserWindow, ipcMain } from "electron";
-import { handleUrl } from "./utilities";
+import { delay, handleUrl } from "./utilities";
 import { TestCase } from "../Types/testCase";
 import { ChangeUrlResult } from "../Types/urlResult";
 import { BLANK_PAGE, Channel } from "./listenerConst";
@@ -8,6 +8,10 @@ let recording = false;
 let replaying = false;
 let testCase: TestCase;
 let abortController: AbortController;
+
+// For development of replay feature
+let replayWindow: BrowserWindow;
+let replayView: BrowserView;
 
 function getCurrentMode() {
   return recording ? "record" : replaying ? "replay" : "normal";
@@ -41,11 +45,21 @@ export function toggleReplay(win: BrowserWindow) {
 
   replaying = !replaying;
 
+  
   if (testCase && testCase.events && testCase.events.length > 0) {
+    replayWindow = win;
+    replayView = view;
+
     view.webContents.send(Channel.SEND_EVENT, testCase); // Send test case to process for replay.
+    view.webContents.loadURL(testCase.url); // Load the URL to replay 
     view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
-    view.webContents.loadURL(testCase.url);
+    
+    
+    
     console.log('replaying : ', replaying);
+
+    
+
   }
   else {
     //view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
@@ -154,5 +168,32 @@ export function handleViewEvents() {
 export function testLogEvents() {
   ipcMain.on(Channel.TEST_LOG, (event, data) => {
     console.log(data);
+  });
+}
+
+
+// Replay feature functions
+export function scroller() {
+  
+  ipcMain.on(Channel.REPLAY_SCROLL, async (event, data) => {
+    console.log('Scroller function called');
+
+    // Execute JavaScript in the webContents to get the current scroll position
+    const currentScrollY = await replayWindow.webContents.executeJavaScript('window.scrollY');
+
+    // Calculate the deltaY as the difference between the target position and the current position
+    const deltaY = (data - currentScrollY)*-1;
+
+    // Send the mouseWheel event with the calculated deltaY to scroll
+    replayView.webContents.sendInputEvent({
+      type: 'mouseWheel',
+      x: 0,
+      y: 0,
+      deltaX: 0,
+      deltaY: deltaY, // Use the calculated deltaY
+      canScroll: true
+    });
+
+    console.log('Scrolled to ', data);
   });
 }

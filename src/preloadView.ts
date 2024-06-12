@@ -40,3 +40,4 @@ ipcRenderer.on(Channel.TOGGLE_REPLAY, (event, replaying) => {
 ipcRenderer.on(Channel.SEND_EVENT, (event, testCase) => {
     getTestCase(testCase);
 });
+

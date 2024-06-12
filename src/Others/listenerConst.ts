@@ -9,6 +9,9 @@ export const Channel = {
     TEST_LOG: 'test-log', // test logs for replay testing
     SEND_EVENT: 'send-event', // send test case to replay.ts
 
+    // Replay feature
+    REPLAY_SCROLL: 'replay-scroll',
+
     // Handle UI events from React to Electron
     URL_CHANGE: 'url-change',
     UPDATE_TEST_CASE: 'update-test-case',
