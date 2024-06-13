@@ -16,6 +16,9 @@ async function replayManager() {
     ipcRenderer.send(Channel.TEST_LOG, 'Replay manager started');
     for (const event of testCase.events) {
         if (!isReplaying) return; // Stop if isReplaying is false
+
+        // Await a 1 second delay before processing the next event
+        await new Promise(resolve => setTimeout(resolve, 1000));
         ipcRenderer.send(Channel.TEST_LOG, event);
         switch (event.type) {
             case 'click':
@@ -56,8 +59,10 @@ async function clickEvent(event: any) {
 
 async function scrollEvent(event: any) {
     const scrollY = event.value.y;
-    ipcRenderer.send(Channel.TEST_LOG, `Scrolling to ${scrollY}`);
-    ipcRenderer.send(Channel.REPLAY_SCROLL, scrollY);
+    const currentScrollY = window.scrollY;
+
+    ipcRenderer.send(Channel.TEST_LOG, `Scrolling from ${currentScrollY} to ${scrollY}`);
+    ipcRenderer.send(Channel.REPLAY_SCROLL, {scrollY, currentScrollY});
 }
 
 // Modified replay function to start replayManager asynchronously

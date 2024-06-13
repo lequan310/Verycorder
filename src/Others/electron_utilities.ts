@@ -240,10 +240,11 @@ export function scroller() {
     console.log('Scroller function called');
 
     // Execute JavaScript in the webContents to get the current scroll position
-    const currentScrollY = await replayWindow.webContents.executeJavaScript('window.scrollY');
+    const currentScrollY = data.currentScrollY;
 
+    console.log('Current scrollY:', currentScrollY);
     // Calculate the deltaY as the difference between the target position and the current position
-    const deltaY = (data - currentScrollY)*-1;
+    const deltaY = (data.scrollY - currentScrollY)*-1;
 
     // Send the mouseWheel event with the calculated deltaY to scroll
     replayView.webContents.sendInputEvent({
