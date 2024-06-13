@@ -43,7 +43,7 @@ async function replayManager() {
                         await clickEvent(event, rect); 
                         break;
                     case 'input':
-                        // await inputEvent(event, rect); // Modify inputEvent accordingly
+                        await inputEvent(event, rect);
                         break;
                     case 'hover':
                         await hoverEvent(event, rect); 
@@ -60,6 +60,16 @@ async function replayManager() {
         }
 
     }
+}
+
+async function inputEvent(event: any, rect: DOMRect) {
+    const box = rect;
+    const inputX = box.x + box.width / 2;
+    const inputY = box.y + box.height / 2;
+    ipcRenderer.send(Channel.TEST_LOG, `Inputting on ${event.target.css}`);
+    ipcRenderer.send(Channel.TEST_LOG, `Inputting at ${inputX}, ${inputY}`);
+    ipcRenderer.send(Channel.TEST_LOG, `Inputting value: ${event.value}`);
+    ipcRenderer.send(Channel.REPLAY_INPUT, { x: inputX, y: inputY, value: event.value });
 }
 
 async function hoverEvent(event: any, rect: DOMRect) {

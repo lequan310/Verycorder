@@ -1,4 +1,4 @@
-import { BrowserView, BrowserWindow, ipcMain } from "electron";
+import { BrowserView, BrowserWindow, ipcMain, webContents } from "electron";
 import { delay, handleUrl } from "./utilities";
 import { TestCase } from "../Types/testCase";
 import { ChangeUrlResult } from "../Types/urlResult";
@@ -180,6 +180,33 @@ export function gotourl(win: BrowserWindow){
   else {
     console.log('Cant load because current mode is ', getCurrentMode());
   }
+}
+
+
+export function inputer() {
+  ipcMain.on(Channel.REPLAY_INPUT, async (event, data) => {
+    console.log('Inputer function called');
+    console.log(data);
+    console.log(data.x, data.y);
+    console.log(data.value);
+    // Simulate key press for each character in data.value
+    for (const char of data.value) {
+      replayView.webContents.sendInputEvent({ type: 'char', keyCode: char });
+    }
+    console.log('Inputed' + data.value +  ' at ', data.x, data.y);
+    //replayView.webContents.sendInputEvent({ type: 'keyDown', keyCode: char });
+    //replayView.webContents.sendInputEvent({ type: 'keyUp', keyCode: char });
+    
+    //const focusedWebContents = webContents.getFocusedWebContents(); // Get the currently focused webContents
+    // if (focusedWebContents) {
+    //   for (const char of data.value) {
+    //     // Simulate key press for each character in data.value
+    //     focusedWebContents.sendInputEvent({ type: 'keyDown', keyCode: char });
+    //     focusedWebContents.sendInputEvent({ type: 'keyUp', keyCode: char });
+    //   }
+    // }
+  });
+
 }
 
 export function hoverer() {
