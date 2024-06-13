@@ -18,32 +18,65 @@ async function replayManager() {
     for (const event of testCase.events) {
         if (!isReplaying) return; // Stop if isReplaying is false
 
-        // Await a 1 second delay before processing the next event
-        //await new Promise(resolve => setTimeout(resolve, 1000));
         await delay(2000);
         ipcRenderer.send(Channel.TEST_LOG, event);
-        switch (event.type) {
-            case 'click':
-                if (!event.target.css) {  break;}
-                await clickEvent(event);
-                break;
-            case 'input':
-                //await inputEvent(event);
-                break;
-            case 'hover':
-                //await hoverEvent(event);
-                break;
-            case 'scroll':
-                await scrollEvent(event);
-                break;
+        if (event.target.css && event.target.css !== 'window') {
+            const element = document.querySelector(event.target.css);
+            if (element) {
+                const rect = element.getBoundingClientRect();
+                // Log the element's bounding rectangle or use it as needed
+                ipcRenderer.send(Channel.TEST_LOG, `Element rect: ${JSON.stringify(rect)}`);
+                
+                // Depending on the event type, you might want to handle it differently
+                // For example, for a click event, you might want to simulate a click based on the element's position
+                switch (event.type) {
+                    case 'click':
+                        await clickEvent(event, rect); // Assuming clickEvent can handle rect
+                        break;
+                    case 'input':
+                        // await inputEvent(event, rect); // Modify inputEvent accordingly
+                        break;
+                    case 'hover':
+                        // await hoverEvent(event, rect); // Modify hoverEvent accordingly
+                        break;
+                    // Add cases for other event types if needed
+                }
+            } else {
+                // Element not found, handle accordingly
+                ipcRenderer.send(Channel.TEST_LOG, `Element not found for selector: ${event.target.css}`);
+            }
+        } else if (event.target.css == 'window') {
+            // If event.target.css is not provided or invalid, and the event is a scroll event
+            await scrollEvent(event);
         }
+
+
+        // switch (event.type) {
+        //     case 'click':
+        //         if (!event.target.css) {  break;}
+        //         await clickEvent(event);
+        //         break;
+        //     case 'input':
+        //         //await inputEvent(event);
+        //         break;
+        //     case 'hover':
+        //         //await hoverEvent(event);
+        //         break;
+        //     case 'scroll':
+        //         await scrollEvent(event);
+        //         break;
+        // }
     }
 }
 
-async function clickEvent(event: any) {
-    cssSelector = event.target.css;
-    ipcRenderer.send(Channel.TEST_LOG, `Clicking on ${cssSelector}`);
-    ipcRenderer.send(Channel.REPLAY_CLICK, cssSelector);
+async function clickEvent(event: any, rect: DOMRect) {
+    const box = rect;
+    const clickX = box.x + box.width / 2;
+    const clickY = box.y + box.height / 2;
+    ipcRenderer.send(Channel.TEST_LOG, `Clicking on ${event.target.css}`);
+    ipcRenderer.send(Channel.TEST_LOG, `Clicking at ${clickX}, ${clickY}`);
+    ipcRenderer.send(Channel.REPLAY_CLICK, { x: clickX, y: clickY });
+
     /*
     let element = document.querySelector(cssSelector);
     if (element) {
