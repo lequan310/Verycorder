@@ -170,6 +170,7 @@ export function testLogEvents() {
   });
 }
 
+
 export function gotourl(win: BrowserWindow){
   if (getCurrentMode() === "normal" && testCase && testCase.events && testCase.events.length > 0) {
     const view = win.getBrowserView(); 
@@ -181,12 +182,25 @@ export function gotourl(win: BrowserWindow){
   }
 }
 
+function hoverEvent(x: any, y: any) {
+  replayView.webContents.sendInputEvent({
+    type: 'mouseMove',
+    x: x,
+    y: y,
+  });
+}
+
+// Function used to simulate click event
 export function clicker() {
   ipcMain.on(Channel.REPLAY_CLICK, async (event, data) => {
     console.log('Clicker function called');
     console.log(data);
     console.log(data.x, data.y);
     
+    //Hover over the element first
+    hoverEvent(data.x, data.y);
+    
+    // Click the element
     replayView.webContents.sendInputEvent({
       type: 'mouseDown',
       x: data.x,

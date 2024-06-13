@@ -21,7 +21,16 @@ async function replayManager() {
         await delay(2000);
         ipcRenderer.send(Channel.TEST_LOG, event);
         if (event.target.css && event.target.css !== 'window') {
-            const element = document.querySelector(event.target.css);
+            // Find the element based on the css selector
+            let element = document.querySelector(event.target.css);
+
+            // If element not found, try to find it based on xpath
+            if (!element) {
+                const xpathResult = document.evaluate(event.target.xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+                if (xpathResult.singleNodeValue instanceof Element) {
+                    element = xpathResult.singleNodeValue;
+                }
+            }
             if (element) {
                 const rect = element.getBoundingClientRect();
                 // Log the element's bounding rectangle or use it as needed
@@ -50,22 +59,6 @@ async function replayManager() {
             await scrollEvent(event);
         }
 
-
-        // switch (event.type) {
-        //     case 'click':
-        //         if (!event.target.css) {  break;}
-        //         await clickEvent(event);
-        //         break;
-        //     case 'input':
-        //         //await inputEvent(event);
-        //         break;
-        //     case 'hover':
-        //         //await hoverEvent(event);
-        //         break;
-        //     case 'scroll':
-        //         await scrollEvent(event);
-        //         break;
-        // }
     }
 }
 
@@ -77,20 +70,6 @@ async function clickEvent(event: any, rect: DOMRect) {
     ipcRenderer.send(Channel.TEST_LOG, `Clicking at ${clickX}, ${clickY}`);
     ipcRenderer.send(Channel.REPLAY_CLICK, { x: clickX, y: clickY });
 
-    /*
-    let element = document.querySelector(cssSelector);
-    if (element) {
-        ipcRenderer.send(Channel.TEST_LOG, 'Element found');
-        if (element instanceof HTMLElement) { // Type assertion
-            element.click(); // Now TypeScript knows `click` exists
-            ipcRenderer.send(Channel.TEST_LOG, 'Clicked on element');
-        } else {
-            ipcRenderer.send(Channel.TEST_LOG, 'Element is not clickable');
-        }
-    } else {
-        ipcRenderer.send(Channel.TEST_LOG, 'Element not found');
-    }
-    */
 }
 
 async function scrollEvent(event: any) {

@@ -97,12 +97,9 @@ app.whenReady().then(() => {
     gotourl(win);
     setTimeout(() => {
       toggleReplay(win);
-    }, 2000); // Wait for approximately 10 seconds before calling toggleReplay
+    }, 2000); 
   });
 
-  globalShortcut.register("CommandOrControl+L", () => {
-    
-  });
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
   app.on("activate", () => {
