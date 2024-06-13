@@ -1,7 +1,7 @@
 :root {
   --border-radius: 12px;
   --border-color: #e5e5e5;
-  --arc-palette-cutoutColor: #6f00eeff;
+  /* --arc-palette-cutoutColor: #6f00eeff;
   --arc-palette-minContrastColor: #6f00eeff;
   --arc-palette-focus: #882cf0ce;
   --arc-palette-subtitle: #7b777fff;
@@ -12,8 +12,20 @@
   --arc-palette-maxContrastColor: #f6eeffff;
   --arc-palette-hover: #923ef07a;
   --arc-palette-background: #200047ff;
-  --arc-background-simple-color: #8417ffff;
+  --arc-background-simple-color: #8417ffff; */
   --arc-palette-title: #e8d7fbff;
+  --arc-palette-foregroundTertiary: #8fab00ff;
+  --arc-palette-maxContrastColor: #d5ff03ff;
+  --arc-palette-foregroundSecondary: #8fab00ff;
+  --arc-palette-subtitle: #6a7f00ff;
+  --arc-palette-backgroundExtra: #0c0e00ff;
+  --arc-palette-focus: #717e2fce;
+  --arc-palette-cutoutColor: #4f5f00ff;
+  --arc-palette-minContrastColor: #4f5f00ff;
+  --arc-background-simple-color: #8fab00ff;
+  --arc-palette-background: #181c00ff;
+  --arc-palette-hover: #7e8a407a;
+  --arc-palette-foregroundPrimary: #d5ff03ff;
 }
 
 html {
@@ -113,13 +125,12 @@ textarea {
 }
 
 .draggable_wrapper {
-  border: 100%;
   cursor: col-resize;
   display: flex;
   align-items: center;
-  margin-right: 16px;
-  box-shadow: rgba(65, 65, 65, 0.089) 3.95px 1.95px 10.6px;
-  border-radius: 0 var(--border-radius) var(--border-radius) 0;
+  margin-right: 12px;
+  /* box-shadow: rgba(65, 65, 65, 0.089) 3.95px 1.95px 10.6px;
+  border-radius: 0 var(--border-radius) var(--border-radius) 0; */
 }
 
 .draggable_wrapper span {
@@ -137,14 +148,22 @@ textarea {
   background-color: var(--border-color);
 }
 
-.commands__wrapper {
-  margin: 0 4px 0 16px;
-  border: 1px solid var(--border-color);
+.controller__content {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  margin: 0 4px 12px 12px;
+  /* border: 1px solid var(--border-color); */
+  overflow: hidden;
+  box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px,
+    rgba(17, 17, 26, 0.05) 0px 8px 32px;
   border-radius: var(--border-radius);
+}
+.commands__wrapper {
   flex: 1;
   overflow-x: hidden;
   overflow-y: scroll;
-  margin-bottom: 12px;
+  /* margin-bottom: 12px; */
 }
 
 .commands__wrapper__title {
@@ -187,11 +206,12 @@ textarea {
   display: flex;
   flex-direction: column;
   gap: 6px;
-  border-radius: var(--border-radius);
-  box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px;
-  background-color: var(--arc-palette-focus);
+  border-radius: 8px;
+  /* box-shadow: rgba(17, 12, 46, 0.15) 0px 48px 100px 0px; */
+  /* border: 2px solid var(--arc-background-simple-color); */
+  background-color: #efefef;
+  margin: 12px;
   padding: 2rem 16px;
-  margin: 0 0 12px 12px;
 }
 
 .controllers__wrapper .collapse_btn {

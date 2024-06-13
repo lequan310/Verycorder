@@ -18,7 +18,7 @@ const StepsView = () => {
   const toggleRecord = (recording: boolean) => {
     if (recording) setEventList([]); // Reset event list when recording starts
     else ipcRenderer.send(Channel.UPDATE_TEST_CASE, eventList); // Send recordedevents to main process when finish recording
-  }
+  };
 
   useEffect(() => {
     if (bottomRef.current) {
@@ -29,7 +29,10 @@ const StepsView = () => {
   // Clean up stuff
   useEffect(() => {
     const removeAddEvent = ipcRenderer.on(Channel.ADD_EVENT, addEvent);
-    const removeToggleRecord = ipcRenderer.on(Channel.TOGGLE_RECORD, toggleRecord);
+    const removeToggleRecord = ipcRenderer.on(
+      Channel.TOGGLE_RECORD,
+      toggleRecord
+    );
 
     return () => {
       removeAddEvent();
@@ -39,7 +42,7 @@ const StepsView = () => {
   }, [eventList]);
 
   return (
-    <div ref={listRef} className="stepview__container">
+    <div ref={listRef} className="__container">
       {eventList.map((event, index) => {
         return <StepItem key={index} data={event} />;
       })}

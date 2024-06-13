@@ -75,43 +75,45 @@ const App = () => {
           <img src={Logo} alt="React Logo" style={{ width: "100px" }} />
           <HeaderComponent enableRecord={enableRecord}></HeaderComponent>
         </div>
-        <div className="commands__wrapper">
-          <div className="commands__wrapper__title">
-            <h3>Commands</h3>
-            <div className="select_box__wrapper">
-              <p>Target: </p>
-              <select
-                name="target"
-                id="target"
-                value={state}
-                onChange={(e) => {
-                  handleChangeTarget(e);
-                }}
-              >
-                <option value={TargetEnum.css}>{TargetEnum.css}</option>
-                <option value={TargetEnum["x-path"]}>
-                  {TargetEnum["x-path"]}
-                </option>
-              </select>
+        <div className="controller__content">
+          <div className="commands__wrapper">
+            <div className="commands__wrapper__title">
+              <h3>Commands</h3>
+              <div className="select_box__wrapper">
+                <p>Target: </p>
+                <select
+                  name="target"
+                  id="target"
+                  value={state}
+                  onChange={(e) => {
+                    handleChangeTarget(e);
+                  }}
+                >
+                  <option value={TargetEnum.css}>{TargetEnum.css}</option>
+                  <option value={TargetEnum["x-path"]}>
+                    {TargetEnum["x-path"]}
+                  </option>
+                </select>
+              </div>
             </div>
+            <TargetContext.Provider value={state}>
+              <TargetDispatchContext.Provider value={dispatch}>
+                <StepsView />
+              </TargetDispatchContext.Provider>
+            </TargetContext.Provider>
           </div>
-          <TargetContext.Provider value={state}>
-            <TargetDispatchContext.Provider value={dispatch}>
-              <StepsView />
-            </TargetDispatchContext.Provider>
-          </TargetContext.Provider>
-        </div>
-        <div
-          className={`controllers__wrapper ${
-            shrink ? "shrink" + " change-padding-bottom" : "expand"
-          }`}
-        >
-          <button className="collapse_btn" onClick={handleButtonClick}>
-            {shrink ? "^ Expand" : " v Collapse"}
-          </button>
-          <ControllerItem hide={shrink ? "hide" : ""}></ControllerItem>
-          <ControllerItem hide={shrink ? "hide" : ""}></ControllerItem>
-          <textarea placeholder={"Comment"} />
+          <div
+            className={`controllers__wrapper ${
+              shrink ? "shrink" + " change-padding-bottom" : "expand"
+            }`}
+          >
+            <button className="collapse_btn" onClick={handleButtonClick}>
+              {shrink ? "^ Expand" : " v Collapse"}
+            </button>
+            <ControllerItem hide={shrink ? "hide" : ""}></ControllerItem>
+            <ControllerItem hide={shrink ? "hide" : ""}></ControllerItem>
+            <textarea placeholder={"Comment"} />
+          </div>
         </div>
       </div>
       <div
