@@ -239,23 +239,27 @@ export function scroller() {
   ipcMain.on(Channel.REPLAY_SCROLL, async (event, data) => {
     console.log('Scroller function called');
 
-    // Execute JavaScript in the webContents to get the current scroll position
-    const currentScrollY = data.currentScrollY;
-
-    console.log('Current scrollY:', currentScrollY);
-    // Calculate the deltaY as the difference between the target position and the current position
-    const deltaY = (data.scrollY - currentScrollY)*-1;
 
     // Send the mouseWheel event with the calculated deltaY to scroll
+    if (data.type === 'vertical') {
     replayView.webContents.sendInputEvent({
       type: 'mouseWheel',
       x: 0,
       y: 0,
       deltaX: 0,
-      deltaY: deltaY, // Use the calculated deltaY
+      deltaY: data.deltaY*-1, 
       canScroll: true
     });
-
+    } else if (data.type === 'horizontal') {
+      replayView.webContents.sendInputEvent({
+        type: 'mouseWheel',
+        x: 0,
+        y: 0,
+        deltaX: data.deltaX*-1,
+        deltaY: 0, 
+        canScroll: true
+      });  
+    }
     console.log('Scrolled to ', data);
   });
 }
