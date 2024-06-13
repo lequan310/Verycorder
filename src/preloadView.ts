@@ -11,9 +11,9 @@ function onload(load: boolean) {
             case 'record':
                 load ? record() : stopRecording();
                 break;
-            // case 'replay':
-            //     load ? replay() : stopReplaying();
-            //     break;
+            //case 'replay':
+            //   load ? replay() : stopReplaying();
+            //    break;
         }
     });
 }

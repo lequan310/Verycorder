@@ -2,25 +2,24 @@ import { ipcRenderer } from "electron";
 import { Channel } from "./listenerConst";
 import { TestCase } from "../Types/testCase";
 
-
-let testCase : TestCase;
+let testCase: TestCase;
 let cssSelector: string;
+let isReplaying = true; // Flag to control the replay
 
 // Function to get the test case from main process
-export function getTestCase(newTestCase: TestCase){
+export function getTestCase(newTestCase: TestCase) {
     testCase = newTestCase;
 }
 
-
-
-// Function to loop through the events and allocate approriate function to replay them
-export function replayManager() {
+// Modified replayManager to be async and controlled by isReplaying flag
+async function replayManager() {
     ipcRenderer.send(Channel.TEST_LOG, 'Replay manager started');
     for (const event of testCase.events) {
+        if (!isReplaying) return; // Stop if isReplaying is false
         ipcRenderer.send(Channel.TEST_LOG, event);
         switch (event.type) {
             case 'click':
-                clickEvent(event);
+                //await clickEvent(event);
                 break;
             case 'input':
                 //await inputEvent(event);
@@ -29,19 +28,17 @@ export function replayManager() {
                 //await hoverEvent(event);
                 break;
             case 'scroll':
-                //scrollEvent(event);
-                break
-            
+                await scrollEvent(event);
+                break;
         }
-        
     }
 }
 
-function clickEvent(event: any) {
+async function clickEvent(event: any) {
     cssSelector = event.target.css;
-    //ipcRenderer.send(Channel.REPLAY_CLICK, cssSelector);
     ipcRenderer.send(Channel.TEST_LOG, `Clicking on ${cssSelector}`);
-    console.log(cssSelector);
+    ipcRenderer.send(Channel.REPLAY_CLICK, cssSelector);
+    /*
     let element = document.querySelector(cssSelector);
     if (element) {
         ipcRenderer.send(Channel.TEST_LOG, 'Element found');
@@ -54,21 +51,23 @@ function clickEvent(event: any) {
     } else {
         ipcRenderer.send(Channel.TEST_LOG, 'Element not found');
     }
-
+    */
 }
 
-function scrollEvent(event: any) {
+async function scrollEvent(event: any) {
     const scrollY = event.value.y;
     ipcRenderer.send(Channel.TEST_LOG, `Scrolling to ${scrollY}`);
     ipcRenderer.send(Channel.REPLAY_SCROLL, scrollY);
 }
 
-export function replay() {
+// Modified replay function to start replayManager asynchronously
+export async function replay() {
     ipcRenderer.send(Channel.TEST_LOG, 'Replay started');
-    replayManager();
-    
+    await replayManager();
 }
 
+// Function to stop replaying
 export function stopReplaying() {
+    isReplaying = false;
     ipcRenderer.send(Channel.TEST_LOG, 'Replay stopped');
 }

@@ -118,11 +118,12 @@ function getNthIndex(element: HTMLElement, value: string, isClass: boolean) {
     return nthIndex;
 }
 
-// Add escape characters to special characters in selector
 function escapeSpecialCharacters(selector: string) {
     return selector
         .replace(/\./g, '\\.')  // Escape dots
-        .replace(/:/g, '\\:');  // Escape colons
+        .replace(/:/g, '\\:')  // Escape colons
+        .replace(/\[/g, '\\[')  // Escape left square brackets
+        .replace(/\]/g, '\\]'); // Escape right square brackets
 }
 
 function replaceNumberCssSelector(input: string): string {

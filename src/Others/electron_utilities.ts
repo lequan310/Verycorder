@@ -51,14 +51,13 @@ export function toggleReplay(win: BrowserWindow) {
     replayView = view;
 
     view.webContents.send(Channel.SEND_EVENT, testCase); // Send test case to process for replay.
-    view.webContents.loadURL(testCase.url); // Load the URL to replay 
+    
+    //view.webContents.loadURL(testCase.url); // Load the URL to replay 
+    
     view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
-    
-    
     
     console.log('replaying : ', replaying);
 
-    
 
   }
   else {
@@ -169,6 +168,17 @@ export function testLogEvents() {
   ipcMain.on(Channel.TEST_LOG, (event, data) => {
     console.log(data);
   });
+}
+
+export function gotourl(win: BrowserWindow){
+  if (getCurrentMode() === "normal" && testCase && testCase.events && testCase.events.length > 0) {
+    const view = win.getBrowserView(); 
+    console.log('Load URL: ' + testCase.url); 
+    view.webContents.loadURL(testCase.url);
+  }
+  else {
+    console.log('Cant load because current mode is ', getCurrentMode());
+  }
 }
 
 export function clicker() {
