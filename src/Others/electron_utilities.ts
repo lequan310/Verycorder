@@ -182,6 +182,17 @@ export function gotourl(win: BrowserWindow){
   }
 }
 
+export function hoverer() {
+  ipcMain.on(Channel.REPLAY_HOVER, async (event, data) => {
+    console.log('Hoverer function called');
+    console.log(data);
+    console.log(data.x, data.y);
+    hoverEvent(data.x, data.y);
+  });
+
+}
+
+// Function used to simulate hover event
 function hoverEvent(x: any, y: any) {
   replayView.webContents.sendInputEvent({
     type: 'mouseMove',

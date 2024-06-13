@@ -40,13 +40,13 @@ async function replayManager() {
                 // For example, for a click event, you might want to simulate a click based on the element's position
                 switch (event.type) {
                     case 'click':
-                        await clickEvent(event, rect); // Assuming clickEvent can handle rect
+                        await clickEvent(event, rect); 
                         break;
                     case 'input':
                         // await inputEvent(event, rect); // Modify inputEvent accordingly
                         break;
                     case 'hover':
-                        // await hoverEvent(event, rect); // Modify hoverEvent accordingly
+                        await hoverEvent(event, rect); 
                         break;
                     // Add cases for other event types if needed
                 }
@@ -60,6 +60,15 @@ async function replayManager() {
         }
 
     }
+}
+
+async function hoverEvent(event: any, rect: DOMRect) {
+    const box = rect;
+    const hoverX = box.x + box.width / 2;
+    const hoverY = box.y + box.height / 2;
+    ipcRenderer.send(Channel.TEST_LOG, `Hovering on ${event.target.css}`);
+    ipcRenderer.send(Channel.TEST_LOG, `Hovering at ${hoverX}, ${hoverY}`);
+    ipcRenderer.send(Channel.REPLAY_HOVER, { x: hoverX, y: hoverY });
 }
 
 async function clickEvent(event: any, rect: DOMRect) {

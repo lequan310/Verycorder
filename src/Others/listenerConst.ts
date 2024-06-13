@@ -13,6 +13,8 @@ export const Channel = {
     // Replay feature
     REPLAY_SCROLL: 'replay-scroll',
     REPLAY_CLICK: 'replay-click',
+    REPLAY_HOVER: 'replay-hover',
+    REPLAY_INPUT: 'replay-input',
 
     // Handle UI events from React to Electron
     URL_CHANGE: 'url-change',
