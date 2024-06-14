@@ -182,17 +182,17 @@ export function testLogEvents() {
   });
 }
 
-export function handleBeginResize(win: BrowserWindow) {
-  //on ipcMain, hide browserview
-  ipcMain.handle(Channel.BEGIN_RESIZE, (event) => {
-    // view.webContents.send(Channel.BEGIN_RESIZE);
-    const view = win.getBrowserView();
-    if (view) {
-      view.setBounds({ x: 0, y: 0, width: 0, height: 0 });
-    }
-    console.log("On Start Resize");
-  });
-}
+// export function handleBeginResize(win: BrowserWindow) {
+//   //on ipcMain, hide browserview
+//   ipcMain.handle(Channel.BEGIN_RESIZE, (event) => {
+//     // view.webContents.send(Channel.BEGIN_RESIZE);
+//     const view = win.getBrowserView();
+//     if (view) {
+//       view.setBounds({ x: 0, y: 0, width: 0, height: 0 });
+//     }
+//     console.log("On Start Resize");
+//   });
+// }
 
 export function handleEndResize(win: BrowserWindow) {
   //on ipcMain, hide browserview
