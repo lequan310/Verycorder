@@ -8,6 +8,13 @@ export const Channel = {
   ADD_EVENT: "add-event",
   TEST_LOG: "test-log", // test logs for replay testing
   SEND_EVENT: "send-event", // send test case to replay.ts
+  LOAD_URL: "load-url", // load URL in BrowserView
+
+  // Replay feature
+  REPLAY_SCROLL: "replay-scroll",
+  REPLAY_CLICK: "replay-click",
+  REPLAY_HOVER: "replay-hover",
+  REPLAY_INPUT: "replay-input",
 
   // Handle UI events from React to Electron
   URL_CHANGE: "url-change",

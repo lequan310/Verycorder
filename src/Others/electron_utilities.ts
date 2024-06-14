@@ -1,5 +1,5 @@
-import { BrowserView, BrowserWindow, ipcMain } from "electron";
-import { handleUrl } from "./utilities";
+import { BrowserView, BrowserWindow, ipcMain, webContents } from "electron";
+import { delay, handleUrl } from "./utilities";
 import { TestCase } from "../Types/testCase";
 import { ChangeUrlResult } from "../Types/urlResult";
 import { BLANK_PAGE, Channel } from "./listenerConst";
@@ -9,6 +9,10 @@ let replaying = false;
 let testCase: TestCase;
 let abortController: AbortController;
 let leftPosition = 350 + 24;
+
+// For development of replay feature
+let replayWindow: BrowserWindow;
+let replayView: BrowserView;
 
 function getCurrentMode() {
   return recording ? "record" : replaying ? "replay" : "normal";
@@ -51,9 +55,15 @@ export function toggleReplay(win: BrowserWindow) {
   replaying = !replaying;
 
   if (testCase && testCase.events && testCase.events.length > 0) {
+    replayWindow = win;
+    replayView = view;
+
     view.webContents.send(Channel.SEND_EVENT, testCase); // Send test case to process for replay.
+
+    //view.webContents.loadURL(testCase.url); // Load the URL to replay
+
     view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
-    view.webContents.loadURL(testCase.url);
+
     console.log("replaying : ", replaying);
   } else {
     //view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
@@ -203,5 +213,121 @@ export function handleEndResize(win: BrowserWindow) {
       }
     }
     console.log("On Start Resize");
+  });
+}
+
+export function gotourl(win: BrowserWindow) {
+  if (
+    getCurrentMode() === "normal" &&
+    testCase &&
+    testCase.events &&
+    testCase.events.length > 0
+  ) {
+    const view = win.getBrowserView();
+    console.log("Load URL: " + testCase.url);
+    view.webContents.loadURL(testCase.url);
+  } else {
+    console.log("Cant load because current mode is ", getCurrentMode());
+  }
+}
+
+export function inputer() {
+  ipcMain.on(Channel.REPLAY_INPUT, async (event, data) => {
+    console.log("Inputer function called");
+    console.log(data);
+    console.log(data.x, data.y);
+    console.log(data.value);
+    // Simulate key press for each character in data.value
+    for (const char of data.value) {
+      replayView.webContents.sendInputEvent({ type: "char", keyCode: char });
+    }
+    console.log("Inputed" + data.value + " at ", data.x, data.y);
+    //replayView.webContents.sendInputEvent({ type: 'keyDown', keyCode: char });
+    //replayView.webContents.sendInputEvent({ type: 'keyUp', keyCode: char });
+
+    //const focusedWebContents = webContents.getFocusedWebContents(); // Get the currently focused webContents
+    // if (focusedWebContents) {
+    //   for (const char of data.value) {
+    //     // Simulate key press for each character in data.value
+    //     focusedWebContents.sendInputEvent({ type: 'keyDown', keyCode: char });
+    //     focusedWebContents.sendInputEvent({ type: 'keyUp', keyCode: char });
+    //   }
+    // }
+  });
+}
+
+export function hoverer() {
+  ipcMain.on(Channel.REPLAY_HOVER, async (event, data) => {
+    console.log("Hoverer function called");
+    console.log(data);
+    console.log(data.x, data.y);
+    hoverEvent(data.x, data.y);
+  });
+}
+
+// Function used to simulate hover event
+function hoverEvent(x: any, y: any) {
+  replayView.webContents.sendInputEvent({
+    type: "mouseMove",
+    x: x,
+    y: y,
+  });
+}
+
+// Function used to simulate click event
+export function clicker() {
+  ipcMain.on(Channel.REPLAY_CLICK, async (event, data) => {
+    console.log("Clicker function called");
+    console.log(data);
+    console.log(data.x, data.y);
+
+    //Hover over the element first
+    hoverEvent(data.x, data.y);
+
+    // Click the element
+    replayView.webContents.sendInputEvent({
+      type: "mouseDown",
+      x: data.x,
+      y: data.y,
+      button: "left",
+      clickCount: 1,
+    });
+    replayView.webContents.sendInputEvent({
+      type: "mouseUp",
+      x: data.x,
+      y: data.y,
+      button: "left",
+      clickCount: 1,
+    });
+    console.log("Clicked at ", data.x, data.y);
+  });
+}
+
+// Replay feature functions
+export function scroller() {
+  ipcMain.on(Channel.REPLAY_SCROLL, async (event, data) => {
+    console.log("Scroller function called");
+
+    // Send the mouseWheel event with the calculated deltaY to scroll
+    if (data.type === "vertical") {
+      replayView.webContents.sendInputEvent({
+        type: "mouseWheel",
+        x: 0,
+        y: 0,
+        deltaX: 0,
+        deltaY: data.deltaY * -1,
+        canScroll: true,
+      });
+    } else if (data.type === "horizontal") {
+      replayView.webContents.sendInputEvent({
+        type: "mouseWheel",
+        x: 0,
+        y: 0,
+        deltaX: data.deltaX * -1,
+        deltaY: 0,
+        canScroll: true,
+      });
+    }
+    console.log("Scrolled to ", data);
   });
 }

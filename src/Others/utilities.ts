@@ -118,11 +118,13 @@ function getNthIndex(element: HTMLElement, value: string, isClass: boolean) {
     return nthIndex;
 }
 
-// Add escape characters to special characters in selector
 function escapeSpecialCharacters(selector: string) {
     return selector
-        .replace(/\./g, '\\.')  // Escape dots
-        .replace(/:/g, '\\:');  // Escape colons
+        .replace(/([!\"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~])/g, '\\$1');
+    // .replace(/\./g, '\\.')  // Escape dots
+    // .replace(/:/g, '\\:')  // Escape colons
+    // .replace(/\[/g, '\\[')  // Escape left square brackets
+    // .replace(/\]/g, '\\]'); // Escape right square brackets
 }
 
 function replaceNumberCssSelector(input: string): string {
@@ -168,6 +170,11 @@ export function getCssSelector(element: HTMLElement) {
         } else {
             // Use tag to construct the selector
             const tag = currentElement.tagName.toLowerCase();
+            if (document.body.getElementsByTagName(tag).length === 1) {
+                selectorParts.unshift(tag);
+                break;
+            }
+
             const nthIndex = getNthIndex(currentElement, tag, false);
             selectorParts.unshift(tag + nthIndex);
         }
