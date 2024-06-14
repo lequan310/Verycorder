@@ -9,6 +9,7 @@ import Logo from "./Assets/katalon_logo.svg";
 import { TargetContext, TargetDispatchContext } from "./Types/targetContext";
 import { TargetEnum } from "./Types/eventComponents";
 import { targetReducer } from "./Others/reducer";
+import { Channel } from "./Others/listenerConst";
 
 const App = () => {
   const [shrink, setShrink] = useState(false);
@@ -16,6 +17,7 @@ const App = () => {
     "Please enter a link to continue"
   );
   const [enableRecord, setEnableRecord] = useState(false);
+  const ipcRenderer = window.api;
 
   const handleButtonClick = () => {
     setShrink((prev) => {
@@ -38,6 +40,7 @@ const App = () => {
     setEnableRecord(!object.success);
   }
 
+  // Handle resize
   const [leftWidth, setLeftWidth] = useState(350); // Initial width as percentage
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
@@ -47,6 +50,9 @@ const App = () => {
     setIsDragging(true);
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
+    // ipcRenderer.invoke(Channel.BEGIN_RESIZE).catch((error: Error) => {
+    //   console.log(error);
+    // });
   };
 
   const handleMouseMove = (e: MouseEvent) => {
@@ -54,14 +60,22 @@ const App = () => {
       const containerRect = containerRef.current.getBoundingClientRect();
       console.log(e.clientX);
       const newLeftWidth = e.clientX - containerRect.left;
-      setLeftWidth(Math.min(Math.max(newLeftWidth, 350), containerRect.width)); // Limit the width between 100px and container width - 100px
+      const finalLeftWidth = Math.min(
+        Math.max(newLeftWidth, 350),
+        containerRect.width - 250
+      );
+      setLeftWidth(finalLeftWidth);
+      ipcRenderer.invoke(Channel.END_RESIZE, finalLeftWidth); // Limit the width between 100px and container width - 100px
     }
   };
 
-  const handleMouseUp = () => {
+  const handleMouseUp = (e: MouseEvent) => {
     setIsDragging(false);
     document.removeEventListener("mousemove", handleMouseMove);
     document.removeEventListener("mouseup", handleMouseUp);
+    // const containerRect = containerRef.current.getBoundingClientRect();
+    // console.log(e.clientX);
+    // const newLeftWidth = e.clientX - containerRect.left;
   };
 
   return (

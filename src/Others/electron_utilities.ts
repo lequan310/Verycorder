@@ -8,6 +8,7 @@ let recording = false;
 let replaying = false;
 let testCase: TestCase;
 let abortController: AbortController;
+let leftPosition = 350 + 24;
 
 function getCurrentMode() {
   return recording ? "record" : replaying ? "replay" : "normal";
@@ -16,7 +17,11 @@ function getCurrentMode() {
 export function toggleRecord(win: BrowserWindow) {
   if (replaying) return;
   const view = win.getBrowserView();
-  if (view.webContents.getURL() === "" || view.webContents.getURL() === BLANK_PAGE) return;
+  if (
+    view.webContents.getURL() === "" ||
+    view.webContents.getURL() === BLANK_PAGE
+  )
+    return;
 
   recording = !recording;
 
@@ -37,7 +42,11 @@ export function toggleRecord(win: BrowserWindow) {
 export function toggleReplay(win: BrowserWindow) {
   if (recording) return;
   const view = win.getBrowserView();
-  if (view.webContents.getURL() === "" || view.webContents.getURL() === BLANK_PAGE) return;
+  if (
+    view.webContents.getURL() === "" ||
+    view.webContents.getURL() === BLANK_PAGE
+  )
+    return;
 
   replaying = !replaying;
 
@@ -45,16 +54,19 @@ export function toggleReplay(win: BrowserWindow) {
     view.webContents.send(Channel.SEND_EVENT, testCase); // Send test case to process for replay.
     view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
     view.webContents.loadURL(testCase.url);
-    console.log('replaying : ', replaying);
-  }
-  else {
+    console.log("replaying : ", replaying);
+  } else {
     //view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
-    console.log('There are no test cases.')
+    console.log("There are no test cases.");
   }
 }
 
 // Handle URL change via search bar with abort controller
-function changeUrlWithAbort(url: string, view: BrowserView, signal: AbortSignal): Promise<ChangeUrlResult> {
+function changeUrlWithAbort(
+  url: string,
+  view: BrowserView,
+  signal: AbortSignal
+): Promise<ChangeUrlResult> {
   if (!url) {
     // If the URL is invalid
     view.webContents.loadURL(BLANK_PAGE);
@@ -69,23 +81,24 @@ function changeUrlWithAbort(url: string, view: BrowserView, signal: AbortSignal)
 
   return new Promise<ChangeUrlResult>((resolve, reject) => {
     if (signal.aborted) {
-      reject(new Error('Aborted'));
+      reject(new Error("Aborted"));
       return;
     }
 
     const handleAbort = () => {
-      reject(new Error('Aborted'));
+      reject(new Error("Aborted"));
     };
 
-    signal.addEventListener('abort', handleAbort);
+    signal.addEventListener("abort", handleAbort);
 
-    view.webContents.loadURL(url)
+    view.webContents
+      .loadURL(url)
       .then(() => {
-        signal.removeEventListener('abort', handleAbort);
+        signal.removeEventListener("abort", handleAbort);
         resolve({ success: true, message: "Success" });
       })
       .catch((error) => {
-        signal.removeEventListener('abort', handleAbort);
+        signal.removeEventListener("abort", handleAbort);
         resolve({ success: false, message: "Cannot connect to URL" });
       });
   });
@@ -99,9 +112,9 @@ export function updateViewBounds(win: BrowserWindow) {
     if (view) {
       const { x, y, width, height } = bounds;
       view.setBounds({
-        x: Math.floor(width / 2),
+        x: leftPosition,
         y: 70,
-        width: Math.floor(width / 2 - 12),
+        width: Math.floor(width - leftPosition - 12),
         height: Math.floor(height - 70 - 12),
       });
     }
@@ -120,7 +133,9 @@ export function handleUIEvents(win: BrowserWindow) {
     const signal = abortController.signal;
 
     url = handleUrl(url); // Assume this function properly formats the URL
-    const response = await changeUrlWithAbort(url, view, signal).catch((error) => console.log("Aborted"));
+    const response = await changeUrlWithAbort(url, view, signal).catch(
+      (error) => console.log("Aborted")
+    );
     return response;
   });
 
@@ -154,5 +169,39 @@ export function handleViewEvents() {
 export function testLogEvents() {
   ipcMain.on(Channel.TEST_LOG, (event, data) => {
     console.log(data);
+  });
+}
+
+export function handleBeginResize(win: BrowserWindow) {
+  //on ipcMain, hide browserview
+  ipcMain.handle(Channel.BEGIN_RESIZE, (event) => {
+    // view.webContents.send(Channel.BEGIN_RESIZE);
+    const view = win.getBrowserView();
+    if (view) {
+      view.setBounds({ x: 0, y: 0, width: 0, height: 0 });
+    }
+    console.log("On Start Resize");
+  });
+}
+
+export function handleEndResize(win: BrowserWindow) {
+  //on ipcMain, hide browserview
+  ipcMain.handle(Channel.END_RESIZE, (event, leftX) => {
+    console.log(leftPosition);
+    if (win) {
+      const bounds = win.getContentBounds();
+      const view = win.getBrowserView();
+      leftPosition = leftX + 24;
+      if (view) {
+        const { x, y, width, height } = bounds;
+        view.setBounds({
+          x: leftPosition,
+          y: 70,
+          width: Math.floor(width - leftPosition - 12),
+          height: Math.floor(height - 70 - 12),
+        });
+      }
+    }
+    console.log("On Start Resize");
   });
 }
