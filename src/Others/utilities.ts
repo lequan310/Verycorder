@@ -120,10 +120,11 @@ function getNthIndex(element: HTMLElement, value: string, isClass: boolean) {
 
 function escapeSpecialCharacters(selector: string) {
     return selector
-        .replace(/\./g, '\\.')  // Escape dots
-        .replace(/:/g, '\\:')  // Escape colons
-        .replace(/\[/g, '\\[')  // Escape left square brackets
-        .replace(/\]/g, '\\]'); // Escape right square brackets
+        .replace(/([!\"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~])/g, '\\$1');
+    // .replace(/\./g, '\\.')  // Escape dots
+    // .replace(/:/g, '\\:')  // Escape colons
+    // .replace(/\[/g, '\\[')  // Escape left square brackets
+    // .replace(/\]/g, '\\]'); // Escape right square brackets
 }
 
 function replaceNumberCssSelector(input: string): string {
