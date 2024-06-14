@@ -38,6 +38,7 @@ function createBrowserView() {
       preload: BROWSER_VIEW_PRELOAD_WEBPACK_ENTRY,
       nodeIntegration: false,
       contextIsolation: true,
+      scrollBounce: true, //For MacOS only ;)
     },
   });
 
@@ -62,6 +63,7 @@ const createWindow = (): void => {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       nodeIntegration: false,
       contextIsolation: true,
+      scrollBounce: true,
     },
   });
 
