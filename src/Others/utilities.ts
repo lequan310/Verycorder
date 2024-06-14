@@ -170,6 +170,11 @@ export function getCssSelector(element: HTMLElement) {
         } else {
             // Use tag to construct the selector
             const tag = currentElement.tagName.toLowerCase();
+            if (document.body.getElementsByTagName(tag).length === 1) {
+                selectorParts.unshift(tag);
+                break;
+            }
+
             const nthIndex = getNthIndex(currentElement, tag, false);
             selectorParts.unshift(tag + nthIndex);
         }
