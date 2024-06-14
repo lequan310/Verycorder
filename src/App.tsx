@@ -65,7 +65,7 @@ const App = () => {
         containerRect.width - 250
       );
       setLeftWidth(finalLeftWidth);
-      ipcRenderer.invoke(Channel.END_RESIZE, finalLeftWidth); // Limit the width between 100px and container width - 100px
+      ipcRenderer.send(Channel.END_RESIZE, finalLeftWidth); // Limit the width between 100px and container width - 100px
     }
   };
 

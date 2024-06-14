@@ -199,7 +199,7 @@ export function testLogEvents() {
 
 export function handleEndResize(win: BrowserWindow) {
   //on ipcMain, hide browserview
-  ipcMain.handle(Channel.END_RESIZE, (event, leftX) => {
+  ipcMain.on(Channel.END_RESIZE, (event, leftX) => {
     console.log(leftPosition);
     if (win) {
       const bounds = win.getContentBounds();
