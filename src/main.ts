@@ -137,9 +137,6 @@ app.whenReady().then(() => {
     "input-event",
   ]);
 
-  //Handle resize from React
-  handleEndResize(win);
-
   //Functions test for replaying
   testLogEvents();
   clicker();

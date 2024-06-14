@@ -157,6 +157,9 @@ export function handleUIEvents(win: BrowserWindow) {
   ipcMain.on(Channel.CLICK_RECORD, (event) => {
     toggleRecord(win);
   });
+
+  //Handle resize from React
+  handleEndResize(win);
 }
 
 // Function to register events (click, input, etc.) into left panel
