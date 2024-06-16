@@ -220,12 +220,20 @@ export function hoverer() {
 }
 
 // Function used to simulate hover event
-function hoverEvent(x: any, y: any) {
+function hoverEvent(x: number, y: number) {
   replayView.webContents.sendInputEvent({
     type: 'mouseMove',
     x: x,
     y: y,
+    movementX: 250,
+    movementY: 250,
   });
+
+  // replayView.webContents.sendInputEvent({
+  //   type: 'mouseEnter',
+  //   x: x,
+  //   y: y,
+  // });
 }
 
 // Function used to simulate click event
