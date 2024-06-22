@@ -95,6 +95,7 @@ async function clickEvent(event: RecordedEvent, rect: DOMRect) {
 
 async function scrollEvent(event: RecordedEvent) {
     if (event.type == 'scroll') {
+        ipcRenderer.send(Channel.TEST_LOG, `Scrolling to ${event.value.x}, ${event.value.y}`);
         const scrollY = event.value.y;
         const currentScrollY = window.scrollY;
         const deltaY = scrollY - currentScrollY;
