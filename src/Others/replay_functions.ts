@@ -13,6 +13,7 @@ export function inputer() {
       console.log(data);
       console.log(data.x, data.y);
       console.log(data.value);
+
       // Simulate key press for each character in data.value
       for (const char of data.value) {
         view.webContents.sendInputEvent({ type: 'char', keyCode: char });
@@ -41,13 +42,7 @@ function hoverEvent(x: number, y: number) {
       movementX: 250,
       movementY: 250,
     });
-  
-    // replayView.webContents.sendInputEvent({
-    //   type: 'mouseEnter',
-    //   x: x,
-    //   y: y,
-    // });
-  }
+}
 
 // Function used to simulate click event
 export function clicker() {
@@ -56,11 +51,11 @@ export function clicker() {
       console.log('Clicker function called');
       console.log(data);
       console.log(data.x, data.y);
-      
       let view = getView();
+
       //Hover over the element first
-      hoverEvent(data.x, data.y);
-      
+      hoverEvent(data.x, data.y);   
+
       // Click the element
       view.webContents.sendInputEvent({
         type: 'mouseDown',
@@ -83,11 +78,11 @@ export function clicker() {
 
 // Function used to simulate scroll event
 export function scroller() {
-  
     ipcMain.on(Channel.REPLAY_SCROLL, async (event, data) => {
+
       console.log('Scroller function called');
-  
       let view = getView();
+
       // Send the mouseWheel event with the calculated deltaY to scroll
       if (data.type === 'vertical') {
       view.webContents.sendInputEvent({
@@ -108,6 +103,7 @@ export function scroller() {
           canScroll: true
         });  
       }
+      
       console.log('Scrolled to ', data);
     });
 }

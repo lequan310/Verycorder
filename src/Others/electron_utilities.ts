@@ -115,26 +115,18 @@ export function toggleRecord(win: BrowserWindow) {
   console.log(`Recording: ${recording}`);
 }
 
+// Functin to handle replay
 export function toggleReplay(win: BrowserWindow) {
   if (recording) return;
   const view = win.getBrowserView();
   if (view.webContents.getURL() === "" || view.webContents.getURL() === BLANK_PAGE) return;
-
   replaying = !replaying;
-
-  
   if (testCase && testCase.events && testCase.events.length > 0) {
-
-
-    view.webContents.send(Channel.SEND_EVENT, testCase); // Send test case to process for replay.
-    
-    //view.webContents.loadURL(testCase.url); // Load the URL to replay 
-    
-    view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
-    
+    // Send test case to process for replay.
+    view.webContents.send(Channel.SEND_EVENT, testCase); 
+    // Send message to toggle playback
+    view.webContents.send(Channel.TOGGLE_REPLAY, replaying); 
     console.log('replaying : ', replaying);
-
-
   }
   else {
     //view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
@@ -240,13 +232,14 @@ export function handleViewEvents() {
   });
 }
 
+// Function to test log events
 export function testLogEvents() {
   ipcMain.on(Channel.TEST_LOG, (event, data) => {
     console.log(data);
   });
 }
 
-
+// Function to access the URL in the browser view, from another file
 export function gotourl(win: BrowserWindow){
   if (getCurrentMode() === "normal" && testCase && testCase.events && testCase.events.length > 0) {
     const view = win.getBrowserView(); 
