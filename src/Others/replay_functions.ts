@@ -2,8 +2,6 @@ import { ipcMain } from 'electron';
 import { Channel } from "./listenerConst";
 import { getView } from './electron_utilities';
 
-
-
 // Function used to simulate input event
 export function inputer() {
     ipcMain.on(Channel.REPLAY_INPUT, async (event, data) => {
@@ -103,7 +101,7 @@ export function scroller() {
           canScroll: true
         });  
       }
-      
+
       console.log('Scrolled to ', data);
     });
 }
