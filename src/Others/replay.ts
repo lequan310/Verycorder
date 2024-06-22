@@ -2,6 +2,8 @@ import { ipcRenderer } from "electron";
 import { Channel } from "./listenerConst";
 import { TestCase } from "../Types/testCase";
 import { delay } from "./utilities";
+import { Target, Value } from "../Types/eventComponents";
+import { RecordedEvent } from "../Types/recordedEvent";
 
 let testCase: TestCase;
 let cssSelector: string;
@@ -18,7 +20,7 @@ async function replayManager() {
     for (const event of testCase.events) {
         if (!isReplaying) return; // Stop if isReplaying is false
 
-        await delay(2000);
+        await delay(1000);
         ipcRenderer.send(Channel.TEST_LOG, event);
         if (event.target.css && event.target.css !== 'window') {
             // Find the element based on the css selector
@@ -62,17 +64,17 @@ async function replayManager() {
     }
 }
 
-async function inputEvent(event: any, rect: DOMRect) {
+async function inputEvent(event: RecordedEvent, rect: DOMRect) {
     const box = rect;
     const inputX = box.x + box.width / 2;
     const inputY = box.y + box.height / 2;
-    ipcRenderer.send(Channel.TEST_LOG, `Inputting on ${event.target.css}`);
+    ipcRenderer.send(Channel.TEST_LOG, `Inputting on ${event.target}`);
     ipcRenderer.send(Channel.TEST_LOG, `Inputting at ${inputX}, ${inputY}`);
     ipcRenderer.send(Channel.TEST_LOG, `Inputting value: ${event.value}`);
     ipcRenderer.send(Channel.REPLAY_INPUT, { x: inputX, y: inputY, value: event.value });
 }
 
-async function hoverEvent(event: any, rect: DOMRect) {
+async function hoverEvent(event: RecordedEvent, rect: DOMRect) {
     const box = rect;
     const hoverX = box.x + box.width / 2;
     const hoverY = box.y + box.height / 2;
@@ -81,7 +83,7 @@ async function hoverEvent(event: any, rect: DOMRect) {
     ipcRenderer.send(Channel.REPLAY_HOVER, { x: hoverX, y: hoverY });
 }
 
-async function clickEvent(event: any, rect: DOMRect) {
+async function clickEvent(event: RecordedEvent, rect: DOMRect) {
     const box = rect;
     const clickX = box.x + box.width / 2;
     const clickY = box.y + box.height / 2;
@@ -91,26 +93,29 @@ async function clickEvent(event: any, rect: DOMRect) {
 
 }
 
-async function scrollEvent(event: any) {
-    const scrollY = event.value.y;
-    const currentScrollY = window.scrollY;
-    const deltaY = scrollY - currentScrollY;
+async function scrollEvent(event: RecordedEvent) {
+    if (event.type == 'scroll') {
+        ipcRenderer.send(Channel.TEST_LOG, `Scrolling to ${event.value.x}, ${event.value.y}`);
+        const scrollY = event.value.y;
+        const currentScrollY = window.scrollY;
+        const deltaY = scrollY - currentScrollY;
 
-    const scrollX = event.value.x;
-    const currentScrollX = window.scrollX;
-    const deltaX = scrollX - currentScrollX;
+        const scrollX = event.value.x;
+        const currentScrollX = window.scrollX;
+        const deltaX = scrollX - currentScrollX;
 
-    // Check for vertical scroll
-    if (deltaY !== 0) {
-        
-        ipcRenderer.send(Channel.TEST_LOG, `Scrolling vertically from ${currentScrollY} to ${scrollY}`);
-        ipcRenderer.send(Channel.REPLAY_SCROLL, { type: 'vertical', deltaY });
-    }
-    // Check for horizontal scroll
-    if (deltaX !== 0) {
+        // Check for vertical scroll
+        if (deltaY !== 0) {
+            
+            ipcRenderer.send(Channel.TEST_LOG, `Scrolling vertically from ${currentScrollY} to ${scrollY}`);
+            ipcRenderer.send(Channel.REPLAY_SCROLL, { type: 'vertical', deltaY });
+        }
+        // Check for horizontal scroll
+        if (deltaX !== 0) {
 
-        ipcRenderer.send(Channel.TEST_LOG, `Scrolling horizontally from ${currentScrollX} to ${scrollX}`);
-        ipcRenderer.send(Channel.REPLAY_SCROLL, { type: 'horizontal', deltaX });
+            ipcRenderer.send(Channel.TEST_LOG, `Scrolling horizontally from ${currentScrollX} to ${scrollX}`);
+            ipcRenderer.send(Channel.REPLAY_SCROLL, { type: 'horizontal', deltaX });
+        }
     }
 }
 
