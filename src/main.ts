@@ -1,5 +1,6 @@
 import { app, BrowserWindow, globalShortcut } from 'electron';
-import { handleRecordEvents, toggleRecord, toggleReplay, handleViewEvents, handleUIEvents, testLogEvents, clicker, scroller, gotourl, hoverer, inputer, getView, getWin, createWindow} from './Others/electron_utilities';
+import { handleRecordEvents, toggleRecord, toggleReplay, handleViewEvents, handleUIEvents, testLogEvents, gotourl, getView, getWin, createWindow} from './Others/electron_utilities';
+import { scroller, clicker, hoverer, inputer } from './Others/replay_functions';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) {

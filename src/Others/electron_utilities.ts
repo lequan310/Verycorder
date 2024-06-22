@@ -259,118 +259,13 @@ export function gotourl(win: BrowserWindow){
 }
 
 
-export function inputer() {
-  ipcMain.on(Channel.REPLAY_INPUT, async (event, data) => {
-    console.log('Inputer function called');
-    console.log(data);
-    console.log(data.x, data.y);
-    console.log(data.value);
-    // Simulate key press for each character in data.value
-    for (const char of data.value) {
-      view.webContents.sendInputEvent({ type: 'char', keyCode: char });
-    }
-    console.log('Inputed' + data.value +  ' at ', data.x, data.y);
-    //replayView.webContents.sendInputEvent({ type: 'keyDown', keyCode: char });
-    //replayView.webContents.sendInputEvent({ type: 'keyUp', keyCode: char });
-    
-    //const focusedWebContents = webContents.getFocusedWebContents(); // Get the currently focused webContents
-    // if (focusedWebContents) {
-    //   for (const char of data.value) {
-    //     // Simulate key press for each character in data.value
-    //     focusedWebContents.sendInputEvent({ type: 'keyDown', keyCode: char });
-    //     focusedWebContents.sendInputEvent({ type: 'keyUp', keyCode: char });
-    //   }
-    // }
-  });
-
-}
-
-export function hoverer() {
-  ipcMain.on(Channel.REPLAY_HOVER, async (event, data) => {
-    console.log('Hoverer function called');
-    console.log(data);
-    console.log(data.x, data.y);
-    hoverEvent(data.x, data.y);
-  });
-
-}
-
-// Function used to simulate hover event
-function hoverEvent(x: number, y: number) {
-  view.webContents.sendInputEvent({
-    type: 'mouseMove',
-    x: x,
-    y: y,
-    movementX: 250,
-    movementY: 250,
-  });
-
-  // replayView.webContents.sendInputEvent({
-  //   type: 'mouseEnter',
-  //   x: x,
-  //   y: y,
-  // });
-}
-
-// Function used to simulate click event
-export function clicker() {
-  ipcMain.on(Channel.REPLAY_CLICK, async (event, data) => {
-    console.log('Clicker function called');
-    console.log(data);
-    console.log(data.x, data.y);
-    
-    //Hover over the element first
-    hoverEvent(data.x, data.y);
-    
-    // Click the element
-    view.webContents.sendInputEvent({
-      type: 'mouseDown',
-      x: data.x,
-      y: data.y,
-      button: 'left',
-      clickCount: 1
-    });
-    view.webContents.sendInputEvent({
-      type: 'mouseUp',
-      x: data.x,
-      y: data.y,
-      button: 'left',
-      clickCount: 1
-    });
-    console.log('Clicked at ', data.x, data.y);
-    
-  });
-}
 
 
-// Replay feature functions
-export function scroller() {
-  
-  ipcMain.on(Channel.REPLAY_SCROLL, async (event, data) => {
-    console.log('Scroller function called');
 
 
-    // Send the mouseWheel event with the calculated deltaY to scroll
-    if (data.type === 'vertical') {
-    view.webContents.sendInputEvent({
-      type: 'mouseWheel',
-      x: 0,
-      y: 0,
-      deltaX: 0,
-      deltaY: data.deltaY*-1, 
-      canScroll: true
-    });
-    } else if (data.type === 'horizontal') {
-      view.webContents.sendInputEvent({
-        type: 'mouseWheel',
-        x: 0,
-        y: 0,
-        deltaX: data.deltaX*-1,
-        deltaY: 0, 
-        canScroll: true
-      });  
-    }
-    console.log('Scrolled to ', data);
-  });
-}
+
+
+
+
+
 
