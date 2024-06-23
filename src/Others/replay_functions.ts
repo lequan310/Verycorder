@@ -9,10 +9,10 @@ export function handleReplayEvents(){
   ipcMain.on(Channel.REPLAY_INPUT, async (event, data) => {
 
     let view = getView();
-    console.log('Inputer function called');
-    console.log(data);
-    console.log(data.x, data.y);
-    console.log(data.value);
+    //console.log('Inputer function called');
+    //console.log(data);
+    //console.log(data.x, data.y);
+    //console.log(data.value);
 
     // Simulate key press for each character in data.value
     for (const char of data.value) {
@@ -23,18 +23,19 @@ export function handleReplayEvents(){
 
   // Hover
   ipcMain.on(Channel.REPLAY_HOVER, async (event, data) => {
-    console.log('Hoverer function called');
-    console.log(data);
-    console.log(data.x, data.y);
+    //console.log('Hoverer function called');
+    //console.log(data);
+    //console.log(data.x, data.y);
     hoverEvent(data.x, data.y);
+    console.log('Hovered at ' + data.x + ' ' + data.y)
   });
 
   // Click
   ipcMain.on(Channel.REPLAY_CLICK, async (event, data) => {
 
-    console.log('Clicker function called');
-    console.log(data);
-    console.log(data.x, data.y);
+    //console.log('Clicker function called');
+    //console.log(data);
+    //console.log(data.x, data.y);
     let view = getView();
 
     //Hover over the element first
@@ -62,9 +63,9 @@ export function handleReplayEvents(){
   // Scroll
   ipcMain.on(Channel.REPLAY_SCROLL, async (event, data) => {
 
-    console.log('Scroller function called');
-    console.log('Scroll type: ', data.type);
-    console.log('Scrolling from cursor position ', data.currentX, data.currentY);
+    //console.log('Scroller function called');
+    //console.log('Scroll type: ', data.type);
+    //console.log('Scrolling from cursor position ', data.currentX, data.currentY);
     
     let view = getView();
 
