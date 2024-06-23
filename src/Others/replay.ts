@@ -3,6 +3,7 @@ import { Channel } from "./listenerConst";
 import { TestCase } from "../Types/testCase";
 import { delay } from "./utilities";
 import { RecordedEvent } from "../Types/recordedEvent";
+import { channel } from "diagnostics_channel";
 
 let testCase: TestCase;
 let cssSelector: string;
@@ -24,16 +25,26 @@ async function replayManager() {
         //if (!isReplaying) return; // Stop if isReplaying is false
         //ipcRenderer.send(Channel.TEST_LOG, event);
         if (event.target.css && event.target.css !== 'window') {
-            // Find the element based on the css selector
-            let element = document.querySelector(event.target.css);
-
-            // If element not found, try to find it based on xpath
-            if (!element) {
-                const xpathResult = document.evaluate(event.target.xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
-                if (xpathResult.singleNodeValue instanceof Element) {
-                    element = xpathResult.singleNodeValue;
+            let element: Element | null = null;
+            try {
+                // Attempt to find the element based on the CSS selector
+                element = document.querySelector(event.target.css);
+                if (!element) throw new Error(`Element not found for selector: ${event.target.css}`);
+            } catch (error) {
+                // If element not found by CSS, attempt to find it based on XPath
+                ipcRenderer.send(Channel.TEST_LOG, error.message);
+                try {
+                    const xpathResult = document.evaluate(event.target.xpath, document, null, XPathResult.FIRST_ORDERED_NODE_TYPE, null);
+                    if (xpathResult.singleNodeValue instanceof Element) {
+                        element = xpathResult.singleNodeValue;
+                        ipcRenderer.send(Channel.TEST_LOG, `Element found by xpath instead of CSS: ${element}`);
+                    } else {
+                        throw new Error(`Element not found for XPath: ${event.target.xpath}`);
+                    }
+                } catch (xpathError) {
+                    ipcRenderer.send(Channel.TEST_LOG, xpathError.message);
+                    return; // Exit the function if element is not found by both methods
                 }
-                ipcRenderer.send(Channel.TEST_LOG, `Element found by xpath instead of CSS: ${element}`);
             }
             if (element) {
                 const rect = element.getBoundingClientRect();
