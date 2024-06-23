@@ -12,6 +12,7 @@ import {
 } from "./utilities";
 import { RecordedEvent } from "../Types/recordedEvent";
 import { ipcRenderer } from "electron";
+import { Channel } from "./listenerConst";
 
 // ------------------- GLOBAL VARIABLES -------------------
 // Track current events and stuffs
@@ -21,6 +22,8 @@ let checkMutation = false;
 let change = false; // Change observed by mutation observer
 let click = false;
 let hover = false;
+let mouseX = 0;
+let mouseY = 0;
 // let input = false;
 
 // Timers so events won't register too fast
@@ -43,7 +46,8 @@ const mutationObserver = new MutationObserver((mutations) => {
       const eventObject: RecordedEvent = {
         type: "click",
         target: { css: getCssSelector(target), xpath: getXPath(target) },
-        value: { x: mouseEvent.clientX, y: mouseEvent.clientY },
+        value: null,
+        mousePosition: { x: mouseEvent.clientX, y: mouseEvent.clientY },
       };
 
       ipcRenderer.send("click-event", eventObject);
@@ -87,10 +91,12 @@ function clickHandler(event: MouseEvent) {
   if (event.isTrusted) {
     currentEvent = event;
     const target = event.target as HTMLElement;
+    ipcRenderer.send(Channel.TEST_LOG, target.outerHTML);
     const eventObject: RecordedEvent = {
       type: "click",
       target: { css: getCssSelector(target), xpath: getXPath(target) },
-      value: { x: event.clientX, y: event.clientY },
+      value: null,
+      mousePosition: { x: event.clientX, y: event.clientY },
     };
 
     // Clicks on editable content
@@ -123,6 +129,7 @@ function windowScrollHandler(event: Event) {
       type: "scroll",
       target: { css: "window", xpath: "window" },
       value: { x: window.scrollX, y: window.scrollY },
+      mousePosition: { x: mouseX, y: mouseY },
     };
 
     ipcRenderer.send("scroll-event", eventObject);
@@ -141,6 +148,7 @@ function scrollHandler(event: Event) {
       type: "scroll",
       target: { css: getCssSelector(target), xpath: getXPath(target) },
       value: { x: target.scrollLeft, y: target.scrollTop },
+      mousePosition: { x: mouseX, y: mouseY },
     };
 
     ipcRenderer.send("scroll-event", eventObject);
@@ -151,10 +159,12 @@ function hoverHandler(event: MouseEvent) {
   if (click) return;
   const target = event.target as HTMLElement;
   if (target === document.body) return;
+
   const eventObject: RecordedEvent = {
     type: "hover",
     target: { css: getCssSelector(target), xpath: getXPath(target) },
     value: null,
+    mousePosition: { x: mouseX, y: mouseY },
   };
 
   // Check if target class name contains "hover" keyword (thanks tailwind or similar)
@@ -236,8 +246,14 @@ function disconnectObserver() {
   mutationObserver.disconnect();
 }
 
+function mouseTracker(event: MouseEvent) {
+  mouseX = event.clientX;
+  mouseY = event.clientY;
+}
+
 export function record() {
   observeMutation();
+  document.body.addEventListener("mousemove", mouseTracker, true);
   document.body.addEventListener("click", clickHandler, true);
   window.addEventListener("scroll", windowScrollHandler);
   document.body.addEventListener("scroll", scrollHandler, true);
@@ -248,6 +264,7 @@ export function record() {
 
 export function stopRecording() {
   disconnectObserver();
+  document.body.removeEventListener("mousemove", mouseTracker, true);
   document.body.removeEventListener("click", clickHandler, true);
   window.removeEventListener("scroll", windowScrollHandler);
   document.body.removeEventListener("scroll", scrollHandler, true);

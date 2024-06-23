@@ -2,7 +2,6 @@ import { ipcRenderer } from "electron";
 import { Channel } from "./listenerConst";
 import { TestCase } from "../Types/testCase";
 import { delay } from "./utilities";
-import { Target, Value } from "../Types/eventComponents";
 import { RecordedEvent } from "../Types/recordedEvent";
 
 let testCase: TestCase;
@@ -37,18 +36,18 @@ async function replayManager() {
                 const rect = element.getBoundingClientRect();
                 // Log the element's bounding rectangle or use it as needed
                 ipcRenderer.send(Channel.TEST_LOG, `Element rect: ${JSON.stringify(rect)}`);
-                
+
                 // Depending on the event type, you might want to handle it differently
                 // For example, for a click event, you might want to simulate a click based on the element's position
                 switch (event.type) {
                     case 'click':
-                        await clickEvent(event, rect); 
+                        await clickEvent(event, rect);
                         break;
                     case 'input':
                         await inputEvent(event, rect);
                         break;
                     case 'hover':
-                        await hoverEvent(event, rect); 
+                        await hoverEvent(event, rect);
                         break;
                     // Add cases for other event types if needed
                 }
@@ -106,7 +105,7 @@ async function scrollEvent(event: RecordedEvent) {
 
         // Check for vertical scroll
         if (deltaY !== 0) {
-            
+
             ipcRenderer.send(Channel.TEST_LOG, `Scrolling vertically from ${currentScrollY} to ${scrollY}`);
             ipcRenderer.send(Channel.REPLAY_SCROLL, { type: 'vertical', deltaY });
         }

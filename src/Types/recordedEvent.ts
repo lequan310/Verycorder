@@ -1,15 +1,17 @@
-import { Target, Value } from "./eventComponents";
+import { Target, Value, MousePosition } from "./eventComponents";
 
 interface ClickEvent {
     type: 'click'
     target: Target
-    value: Value
+    value: null
+    mousePosition: MousePosition
 }
 
 interface ScrollEvent {
     type: 'scroll'
     target: Target
     value: Value
+    mousePosition: MousePosition
 }
 
 interface InputEvent {
@@ -22,6 +24,7 @@ interface HoverEvent {
     type: 'hover'
     target: Target
     value: null
+    mousePosition: MousePosition
 }
 
 export type RecordedEvent = ClickEvent | ScrollEvent | InputEvent | HoverEvent;

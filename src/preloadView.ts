@@ -1,9 +1,7 @@
 import { ipcRenderer } from 'electron';
 import { record, stopRecording } from './Others/record';
-import { replay, stopReplaying, getTestCase} from './Others/replay';
+import { replay, stopReplaying, getTestCase } from './Others/replay';
 import { Channel } from './Others/listenerConst';
-
-
 
 function onload(load: boolean) {
     ipcRenderer.invoke('get-mode').then((mode) => {
@@ -40,4 +38,3 @@ ipcRenderer.on(Channel.TOGGLE_REPLAY, (event, replaying) => {
 ipcRenderer.on(Channel.SEND_EVENT, (event, testCase) => {
     getTestCase(testCase);
 });
-

@@ -1,5 +1,5 @@
 import { app, BrowserWindow, globalShortcut } from 'electron';
-import { handleRecordEvents, toggleRecord, toggleReplay, handleViewEvents, handleUIEvents, testLogEvents, gotourl, getView, getWin, createWindow} from './Others/electron_utilities';
+import { handleRecordEvents, toggleRecord, toggleReplay, handleViewEvents, handleUIEvents, testLogEvents, gotourl, getView, getWin, createWindow } from './Others/electron_utilities';
 import { scroller, clicker, hoverer, inputer } from './Others/replay_functions';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -22,15 +22,15 @@ app.whenReady().then(() => {
 
   // Remove this after Phy finish his recording button :skull:
   globalShortcut.register("CommandOrControl+R", () => {
-    toggleRecord(win);
+    toggleRecord();
   });
 
   // Remember to add UI for playback later
   globalShortcut.register("CommandOrControl+P", () => {
     //toggleReplay(win);
-    gotourl(win);
+    gotourl();
     setTimeout(() => {
-      toggleReplay(win);
+      toggleReplay();
     }, 2000);
   });
 
@@ -43,11 +43,11 @@ app.whenReady().then(() => {
   });
 
   // Handle IPC events for UI (React)
-  handleUIEvents(win);
+  handleUIEvents();
   // Handle view events
   handleViewEvents();
   // Handle record events
-  handleRecordEvents(win, [
+  handleRecordEvents([
     "click-event",
     "scroll-event",
     "hover-event",

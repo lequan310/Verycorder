@@ -27,9 +27,13 @@ const HeaderComponent = ({ enableRecord }: { enableRecord?: boolean }) => {
     };
   }, []);
 
-  function recordHandler() {
-    ipcRenderer.send(Channel.CLICK_RECORD);
-    setRecordState(!recordState);
+  const recordHandler = async () => {
+    ipcRenderer.invoke(Channel.CLICK_RECORD)
+      .then((mode: string) => {
+        if (mode !== "replay") {
+          setRecordState(!recordState);
+        }
+      })
   }
 
   return (

@@ -12,3 +12,8 @@ export type Value = {
     x: number
     y: number
 };
+
+export type MousePosition = {
+    x: number
+    y: number
+};

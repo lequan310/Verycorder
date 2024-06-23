@@ -94,15 +94,16 @@ export function hasEditableContent(element: HTMLElement): element is HTMLElement
 }
 
 // Function to get nth-value of class or tag
-function getNthIndex(element: HTMLElement, value: string, isClass: boolean) {
+function getNthIndex(element: HTMLElement) {
     const parent = element.parentElement;
-    var index = 1;
-    var nthIndex = "";
+    let index = 1;
+    let nthIndex = "";
 
     if (parent) {
-        var child = isClass ? parent.getElementsByClassName(value) : parent.getElementsByTagName(value);
-        var converted = Array.from(child);
-        var filter = converted.filter(element => element.parentElement === parent);
+        let tag = element.tagName.toLowerCase();
+        let child = parent.getElementsByTagName(tag);
+        let converted = Array.from(child);
+        let filter = converted.filter(element => element.parentElement === parent);
 
         if (filter.length > 1) {
             for (let i = 0; i < filter.length; i++) {
@@ -110,7 +111,7 @@ function getNthIndex(element: HTMLElement, value: string, isClass: boolean) {
                 index++;
             }
 
-            nthIndex = isClass ? ":nth-child(" : ":nth-of-type(";
+            nthIndex = ":nth-of-type(";
             nthIndex += index + ")";
         }
     }
@@ -121,10 +122,6 @@ function getNthIndex(element: HTMLElement, value: string, isClass: boolean) {
 function escapeSpecialCharacters(selector: string) {
     return selector
         .replace(/([!\"#$%&'()*+,.\/:;<=>?@[\\\]^`{|}~])/g, '\\$1');
-    // .replace(/\./g, '\\.')  // Escape dots
-    // .replace(/:/g, '\\:')  // Escape colons
-    // .replace(/\[/g, '\\[')  // Escape left square brackets
-    // .replace(/\]/g, '\\]'); // Escape right square brackets
 }
 
 function replaceNumberCssSelector(input: string): string {
@@ -143,8 +140,9 @@ export function getCssSelector(element: HTMLElement) {
             break; // Stop traversal since IDs are unique
         } else if (currentElement.className && typeof currentElement.className === 'string') {
             // If the element has a class, use it to construct the selector
-            const className = escapeSpecialCharacters(currentElement.className);
-            const classes = className.trim().split(/\s+/);
+            const className = currentElement.className
+            const escapeSpecialCharClassName = escapeSpecialCharacters(currentElement.className);
+            const classes = escapeSpecialCharClassName.trim().split(/\s+/);
             const classSelector = classes.map((className: string) => `.${className}`).join('');
 
             const elementList = document.body.getElementsByClassName(className);
@@ -165,7 +163,7 @@ export function getCssSelector(element: HTMLElement) {
                 break;
             }
 
-            const nthIndex = getNthIndex(currentElement, className, true);
+            const nthIndex = getNthIndex(currentElement);
             selectorParts.unshift(classSelector + nthIndex);
         } else {
             // Use tag to construct the selector
@@ -175,7 +173,7 @@ export function getCssSelector(element: HTMLElement) {
                 break;
             }
 
-            const nthIndex = getNthIndex(currentElement, tag, false);
+            const nthIndex = getNthIndex(currentElement);
             selectorParts.unshift(tag + nthIndex);
         }
 

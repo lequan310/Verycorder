@@ -21,7 +21,6 @@ let leftPosition = 350 + 24;
 let win: BrowserWindow;
 let view: BrowserView;
 
-
 // Getter for win
 export function getWin(): BrowserWindow {
   return win;
@@ -31,7 +30,6 @@ export function getWin(): BrowserWindow {
 export function getView(): BrowserView {
   return view;
 }
-
 
 // Function to create the web view to load webs
 export function createBrowserView() {
@@ -75,7 +73,7 @@ export const createWindow = (): void => {
   // Maximize app on launch
   win.maximize();
   // Update view bounds for the app
-  updateViewBounds(win);
+  updateViewBounds();
   // Disable menu bar
   win.setMenu(null);
   // and load the index.html of the app.
@@ -85,24 +83,21 @@ export const createWindow = (): void => {
   //win.webContents.openDevTools({ mode: "detach" });
 
   // Handle resize app
-  win.on("resize", () => updateViewBounds(win));
+  win.on("resize", () => updateViewBounds());
   // Handle window close
   win.on("closed", () => { win = null; });
 };
-
 
 function getCurrentMode() {
   return recording ? "record" : replaying ? "replay" : "normal";
 }
 
-export function toggleRecord(win: BrowserWindow) {
+export function toggleRecord() {
   if (replaying) return;
-  const view = win.getBrowserView();
   if (
     view.webContents.getURL() === "" ||
     view.webContents.getURL() === BLANK_PAGE
-  )
-    return;
+  ) return;
 
   recording = !recording;
 
@@ -121,16 +116,16 @@ export function toggleRecord(win: BrowserWindow) {
 }
 
 // Functin to handle replay
-export function toggleReplay(win: BrowserWindow) {
+export function toggleReplay() {
   if (recording) return;
-  const view = win.getBrowserView();
   if (view.webContents.getURL() === "" || view.webContents.getURL() === BLANK_PAGE) return;
+
   replaying = !replaying;
   if (testCase && testCase.events && testCase.events.length > 0) {
     // Send test case to process for replay.
-    view.webContents.send(Channel.SEND_EVENT, testCase); 
+    view.webContents.send(Channel.SEND_EVENT, testCase);
     // Send message to toggle playback
-    view.webContents.send(Channel.TOGGLE_REPLAY, replaying); 
+    view.webContents.send(Channel.TOGGLE_REPLAY, replaying);
     console.log('replaying : ', replaying);
   }
   else {
@@ -183,10 +178,9 @@ function changeUrlWithAbort(
 }
 
 // Update size and location of browser view
-export function updateViewBounds(win: BrowserWindow) {
+export function updateViewBounds() {
   if (win) {
     const bounds = win.getContentBounds();
-    const view = win.getBrowserView();
     if (view) {
       const { x, y, width, height } = bounds;
       view.setBounds({
@@ -200,9 +194,7 @@ export function updateViewBounds(win: BrowserWindow) {
 }
 
 // Handle UI events from React to Electron
-export function handleUIEvents(win: BrowserWindow) {
-  const view = win.getBrowserView();
-
+export function handleUIEvents() {
   // Handle URL change in React
   ipcMain.handle(Channel.URL_CHANGE, async (event, url) => {
     // Abort controller stuff
@@ -222,16 +214,18 @@ export function handleUIEvents(win: BrowserWindow) {
     console.log(testCase);
   });
 
-  ipcMain.on(Channel.CLICK_RECORD, (event) => {
-    toggleRecord(win);
+  // Use invoke and handle to check if recording is on, same for replay in the future
+  ipcMain.handle(Channel.CLICK_RECORD, async (event) => {
+    toggleRecord();
+    return getCurrentMode();
   });
 
   //Handle resize from React
-  handleEndResize(win);
+  handleEndResize();
 }
 
 // Function to register events (click, input, etc.) into left panel
-export function handleRecordEvents(win: BrowserWindow, eventNames: string[]) {
+export function handleRecordEvents(eventNames: string[]) {
   for (const eventName of eventNames) {
     ipcMain.on(eventName, (event, data) => {
       //testCase.events.push(data);
@@ -266,10 +260,10 @@ export function testLogEvents() {
 //   });
 // }
 
-export function handleEndResize(win: BrowserWindow) {
+export function handleEndResize() {
   //on ipcMain, hide browserview
   ipcMain.on(Channel.END_RESIZE, (event, leftX) => {
-    console.log(leftPosition);
+    // console.log(leftPosition);
     if (win) {
       const bounds = win.getContentBounds();
       const view = win.getBrowserView();
@@ -284,15 +278,15 @@ export function handleEndResize(win: BrowserWindow) {
         });
       }
     }
-    console.log("On Start Resize");
+    // console.log("On Start Resize");
   });
 }
 
 // Function to access the URL in the browser view, from another file
-export function gotourl(win: BrowserWindow){
+export function gotourl() {
   if (getCurrentMode() === "normal" && testCase && testCase.events && testCase.events.length > 0) {
-    const view = win.getBrowserView(); 
-    console.log('Load URL: ' + testCase.url); 
+    const view = win.getBrowserView();
+    console.log('Load URL: ' + testCase.url);
     view.webContents.loadURL(testCase.url);
   } else {
     console.log("Cant load because current mode is ", getCurrentMode());
