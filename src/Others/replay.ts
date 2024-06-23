@@ -3,10 +3,8 @@ import { Channel } from "./listenerConst";
 import { TestCase } from "../Types/testCase";
 import { delay } from "./utilities";
 import { RecordedEvent } from "../Types/recordedEvent";
-import { channel } from "diagnostics_channel";
 
 let testCase: TestCase;
-let cssSelector: string;
 let isReplaying = true; // Flag to control the replay
 
 // Function to get the test case from main process
