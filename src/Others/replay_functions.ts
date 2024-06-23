@@ -79,14 +79,17 @@ export function scroller() {
     ipcMain.on(Channel.REPLAY_SCROLL, async (event, data) => {
 
       console.log('Scroller function called');
+      console.log('Scroll type: ', data.type);
+      console.log('Scrolling from cursor position ', data.currentX, data.currentY);
+      
       let view = getView();
 
       // Send the mouseWheel event with the calculated deltaY to scroll
       if (data.type === 'vertical') {
       view.webContents.sendInputEvent({
         type: 'mouseWheel',
-        x: 0,
-        y: 0,
+        x: data.currentX,
+        y: data.currentY,
         deltaX: 0,
         deltaY: data.deltaY*-1, 
         canScroll: true
@@ -94,8 +97,8 @@ export function scroller() {
       } else if (data.type === 'horizontal') {
         view.webContents.sendInputEvent({
           type: 'mouseWheel',
-          x: 0,
-          y: 0,
+          x: data.currentX,
+          y: data.currentY,
           deltaX: data.deltaX*-1,
           deltaY: 0, 
           canScroll: true
