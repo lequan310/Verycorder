@@ -9,6 +9,7 @@ export const Channel = {
   TEST_LOG: "test-log", // test logs for replay testing
   SEND_EVENT: "send-event", // send test case to replay.ts
   LOAD_URL: "load-url", // load URL in BrowserView
+  UPDATE_REPLAY: "update-replay", // update replay status
 
   // Replay feature
   REPLAY_SCROLL: "replay-scroll",

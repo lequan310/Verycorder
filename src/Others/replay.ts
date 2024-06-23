@@ -19,7 +19,9 @@ async function replayManager() {
     for (const event of testCase.events) {
         if (!isReplaying) return; // Stop if isReplaying is false
 
-        await delay(1000);
+        await delay(1500);
+
+        if (!isReplaying) return; // Stop if isReplaying is false
         ipcRenderer.send(Channel.TEST_LOG, event);
         if (event.target.css && event.target.css !== 'window') {
             // Find the element based on the css selector
@@ -158,10 +160,13 @@ async function scrollEvent(event: RecordedEvent, element?: Element) {
 export async function replay() {
     ipcRenderer.send(Channel.TEST_LOG, 'Replay started');
     await replayManager();
+    stopReplaying();
+    ipcRenderer.send(Channel.TEST_LOG, 'Replay ended');
 }
 
 // Function to stop replaying
 export function stopReplaying() {
     isReplaying = false;
-    ipcRenderer.send(Channel.TEST_LOG, 'Replay stopped');
+    ipcRenderer.send(Channel.UPDATE_REPLAY, isReplaying);
+    ipcRenderer.send(Channel.TEST_LOG, 'Replay process is stopping soon');
 }

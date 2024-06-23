@@ -134,6 +134,7 @@ export function toggleReplay() {
   }
 }
 
+
 // Handle URL change via search bar with abort controller
 function changeUrlWithAbort(
   url: string,
@@ -245,6 +246,14 @@ export function handleViewEvents() {
 export function testLogEvents() {
   ipcMain.on(Channel.TEST_LOG, (event, data) => {
     console.log(data);
+  });
+}
+
+// Function set replaying to false on command
+export function updateReplay() {
+  ipcMain.on(Channel.UPDATE_REPLAY, (event, data) => {
+    replaying = data;
+    console.log("Replaying: ", replaying);
   });
 }
 
