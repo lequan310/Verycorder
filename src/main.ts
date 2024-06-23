@@ -1,6 +1,6 @@
 import { app, BrowserWindow, globalShortcut } from 'electron';
-import { handleRecordEvents, toggleRecord, toggleReplay, handleViewEvents, handleUIEvents, testLogEvents, gotourl, getView, getWin, createWindow } from './Others/electron_utilities';
-import { scroller, clicker, hoverer, inputer } from './Others/replay_functions';
+import { handleRecordEvents, toggleRecord, toggleReplay, handleViewEvents, handleUIEvents, testLogEvents, gotourl, getView, getWin, createWindow, updateReplay } from './Others/electron_utilities';
+import { handleReplayEvents } from './Others/replay_functions';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -54,12 +54,15 @@ app.whenReady().then(() => {
     "input-event",
   ]);
 
-  //Functions test for replaying
+  // Function to log data to terminal
   testLogEvents();
-  clicker();
-  scroller();
-  hoverer();
-  inputer();
+
+  // Handle replay events
+  handleReplayEvents();
+
+  // Update replaying when necessary
+  updateReplay();
+
 
   // Cai nay de test, chu scroll vs hover no detect nhieu qua
   //handleRecordEvents(win, ["click-event", "input-event"]);
