@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Upload</title>
+</head>
+<body>
+    <h1>Upload an Image</h1>
+    <form id="uploadForm" enctype="multipart/form-data">
+        <input type="file" id="fileInput" name="file">
+        <button type="submit">Upload</button>
+    </form>
+    <h2>Processed Image:</h2>
+    <img id="processedImage" src="" alt="Processed Image" style="max-width: 100%; height: auto;">
+    <script>
+        const form = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('fileInput');
+        const processedImage = document.getElementById('processedImage');
+
+        form.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const formData = new FormData();
+            formData.append('file', fileInput.files[0]);
+
+            const response = await fetch('/process-image/', {
+                method: 'POST',
+                body: formData
+            });
+
+            const blob = await response.blob();
+            const url = URL.createObjectURL(blob);
+            processedImage.src = url;
+        });
+    </script>
+</body>
+</html>

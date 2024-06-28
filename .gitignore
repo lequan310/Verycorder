@@ -90,3 +90,9 @@ typings/
 
 # Electron-Forge
 out/
+
+# Python Runtime
+.venv
+python/detect
+python/*.pt
+python/*.onnx
