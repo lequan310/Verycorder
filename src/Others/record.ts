@@ -15,7 +15,11 @@ import { ipcRenderer } from "electron";
 import { Channel } from "./listenerConst";
 
 // ------------------- GLOBAL VARIABLES -------------------
-// Track current events and stuffs
+// Variables for editing target element
+let hoveredElement: HTMLElement; // Current Hover
+let previousOutlineStyle: string = ""; // Previous outline style
+
+// Variables for event recording
 let currentEvent = document.createEvent("Event");
 let focusElement: HTMLElement; // Element that is currently focused
 let checkMutation = false;
@@ -249,6 +253,16 @@ function disconnectObserver() {
 function mouseTracker(event: MouseEvent) {
   mouseX = event.clientX;
   mouseY = event.clientY;
+}
+
+// Hover to edit target element for event
+export function hoverEditHandler(event: MouseEvent) {
+  if (hoveredElement) hoveredElement.style.outline = previousOutlineStyle; // Re-assigned previous outline style
+
+  // Highlight currently hovered element
+  hoveredElement = event.target as HTMLElement;
+  previousOutlineStyle = hoveredElement.style.outline;
+  hoveredElement.style.outline = "2px solid red";
 }
 
 export function record() {

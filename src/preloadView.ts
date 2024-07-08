@@ -1,26 +1,23 @@
 import { ipcRenderer } from 'electron';
-import { record, stopRecording } from './Others/record';
+import { record, stopRecording, hoverEditHandler } from './Others/record';
 import { replay, stopReplaying, getTestCase } from './Others/replay';
 import { Channel } from './Others/listenerConst';
 
 function onload(load: boolean) {
     ipcRenderer.invoke('get-mode').then((mode) => {
-        switch (mode) {
-            case 'record':
-                load ? record() : stopRecording();
-                break;
-            //case 'replay':
-            //   load ? replay() : stopReplaying();
-            //    break;
+        if (mode === 'record') {
+            load ? record() : stopRecording();
         }
     });
 }
 
 window.addEventListener('load', () => {
+    document.body.addEventListener('mouseenter', hoverEditHandler, true);
     onload(true);
 });
 
 window.addEventListener('beforeunload', () => {
+    document.body.removeEventListener('mouseenter', hoverEditHandler, true);
     onload(false);
 });
 
