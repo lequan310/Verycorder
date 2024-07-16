@@ -27,11 +27,6 @@ app.whenReady().then(() => {
 
   // Remember to add UI for playback later
   globalShortcut.register("CommandOrControl+P", () => {
-    //toggleReplay(win);
-    // gotourl();
-    // setTimeout(() => {
-    //   toggleReplay();
-    // }, 2000);
     executeReplay();
   });
 
@@ -55,11 +50,6 @@ app.whenReady().then(() => {
     "input-event",
   ]);
   handleReplayEvents();
-
-
-  // Cai nay de test, chu scroll vs hover no detect nhieu qua
-  //handleRecordEvents(win, ["click-event", "input-event"]);
-  //handleRecordEvents(win, ["scroll-event", "hover-event"]);
 });
 
 app.on("will-quit", () => {
