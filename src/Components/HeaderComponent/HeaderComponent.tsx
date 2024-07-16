@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from "react";
-import { Channel } from "../../Others/listenerConst"
+import { Channel } from "../../Others/listenerConst";
 import "./HeaderComponent.css";
 
 const HeaderComponent = ({ enableRecord }: { enableRecord?: boolean }) => {
@@ -16,9 +16,12 @@ const HeaderComponent = ({ enableRecord }: { enableRecord?: boolean }) => {
       } else {
         setDisable(false);
       }
-    }
+    };
 
-    const removeToggleRecord = ipcRenderer.on(Channel.TOGGLE_RECORD, setRecordState);
+    const removeToggleRecord = ipcRenderer.on(
+      Channel.TOGGLE_RECORD,
+      setRecordState
+    );
     const removeUpdateUrl = ipcRenderer.on(Channel.UPDATE_URL, updateUrl);
 
     return () => {
@@ -28,18 +31,30 @@ const HeaderComponent = ({ enableRecord }: { enableRecord?: boolean }) => {
   }, []);
 
   const recordHandler = async () => {
-    ipcRenderer.invoke(Channel.CLICK_RECORD)
-      .then((mode: string) => {
-        if (mode !== "replay") {
-          setRecordState(!recordState);
-        }
-      })
-  }
+    ipcRenderer.invoke(Channel.CLICK_RECORD).then((mode: string) => {
+      if (mode !== "replay") {
+        setRecordState(!recordState);
+      }
+    });
+  };
+
+  const replayHandler = async () => {
+    ipcRenderer.invoke(Channel.CLICK_REPLAY).then((mode: string) => {
+      if (mode !== "record") {
+        setPlayState(!playState);
+      }
+    });
+  };
 
   return (
     <div className="header__container">
       <button>
-        <span className={`material-symbols-rounded `}>play_arrow</span>
+        <span
+          className={`material-symbols-rounded ${playState ? "red" : ""}`}
+          onClick={replayHandler}
+        >
+          play_arrow
+        </span>
       </button>
       <button disabled={disable || enableRecord}>
         <span
