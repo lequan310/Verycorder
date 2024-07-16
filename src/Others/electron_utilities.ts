@@ -226,7 +226,7 @@ export function handleUIEvents() {
   });
 
   ipcMain.handle(Channel.CLICK_REPLAY, async (event) => {
-    toggleReplay();
+    executeReplayFunc();
     return getCurrentMode();
   });
 
@@ -314,4 +314,11 @@ export function gotourl() {
   } else {
     //console.log("Cant load because current mode is ", getCurrentMode());
   }
+}
+
+export function executeReplayFunc() {
+  gotourl();
+  setTimeout(() => {
+    toggleReplay();
+  }, 2000);
 }
