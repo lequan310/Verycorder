@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron';
-import { record, stopRecording, hoverEditHandler } from './Others/record';
-import { replay, stopReplaying, getTestCase } from './Others/replay';
+import { record, stopRecording, hoverEditHandler } from './Main/record';
+import { replay, stopReplaying, getTestCase } from './Main/replay';
 import { Channel } from './Others/listenerConst';
 
 function onload(load: boolean) {

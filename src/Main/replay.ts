@@ -1,7 +1,7 @@
 import { ipcRenderer } from "electron";
-import { Channel } from "./listenerConst";
+import { Channel } from "../Others/listenerConst";
 import { TestCase } from "../Types/testCase";
-import { delay } from "./utilities";
+import { delay } from "../Others/utilities";
 import { RecordedEvent } from "../Types/recordedEvent";
 
 let testCase: TestCase;
@@ -111,7 +111,7 @@ async function scrollEvent(event: RecordedEvent, element?: Element) {
     if (event.type == 'scroll') {
         //ipcRenderer.send(Channel.TEST_LOG, `Scrolling to ${event.value.x}, ${event.value.y}`);
         //ipcRenderer.send(Channel.TEST_LOG, `Scrolling from cursor position ${event.mousePosition.x}, ${event.mousePosition.y}`);
-        
+
         // Get current position of the cursor
         const currentX = event.mousePosition.x;
         const currentY = event.mousePosition.y;
@@ -127,7 +127,7 @@ async function scrollEvent(event: RecordedEvent, element?: Element) {
 
         // If element is provided, get the scroll position of the element
         // If element is provided, the scroll action is performed on a specific element
-        if (element){
+        if (element) {
             currentScrollY = element.scrollTop;
             currentScrollX = element.scrollLeft;
         }
@@ -136,7 +136,7 @@ async function scrollEvent(event: RecordedEvent, element?: Element) {
             currentScrollX = window.scrollX;
             currentScrollY = window.scrollY;
         }
-        
+
         // Calculate the distance to scroll using the provided destination and current scroll coordinates
         const deltaY = scrollY - currentScrollY;
         const deltaX = scrollX - currentScrollX;
@@ -149,18 +149,18 @@ async function scrollEvent(event: RecordedEvent, element?: Element) {
         //ipcRenderer.send(Channel.TEST_LOG,'scrollY: ' + scrollY);
         //ipcRenderer.send(Channel.TEST_LOG,'deltaY: ' + deltaY);
 
-        
+
         // Check for vertical scroll
         if (deltaY !== 0) {
 
             //ipcRenderer.send(Channel.TEST_LOG, `Scrolling vertically from ${currentScrollY} to ${scrollY}`);
-            ipcRenderer.send(Channel.REPLAY_SCROLL, { type: 'vertical', deltaY, currentX, currentY});
+            ipcRenderer.send(Channel.REPLAY_SCROLL, { type: 'vertical', deltaY, currentX, currentY });
         }
         // Check for horizontal scroll
         if (deltaX !== 0) {
 
             ipcRenderer.send(Channel.TEST_LOG, `Scrolling horizontally from ${currentScrollX} to ${scrollX}`);
-            ipcRenderer.send(Channel.REPLAY_SCROLL, { type: 'horizontal', deltaX, currentX, currentY});
+            ipcRenderer.send(Channel.REPLAY_SCROLL, { type: 'horizontal', deltaX, currentX, currentY });
         }
     }
 }

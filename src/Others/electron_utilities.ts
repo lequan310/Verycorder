@@ -93,6 +93,7 @@ function getCurrentMode() {
   return recording ? "record" : replaying ? "replay" : "normal";
 }
 
+// Export for Ctrl + R to toggle record
 export function toggleRecord() {
   if (replaying) return;
   if (
@@ -117,7 +118,7 @@ export function toggleRecord() {
   console.log(`Recording: ${recording}`);
 }
 
-// Functin to handle replay
+// Export for Ctrl + P to toggle replay
 export function toggleReplay() {
   if (recording) return;
   if (
@@ -126,8 +127,8 @@ export function toggleReplay() {
   )
     return;
 
-  replaying = !replaying;
   if (testCase && testCase.events && testCase.events.length > 0) {
+    replaying = !replaying;
     // Send test case to process for replay.
     view.webContents.send(Channel.SEND_EVENT, testCase);
     // Send message to toggle playback
@@ -198,39 +199,28 @@ export function updateViewBounds() {
   }
 }
 
+// Function to access the URL in the browser view, from another file
+export function gotourl() {
+  if (
+    getCurrentMode() === "normal" &&
+    testCase &&
+    testCase.events &&
+    testCase.events.length > 0
+  ) {
+    const view = win.getBrowserView();
+    //console.log('Load URL: ' + testCase.url);
+    view.webContents.loadURL(testCase.url);
+  } else {
+    //console.log("Cant load because current mode is ", getCurrentMode());
+  }
+}
+
 // Handle UI events from React to Electron
 export function handleUIEvents() {
-  // Handle URL change in React
-  ipcMain.handle(Channel.URL_CHANGE, async (event, url) => {
-    // Abort controller stuff
-    if (abortController) abortController.abort();
-    abortController = new AbortController();
-    const signal = abortController.signal;
-
-    url = handleUrl(url); // Assume this function properly formats the URL
-    const response = await changeUrlWithAbort(url, view, signal).catch(
-      (error) => console.log("Aborted")
-    );
-    return response;
-  });
-
-  ipcMain.on(Channel.UPDATE_TEST_CASE, (event, updatedEventList) => {
-    testCase.events = updatedEventList;
-    console.log(testCase);
-  });
-
-  // Use invoke and handle to check if recording is on, same for replay in the future
-  ipcMain.handle(Channel.CLICK_RECORD, async (event) => {
-    toggleRecord();
-    return getCurrentMode();
-  });
-
-  ipcMain.handle(Channel.CLICK_REPLAY, async (event) => {
-    toggleReplay();
-    return getCurrentMode();
-  });
-
-  //Handle resize from React
+  handleUrlChange();
+  handleUpdateTestCase();
+  handleClickRecord();
+  handleClickReplay();
   handleEndResize();
 }
 
@@ -246,20 +236,27 @@ export function handleRecordEvents(eventNames: string[]) {
 }
 
 export function handleViewEvents() {
-  ipcMain.handle(Channel.GET_MODE, async (event) => {
-    return getCurrentMode();
-  });
+  ipcGetMode();
+  testLogEvents();
+  updateReplay();
 }
 
+// ------------------- IPC EVENT FUNCTIONS -------------------
 // Function to test log events
-export function testLogEvents() {
+function testLogEvents() {
   ipcMain.on(Channel.TEST_LOG, (event, data) => {
     console.log(data);
   });
 }
 
+function ipcGetMode() {
+  ipcMain.handle(Channel.GET_MODE, async (event) => {
+    return getCurrentMode();
+  });
+}
+
 // Function set replaying to false on command
-export function updateReplay() {
+function updateReplay() {
   ipcMain.on(Channel.UPDATE_REPLAY, (event, data) => {
     replaying = data;
     //console.log("Replaying: ", replaying);
@@ -278,7 +275,7 @@ export function updateReplay() {
 //   });
 // }
 
-export function handleEndResize() {
+function handleEndResize() {
   //on ipcMain, hide browserview
   ipcMain.on(Channel.END_RESIZE, (event, leftX) => {
     // console.log(leftPosition);
@@ -300,18 +297,38 @@ export function handleEndResize() {
   });
 }
 
-// Function to access the URL in the browser view, from another file
-export function gotourl() {
-  if (
-    getCurrentMode() === "normal" &&
-    testCase &&
-    testCase.events &&
-    testCase.events.length > 0
-  ) {
-    const view = win.getBrowserView();
-    //console.log('Load URL: ' + testCase.url);
-    view.webContents.loadURL(testCase.url);
-  } else {
-    //console.log("Cant load because current mode is ", getCurrentMode());
-  }
+function handleUrlChange() {
+  ipcMain.handle(Channel.URL_CHANGE, async (event, url) => {
+    // Abort controller stuff
+    if (abortController) abortController.abort();
+    abortController = new AbortController();
+    const signal = abortController.signal;
+
+    url = handleUrl(url); // Assume this function properly formats the URL
+    const response = await changeUrlWithAbort(url, view, signal).catch(
+      (error) => console.log("Aborted")
+    );
+    return response;
+  });
+}
+
+function handleUpdateTestCase() {
+  ipcMain.on(Channel.UPDATE_TEST_CASE, (event, updatedEventList) => {
+    testCase.events = updatedEventList;
+    console.log(testCase);
+  });
+}
+
+function handleClickRecord() {
+  ipcMain.handle(Channel.CLICK_RECORD, async (event) => {
+    toggleRecord();
+    return getCurrentMode();
+  });
+}
+
+function handleClickReplay() {
+  ipcMain.handle(Channel.CLICK_REPLAY, async (event) => {
+    toggleReplay();
+    return getCurrentMode();
+  });
 }
