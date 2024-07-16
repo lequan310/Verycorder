@@ -1,5 +1,5 @@
 import { app, BrowserWindow, globalShortcut } from 'electron';
-import { handleRecordEvents, toggleRecord, toggleReplay, handleViewEvents, handleUIEvents, gotourl, getView, getWin, createWindow } from './Others/electron_utilities';
+import { handleRecordEvents, toggleRecord, toggleReplay, handleViewEvents, handleUIEvents, gotourl, getView, getWin, createWindow, executeReplay } from './Others/electron_utilities';
 import { handleReplayEvents } from './Main/replay_functions';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -32,7 +32,7 @@ app.whenReady().then(() => {
     // setTimeout(() => {
     //   toggleReplay();
     // }, 2000);
-    executeReplayFunc();
+    executeReplay();
   });
 
   // On OS X it's common to re-create a window in the app when the

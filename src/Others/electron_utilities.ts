@@ -215,6 +215,14 @@ export function gotourl() {
   }
 }
 
+export function executeReplay() {
+  gotourl();
+  setTimeout(() => {
+    toggleReplay();
+  }, 2000);
+}
+
+// ------------------- HANDLING GROUP FUNCTIONS -------------------
 // Handle UI events from React to Electron
 export function handleUIEvents() {
   handleUrlChange();
