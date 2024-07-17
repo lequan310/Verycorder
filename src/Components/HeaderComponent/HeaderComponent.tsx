@@ -24,9 +24,14 @@ const HeaderComponent = ({ enableRecord }: { enableRecord?: boolean }) => {
     );
     const removeUpdateUrl = ipcRenderer.on(Channel.UPDATE_URL, updateUrl);
 
+    const removeToggleReplay = ipcRenderer.on(
+      Channel.TOGGLE_REPLAY,
+      setPlayState
+    );
     return () => {
       removeToggleRecord();
       removeUpdateUrl();
+      removeToggleReplay();
     };
   }, []);
 
@@ -39,7 +44,7 @@ const HeaderComponent = ({ enableRecord }: { enableRecord?: boolean }) => {
   };
 
   const replayHandler = async () => {
-    ipcRenderer.invoke(Channel.CLICK_REPLAY).then((mode: string) => {
+    ipcRenderer.invoke(Channel.TOGGLE_REPLAY).then((mode: string) => {
       if (mode !== "record") {
         setPlayState(!playState);
       }
@@ -50,10 +55,10 @@ const HeaderComponent = ({ enableRecord }: { enableRecord?: boolean }) => {
     <div className="header__container">
       <button>
         <span
-          className={`material-symbols-rounded ${playState ? "red" : ""}`}
+          className={`material-symbols-rounded ${playState ? "play" : ""}`}
           onClick={replayHandler}
         >
-          play_arrow
+          {!playState ? "play_arrow" : "pause"}
         </span>
       </button>
       <button disabled={disable || enableRecord}>

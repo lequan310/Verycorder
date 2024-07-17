@@ -9,3 +9,13 @@
 .red {
   color: red;
 }
+
+.play {
+  color: var(--arc-palette-foregroundSecondary);
+}
+
+span {
+  height: 100%;
+  width: 100%;
+  font-size: 26px !important;
+}

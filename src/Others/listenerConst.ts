@@ -21,7 +21,6 @@ export const Channel = {
   URL_CHANGE: "url-change",
   UPDATE_TEST_CASE: "update-test-case",
   CLICK_RECORD: "click-record",
-  CLICK_REPLAY: "click-replay",
 
   // Handle view events from BrowserView
   GET_MODE: "get-mode",

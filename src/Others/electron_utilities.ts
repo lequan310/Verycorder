@@ -198,31 +198,35 @@ export function gotourl() {
     const view = win.getBrowserView();
     //console.log('Load URL: ' + testCase.url);
     view.webContents.loadURL(testCase.url);
+
+    view.webContents.on("did-finish-load", () => {
+      console.log("URL successfully loaded");
+      // Your callback code here
+    });
   } else {
     //console.log("Cant load because current mode is ", getCurrentMode());
   }
 }
 
 export function executeReplay() {
-  gotourl();
-
   if (recording) return;
   if (
-      view.webContents.getURL() === "" ||
-      view.webContents.getURL() === BLANK_PAGE
-    )
-      return;
-    
+    view.webContents.getURL() === "" ||
+    view.webContents.getURL() === BLANK_PAGE
+  )
+    return;
+
+  gotourl();
+  // Send state to UI
+  win.webContents.send(Channel.TOGGLE_REPLAY, true);
   setTimeout(() => {
-    
     if (testCase && testCase.events && testCase.events.length > 0) {
       toggleReplay();
-    }
-     else {
+    } else {
       //view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
+      win.webContents.send(Channel.TOGGLE_REPLAY, false);
       console.log("There are no test cases.");
     }
-
   }, 2000);
 }
 
@@ -251,6 +255,7 @@ export function handleViewEvents() {
   ipcGetMode();
   testLogEvents();
   updateReplay();
+  updateReplayUI();
 }
 
 // ------------------- IPC EVENT FUNCTIONS -------------------
@@ -272,6 +277,12 @@ function updateReplay() {
   ipcMain.on(Channel.UPDATE_REPLAY, (event, data) => {
     replaying = data;
     //console.log("Replaying: ", replaying);
+  });
+}
+
+function updateReplayUI() {
+  ipcMain.on(Channel.TOGGLE_REPLAY, async (event, data) => {
+    win.webContents.send(Channel.TOGGLE_REPLAY, data);
   });
 }
 
@@ -339,7 +350,7 @@ function handleClickRecord() {
 }
 
 function handleClickReplay() {
-  ipcMain.handle(Channel.CLICK_REPLAY, async (event) => {
+  ipcMain.handle(Channel.TOGGLE_REPLAY, async (event) => {
     executeReplay();
     //toggleReplay();
     return getCurrentMode();
