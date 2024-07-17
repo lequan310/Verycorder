@@ -205,15 +205,16 @@ export function gotourl() {
 
 export function executeReplay() {
   gotourl();
-  setTimeout(() => {
-    
-    if (recording) return;
-    if (
+
+  if (recording) return;
+  if (
       view.webContents.getURL() === "" ||
       view.webContents.getURL() === BLANK_PAGE
     )
       return;
-
+    
+  setTimeout(() => {
+    
     if (testCase && testCase.events && testCase.events.length > 0) {
       toggleReplay();
     }
