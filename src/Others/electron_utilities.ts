@@ -336,7 +336,8 @@ function handleClickRecord() {
 
 function handleClickReplay() {
   ipcMain.handle(Channel.CLICK_REPLAY, async (event) => {
-    toggleReplay();
+    executeReplay();
+    //toggleReplay();
     return getCurrentMode();
   });
 }
