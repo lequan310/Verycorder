@@ -120,24 +120,12 @@ export function toggleRecord() {
 
 // Export for Ctrl + P to toggle replay
 export function toggleReplay() {
-  if (recording) return;
-  if (
-    view.webContents.getURL() === "" ||
-    view.webContents.getURL() === BLANK_PAGE
-  )
-    return;
-
-  if (testCase && testCase.events && testCase.events.length > 0) {
-    replaying = !replaying;
-    // Send test case to process for replay.
-    view.webContents.send(Channel.SEND_EVENT, testCase);
-    // Send message to toggle playback
-    view.webContents.send(Channel.TOGGLE_REPLAY, replaying);
-    console.log("Replaying : ", replaying);
-  } else {
-    //view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
-    console.log("There are no test cases.");
-  }
+  replaying = !replaying;
+  // Send test case to process for replay.
+  view.webContents.send(Channel.SEND_EVENT, testCase);
+  // Send message to toggle playback
+  view.webContents.send(Channel.TOGGLE_REPLAY, replaying);
+  console.log("Replaying : ", replaying);
 }
 
 // Handle URL change via search bar with abort controller
@@ -218,7 +206,22 @@ export function gotourl() {
 export function executeReplay() {
   gotourl();
   setTimeout(() => {
-    toggleReplay();
+    
+    if (recording) return;
+    if (
+      view.webContents.getURL() === "" ||
+      view.webContents.getURL() === BLANK_PAGE
+    )
+      return;
+
+    if (testCase && testCase.events && testCase.events.length > 0) {
+      toggleReplay();
+    }
+     else {
+      //view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
+      console.log("There are no test cases.");
+    }
+
   }, 2000);
 }
 
