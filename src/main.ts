@@ -1,6 +1,15 @@
-import { app, BrowserWindow, globalShortcut } from 'electron';
-import { handleRecordEvents, toggleRecord, toggleReplay, handleViewEvents, handleUIEvents, gotourl, getView, getWin, createWindow, executeReplay } from './Others/electron_utilities';
-import { handleReplayEvents } from './Main/replay_functions';
+import { app, BrowserWindow, globalShortcut } from "electron";
+import {
+  handleRecordEvents,
+  toggleRecord,
+  handleViewEvents,
+  handleUIEvents,
+  getView,
+  getWin,
+  createWindow,
+  executeReplay,
+} from "./Others/electron_utilities";
+import { handleReplayEvents } from "./Main/replay_functions";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -12,8 +21,8 @@ if (require("electron-squirrel-startup")) {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   createWindow();
-  let win = getWin();
-  let view = getView();
+  const win = getWin();
+  const view = getView();
 
   // May consider removing this feature in production
   globalShortcut.register("CommandOrControl+Shift+J", () => {

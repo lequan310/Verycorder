@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Channel } from "../../Others/listenerConst";
 import "./HeaderComponent.css";
 
@@ -44,18 +44,21 @@ const HeaderComponent = ({ enableRecord }: { enableRecord?: boolean }) => {
   };
 
   const replayHandler = async () => {
-    ipcRenderer.invoke(Channel.TOGGLE_REPLAY).then((mode: string) => {
-      if (mode !== "record") {
-        setPlayState(!playState);
-      }
-    });
+    ipcRenderer.invoke(Channel.TOGGLE_REPLAY);
+    // .then((mode: string) => {
+    //   if (mode !== "record") {
+    //     setPlayState(!playState);
+    //   }
+    // });
   };
 
   return (
     <div className="header__container">
       <button>
         <span
-          className={`material-symbols-rounded ${playState ? "play" : ""}`}
+          className={`material-symbols-rounded replay_icon ${
+            playState ? "play" : ""
+          }`}
           onClick={replayHandler}
         >
           {!playState ? "play_arrow" : "pause"}
