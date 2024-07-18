@@ -8,7 +8,7 @@ const StepsView = () => {
   const ipcRenderer = window.api;
   const [eventList, setEventList] = useState<RecordedEvent[]>([]);
   const [currentReplayIndex, setCurrentReplayIndex] = useState({
-    index: 0,
+    index: -1,
     state: null,
   });
 
