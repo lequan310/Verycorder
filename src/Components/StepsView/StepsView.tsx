@@ -8,7 +8,7 @@ const StepsView = () => {
   const ipcRenderer = window.api;
   const [eventList, setEventList] = useState<RecordedEvent[]>([]);
   const [currentReplayIndex, setCurrentReplayIndex] = useState({
-    index: 0,
+    index: -1,
     state: null,
   });
 
@@ -24,14 +24,21 @@ const StepsView = () => {
     else ipcRenderer.send(Channel.UPDATE_TEST_CASE, eventList); // Send recordedevents to main process when finish recording
   };
 
+  //Get data from IPC with contains the index as well as state for fail or succeed
   const handleReplay = (data: { index: number; state: string }) => {
     setCurrentReplayIndex({
       index: data.index,
       state: data.state,
     });
-    console.log("------------");
-    console.log(data.index);
-    console.log(data.state);
+  };
+
+  const resetState = (state: boolean) => {
+    if (state) {
+      setCurrentReplayIndex({
+        index: 0,
+        state: null,
+      });
+    }
   };
 
   useEffect(() => {
@@ -51,6 +58,11 @@ const StepsView = () => {
     const handleCurrentReplay = ipcRenderer.on(
       Channel.NEXT_REPLAY,
       handleReplay
+    );
+
+    const removeToggleReplay = ipcRenderer.on(
+      Channel.TOGGLE_REPLAY,
+      resetState
     );
 
     return () => {
