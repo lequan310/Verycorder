@@ -7,6 +7,7 @@ const HeaderComponent = ({ enableRecord }: { enableRecord?: boolean }) => {
   const [recordState, setRecordState] = useState(false);
   const [playState, setPlayState] = useState(false);
   const [disable, setDisable] = useState(true);
+  // const [replayDisable, setReplayDisable] = useState(true);
 
   // Clean up stuff
   useEffect(() => {
@@ -42,20 +43,25 @@ const HeaderComponent = ({ enableRecord }: { enableRecord?: boolean }) => {
     //     setRecordState(!recordState);
     //   }
     // });
+    // setReplayDisable(false);
   };
 
   const replayHandler = async () => {
     ipcRenderer.invoke(Channel.TOGGLE_REPLAY);
     // .then((mode: string) => {
-    //   if (mode !== "record") {
-    //     setPlayState(!playState);
+    //   if (mode === "replay") {
+    //     setDisable(true);
+    //   } else {
+    //     setDisable(false);
     //   }
     // });
   };
 
   return (
     <div className="header__container">
-      <button>
+      <button
+      // disabled={replayDisable || enableRecord}
+      >
         <span
           className={`material-symbols-rounded replay_icon ${
             playState ? "play" : ""

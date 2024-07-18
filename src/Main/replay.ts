@@ -15,7 +15,7 @@ export function getTestCase(newTestCase: TestCase) {
 // Modified replayManager to be async and controlled by isReplaying flag
 async function replayManager() {
   //ipcRenderer.send(Channel.TEST_LOG, 'Replay manager started');
-  for (const event of testCase.events) {
+  for (const [index, event] of testCase.events.entries()) {
     if (!isReplaying) return; // Stop if isReplaying is false
 
     await delay(1500);
@@ -65,6 +65,11 @@ async function replayManager() {
 
         // Depending on the event type, you might want to handle it differently
         // For example, for a click event, you might want to simulate a click based on the element's position
+
+        ipcRenderer.send(Channel.NEXT_REPLAY, {
+          index: index,
+          state: "playing",
+        });
         switch (event.type) {
           case "click":
             await clickEvent(event, rect);
@@ -80,16 +85,31 @@ async function replayManager() {
             break;
           // Add cases for other event types if needed
         }
+        ipcRenderer.send(Channel.NEXT_REPLAY, {
+          index: index + 1,
+          state: "next",
+        });
       } else {
         // Element not found, handle accordingly
         ipcRenderer.send(
           Channel.TEST_LOG,
           `Element not found for selector: ${event.target.css}`
         );
+        ipcRenderer.send(Channel.NEXT_REPLAY, {
+          index: index,
+          state: "fail",
+        });
       }
     } else if (event.target.css == "window") {
       // If event.target.css is not provided or invalid, and the event is a scroll event
       await scrollEvent(event);
+    }
+
+    if (index == testCase.events.length - 1) {
+      ipcRenderer.send(Channel.NEXT_REPLAY, {
+        index: index + 1,
+        state: "next",
+      });
     }
   }
 }
