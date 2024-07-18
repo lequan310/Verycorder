@@ -7,6 +7,10 @@ import { Channel } from "../../Others/listenerConst";
 const StepsView = () => {
   const ipcRenderer = window.api;
   const [eventList, setEventList] = useState<RecordedEvent[]>([]);
+  const [currentReplayIndex, setCurrentReplayIndex] = useState({
+    index: 0,
+    state: null,
+  });
 
   const listRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -18,6 +22,16 @@ const StepsView = () => {
   const toggleRecord = (recording: boolean) => {
     if (recording) setEventList([]); // Reset event list when recording starts
     else ipcRenderer.send(Channel.UPDATE_TEST_CASE, eventList); // Send recordedevents to main process when finish recording
+  };
+
+  const handleReplay = (data: { index: number; state: string }) => {
+    setCurrentReplayIndex({
+      index: data.index,
+      state: data.state,
+    });
+    console.log("------------");
+    console.log(data.index);
+    console.log(data.state);
   };
 
   useEffect(() => {
@@ -34,9 +48,15 @@ const StepsView = () => {
       toggleRecord
     );
 
+    const handleCurrentReplay = ipcRenderer.on(
+      Channel.NEXT_REPLAY,
+      handleReplay
+    );
+
     return () => {
       removeAddEvent();
       removeToggleRecord();
+      handleCurrentReplay();
       // ipcRenderer.removeAllListeners(Channel.TOGGLE_RECORD);
     };
   }, [eventList]);
@@ -44,7 +64,15 @@ const StepsView = () => {
   return (
     <div ref={listRef} className="__container">
       {eventList.map((event, index) => {
-        return <StepItem key={index} data={event} />;
+        return (
+          <StepItem
+            key={index}
+            data={event}
+            state={currentReplayIndex.state}
+            current={currentReplayIndex.index == index ? true : false}
+            prevState={currentReplayIndex.index > index ? true : false}
+          />
+        );
       })}
       <div ref={bottomRef} />
     </div>

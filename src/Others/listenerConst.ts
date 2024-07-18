@@ -17,6 +17,9 @@ export const Channel = {
   REPLAY_HOVER: "replay-hover",
   REPLAY_INPUT: "replay-input",
 
+  // Replay UI register
+  NEXT_REPLAY: "next-replay",
+
   // Handle UI events from React to Electron
   URL_CHANGE: "url-change",
   UPDATE_TEST_CASE: "update-test-case",

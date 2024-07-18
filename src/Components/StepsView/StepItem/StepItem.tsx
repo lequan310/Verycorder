@@ -6,9 +6,17 @@ import { TargetContext } from "../../../Types/targetContext";
 
 interface StepItemProps {
   data: RecordedEvent;
+  state: string;
+  current: boolean;
+  prevState: boolean;
 }
 
-const StepItem: React.FC<StepItemProps> = ({ data }) => {
+const StepItem: React.FC<StepItemProps> = ({
+  data,
+  state,
+  current,
+  prevState,
+}) => {
   const value = () => {
     if (data.value instanceof Object) {
       // Add your statement here
@@ -40,7 +48,11 @@ const StepItem: React.FC<StepItemProps> = ({ data }) => {
   };
 
   return (
-    <div className="stepitem__container">
+    <div
+      className={`stepitem__container ${current ? "grey" : ""} ${
+        prevState ? "green" : ""
+      }`}
+    >
       <div className="oneline_spacebetween_flex">
         <h4>{data.type}</h4>
         {value()}

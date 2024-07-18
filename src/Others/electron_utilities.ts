@@ -255,7 +255,8 @@ export function handleViewEvents() {
   ipcGetMode();
   testLogEvents();
   updateReplay();
-  updateReplayUI();
+  updateReplayButton();
+  updateUIReplay();
 }
 
 // ------------------- IPC EVENT FUNCTIONS -------------------
@@ -280,9 +281,15 @@ function updateReplay() {
   });
 }
 
-function updateReplayUI() {
+function updateReplayButton() {
   ipcMain.on(Channel.TOGGLE_REPLAY, async (event, data) => {
     win.webContents.send(Channel.TOGGLE_REPLAY, data);
+  });
+}
+
+function updateUIReplay() {
+  ipcMain.on(Channel.NEXT_REPLAY, async (event, data) => {
+    win.webContents.send(Channel.NEXT_REPLAY, data);
   });
 }
 
