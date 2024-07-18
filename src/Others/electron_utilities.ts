@@ -102,6 +102,8 @@ export function toggleRecord() {
   )
     return;
 
+  console.log("Replaying: ", replaying);
+  console.log("Recording: ", recording);
   recording = !recording;
 
   if (recording) {
@@ -204,7 +206,8 @@ export function gotourl() {
       // Your callback code here
     });
   } else {
-    //console.log("Cant load because current mode is ", getCurrentMode());
+    console.log("Cant load because current mode is ", getCurrentMode(), " or no test case");
+    console.log("Current test cases: ", testCase);
   }
 }
 
@@ -216,10 +219,13 @@ export function executeReplay() {
   )
     return;
 
+
+  replaying = !replaying;  
   gotourl();
   // Send state to UI
   win.webContents.send(Channel.TOGGLE_REPLAY, true);
   setTimeout(() => {
+    replaying = !replaying;  
     if (testCase && testCase.events && testCase.events.length > 0) {
       toggleReplay();
     } else {
