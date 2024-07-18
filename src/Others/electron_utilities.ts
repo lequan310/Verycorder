@@ -220,12 +220,12 @@ export function executeReplay() {
     return;
 
 
-  replaying = !replaying;  
+ //replaying = !replaying;  
   gotourl();
   // Send state to UI
   win.webContents.send(Channel.TOGGLE_REPLAY, true);
   setTimeout(() => {
-    replaying = !replaying;  
+    //replaying = !replaying;  
     if (testCase && testCase.events && testCase.events.length > 0) {
       toggleReplay();
     } else {
