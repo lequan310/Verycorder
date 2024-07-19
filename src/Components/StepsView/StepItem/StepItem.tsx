@@ -37,7 +37,7 @@ const StepItem: React.FC<StepItemProps> = ({
   }
 
   const preferedTarget = () => {
-    switch (targetContext) {
+    switch (targetContext.target) {
       case TargetEnum.css:
         return <p>{data.target.css}</p>;
       case TargetEnum["x-path"]:

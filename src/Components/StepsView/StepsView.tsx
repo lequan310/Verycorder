@@ -1,8 +1,12 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useContext, useEffect, useRef, useState } from "react";
 import StepItem from "./StepItem/StepItem";
 import "./StepsView.css";
 import { RecordedEvent } from "../../Types/recordedEvent";
 import { Channel } from "../../Others/listenerConst";
+import {
+  TargetContext,
+  TargetDispatchContext,
+} from "../../../src/Types/targetContext";
 
 const StepsView = () => {
   const ipcRenderer = window.api;
@@ -15,8 +19,23 @@ const StepsView = () => {
   const listRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
 
+  const dispatch = useContext(TargetDispatchContext);
+  const targetContext = useContext(TargetContext);
+  const setGlobalRecordState = (newRecordState: boolean) => {
+    if (dispatch) {
+      if (targetContext.recordState) {
+        dispatch({ type: "SET_REPLAY_STATE", payload: newRecordState });
+      }
+    }
+  };
+
   const addEvent = (event: RecordedEvent) => {
     setEventList([...eventList, event]);
+    if (eventList.length > 0) {
+      setGlobalRecordState(true);
+    } else {
+      setGlobalRecordState(false);
+    }
   };
 
   const toggleRecord = (recording: boolean) => {

@@ -90,6 +90,15 @@ export const createWindow = (): void => {
 };
 
 function getCurrentMode() {
+  // if (recording) {
+  //   win.webContents.send(Channel.ENABLE_REPLAY, false); // If record, disable replay
+  //   return "record";
+  // } else if (replaying) {
+  //   win.webContents.send(Channel.ENABLE_RECORD, false);
+  //   return "replay";
+  // } else {
+  //   return "normal";
+  // }
   return recording ? "record" : replaying ? "replay" : "normal";
 }
 
@@ -206,7 +215,11 @@ export function gotourl() {
       // Your callback code here
     });
   } else {
-    console.log("Cant load because current mode is ", getCurrentMode(), " or no test case");
+    console.log(
+      "Cant load because current mode is ",
+      getCurrentMode(),
+      " or no test case"
+    );
     console.log("Current test cases: ", testCase);
   }
 }
@@ -219,13 +232,12 @@ export function executeReplay() {
   )
     return;
 
-
- //replaying = !replaying;  
+  //replaying = !replaying;
   gotourl();
   // Send state to UI
   win.webContents.send(Channel.TOGGLE_REPLAY, true);
   setTimeout(() => {
-    //replaying = !replaying;  
+    //replaying = !replaying;
     if (testCase && testCase.events && testCase.events.length > 0) {
       toggleReplay();
     } else {

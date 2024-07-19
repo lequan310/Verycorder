@@ -1,16 +1,29 @@
-import React, { useEffect, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import { Channel } from "../../Others/listenerConst";
 import "./HeaderComponent.css";
+import {
+  TargetContext,
+  TargetDispatchContext,
+} from "../../../src/Types/targetContext";
 
-const HeaderComponent = ({ enableRecord }: { enableRecord?: boolean }) => {
+const HeaderComponent = () => {
   const ipcRenderer = window.api;
   const [recordState, setRecordState] = useState(false);
   const [playState, setPlayState] = useState(false);
   const [disable, setDisable] = useState(true);
   // const [replayDisable, setReplayDisable] = useState(true);
+  const targetContext = useContext(TargetContext);
+
+  const dispatch = useContext(TargetDispatchContext);
+  const setGlobalReplayState = (newRecordState: boolean) => {
+    if (dispatch) {
+      dispatch({ type: "SET_REPLAY_STATE", payload: newRecordState });
+    }
+  };
 
   // Clean up stuff
   useEffect(() => {
+    //FOR SEARCHBAR ------------
     const updateUrl = (url: string) => {
       if (url === "about:blank") {
         setDisable(true);
@@ -18,17 +31,22 @@ const HeaderComponent = ({ enableRecord }: { enableRecord?: boolean }) => {
         setDisable(false);
       }
     };
-
-    const removeToggleRecord = ipcRenderer.on(
-      Channel.TOGGLE_RECORD,
-      setRecordState
-    );
     const removeUpdateUrl = ipcRenderer.on(Channel.UPDATE_URL, updateUrl);
 
+    //Set record only for on or off
+    const setState = (data: boolean) => {
+      setRecordState(data);
+      setGlobalReplayState(!data);
+    };
+
+    const removeToggleRecord = ipcRenderer.on(Channel.TOGGLE_RECORD, setState);
+
+    //Set play state only for on or off
     const removeToggleReplay = ipcRenderer.on(
       Channel.TOGGLE_REPLAY,
       setPlayState
     );
+
     return () => {
       removeToggleRecord();
       removeUpdateUrl();
@@ -38,30 +56,15 @@ const HeaderComponent = ({ enableRecord }: { enableRecord?: boolean }) => {
 
   const recordHandler = async () => {
     ipcRenderer.invoke(Channel.CLICK_RECORD);
-    // .then((mode: string) => {
-    //   if (mode !== "replay") {
-    //     setRecordState(!recordState);
-    //   }
-    // });
-    // setReplayDisable(false);
   };
 
   const replayHandler = async () => {
     ipcRenderer.invoke(Channel.TOGGLE_REPLAY);
-    // .then((mode: string) => {
-    //   if (mode === "replay") {
-    //     setDisable(true);
-    //   } else {
-    //     setDisable(false);
-    //   }
-    // });
   };
 
   return (
     <div className="header__container">
-      <button
-      // disabled={replayDisable || enableRecord}
-      >
+      <button disabled={!targetContext.replayState}>
         <span
           className={`material-symbols-rounded replay_icon ${
             playState ? "play" : ""
@@ -71,7 +74,7 @@ const HeaderComponent = ({ enableRecord }: { enableRecord?: boolean }) => {
           {!playState ? "play_arrow" : "pause"}
         </span>
       </button>
-      <button disabled={disable || enableRecord}>
+      <button disabled={disable || targetContext.recordState}>
         <span
           className={`material-symbols-rounded ${recordState ? "red" : ""}`}
           onClick={recordHandler}

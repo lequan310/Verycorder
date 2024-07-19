@@ -1,10 +1,38 @@
 import React from "react";
 import { TargetEnum } from "./eventComponents";
 
-interface TargetContext {
-  target: TargetEnum;
+export interface TargetContext {
+  target: TargetEnum | null;
+  replayState: boolean;
+  recordState: boolean;
 }
 
-export const TargetContext = React.createContext(null);
+export const TargetContext = React.createContext<TargetContext>({
+  target: null,
+  replayState: false,
+  recordState: false,
+});
 
-export const TargetDispatchContext = React.createContext(null);
+type Action =
+  | { type: "SET_TARGET"; payload: TargetEnum }
+  | { type: "SET_REPLAY_STATE"; payload: boolean }
+  | { type: "SET_RECORD_STATE"; payload: boolean };
+
+export const reducer = (
+  state: TargetContext,
+  action: Action
+): TargetContext => {
+  switch (action.type) {
+    case "SET_TARGET":
+      return { ...state, target: action.payload };
+    case "SET_REPLAY_STATE":
+      return { ...state, replayState: action.payload };
+    case "SET_RECORD_STATE":
+      return { ...state, recordState: action.payload };
+    default:
+      return state;
+  }
+};
+
+export const TargetDispatchContext =
+  React.createContext<React.Dispatch<any> | null>(null);
