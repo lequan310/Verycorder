@@ -90,15 +90,6 @@ export const createWindow = (): void => {
 };
 
 function getCurrentMode() {
-  // if (recording) {
-  //   win.webContents.send(Channel.ENABLE_REPLAY, false); // If record, disable replay
-  //   return "record";
-  // } else if (replaying) {
-  //   win.webContents.send(Channel.ENABLE_RECORD, false);
-  //   return "replay";
-  // } else {
-  //   return "normal";
-  // }
   return recording ? "record" : replaying ? "replay" : "normal";
 }
 
@@ -235,14 +226,17 @@ export function executeReplay() {
   //replaying = !replaying;
   gotourl();
   // Send state to UI
-  win.webContents.send(Channel.TOGGLE_REPLAY, true);
+  win.webContents.send(Channel.TOGGLE_REPLAY, !replaying);
+  console.log(
+    "--------------------------toggle_replay executeReplay" + !replaying
+  );
   setTimeout(() => {
     //replaying = !replaying;
     if (testCase && testCase.events && testCase.events.length > 0) {
       toggleReplay();
     } else {
       //view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
-      win.webContents.send(Channel.TOGGLE_REPLAY, false);
+      // win.webContents.send(Channel.TOGGLE_REPLAY, false);
       console.log("There are no test cases.");
     }
   }, 2000);
@@ -302,6 +296,7 @@ function updateReplay() {
 function updateReplayButton() {
   ipcMain.on(Channel.TOGGLE_REPLAY, async (event, data) => {
     win.webContents.send(Channel.TOGGLE_REPLAY, data);
+    console.log("----------------toggle_replay updateReplayButton" + data);
   });
 }
 

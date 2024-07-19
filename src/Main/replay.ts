@@ -70,6 +70,7 @@ async function replayManager() {
           index: index,
           state: "playing",
         });
+        console.log("----------NEXTREPLAY index");
         switch (event.type) {
           case "click":
             await clickEvent(event, rect);
@@ -89,6 +90,7 @@ async function replayManager() {
           index: index + 1,
           state: "next",
         });
+        console.log("----------NEXTREPLAY index+1");
       } else {
         // Element not found, handle accordingly
         ipcRenderer.send(
@@ -227,5 +229,6 @@ export function stopReplaying() {
   isReplaying = false;
   ipcRenderer.send(Channel.UPDATE_REPLAY, isReplaying);
   ipcRenderer.send(Channel.TOGGLE_REPLAY, false);
+  console.log("toggle_replay false");
   //ipcRenderer.send(Channel.TEST_LOG, 'Replay process is stopping soon');
 }

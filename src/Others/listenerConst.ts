@@ -19,8 +19,6 @@ export const Channel = {
 
   // Replay UI register
   NEXT_REPLAY: "next-replay",
-  ENABLE_REPLAY: "enable-replay",
-  ENABLE_RECORD: "enable-record",
 
   // Handle UI events from React to Electron
   URL_CHANGE: "url-change",

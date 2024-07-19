@@ -4,11 +4,14 @@ import { RecordedEvent } from "../../../Types/recordedEvent";
 import { TargetEnum } from "../../../Types/eventComponents";
 import { TargetContext } from "../../../Types/targetContext";
 
+import { LegacyRef } from "react";
+
 interface StepItemProps {
   data: RecordedEvent;
   state: string;
   current: boolean;
   prevState: boolean;
+  // ref: LegacyRef<HTMLDivElement>;
 }
 
 const StepItem: React.FC<StepItemProps> = ({
@@ -16,6 +19,7 @@ const StepItem: React.FC<StepItemProps> = ({
   state,
   current,
   prevState,
+  // ref,
 }) => {
   const value = () => {
     if (data.value instanceof Object) {
@@ -49,9 +53,10 @@ const StepItem: React.FC<StepItemProps> = ({
 
   return (
     <div
-      className={`stepitem__container ${current ? "grey" : ""} ${
-        prevState ? "green" : ""
-      }`}
+      // ref={ref}
+      className={`stepitem__container ${
+        current && targetContext.replayState ? "grey" : ""
+      } ${prevState ? "green" : ""}`}
     >
       <div className="oneline_spacebetween_flex">
         <h4>{data.type}</h4>

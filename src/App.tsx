@@ -95,24 +95,6 @@ const App = () => {
     // const newLeftWidth = e.clientX - containerRect.left;
   };
 
-  //Handle IPCRENDER for record and replay state
-  useEffect(() => {
-    const removeToggleReplay = ipcRenderer.on(
-      Channel.ENABLE_RECORD,
-      setRecordState
-    );
-
-    const enableReplayBtn = ipcRenderer.on(
-      Channel.ENABLE_REPLAY,
-      setReplayState
-    );
-
-    return () => {
-      removeToggleReplay();
-      enableReplayBtn();
-    };
-  });
-
   return (
     <TargetContext.Provider value={state}>
       <TargetDispatchContext.Provider value={dispatch}>

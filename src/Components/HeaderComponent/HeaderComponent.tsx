@@ -11,7 +11,6 @@ const HeaderComponent = () => {
   const [recordState, setRecordState] = useState(false);
   const [playState, setPlayState] = useState(false);
   const [disable, setDisable] = useState(true);
-  // const [replayDisable, setReplayDisable] = useState(true);
   const targetContext = useContext(TargetContext);
 
   const dispatch = useContext(TargetDispatchContext);
@@ -20,6 +19,8 @@ const HeaderComponent = () => {
       dispatch({ type: "SET_REPLAY_STATE", payload: newRecordState });
     }
   };
+
+  // const [replayTimeOut, setReplayTimeOut] = useState(targetContext.replayState);
 
   // Clean up stuff
   useEffect(() => {
@@ -46,6 +47,11 @@ const HeaderComponent = () => {
       Channel.TOGGLE_REPLAY,
       setPlayState
     );
+
+    // const { setTimeout } = window;
+    // setTimeout(() => {
+    //   setReplayTimeOut(!targetContext.replayState);
+    // }, 5000);
 
     return () => {
       removeToggleRecord();
