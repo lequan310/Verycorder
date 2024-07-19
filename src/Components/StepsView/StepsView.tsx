@@ -37,11 +37,7 @@ const StepsView = () => {
 
   const addEvent = (event: RecordedEvent) => {
     setEventList([...eventList, event]);
-    if (eventList.length > 0) {
-      setGlobalRecordState(true);
-    } else {
-      setGlobalRecordState(false);
-    }
+    setCurrentReplayIndex(initState);
   };
 
   const toggleRecord = (recording: boolean) => {
@@ -64,6 +60,7 @@ const StepsView = () => {
 
   //If not replay, hide the gray background
   const resetState = (state: boolean) => {
+    setGlobalRecordState(state);
     if (state) {
       setCurrentReplayIndex({
         index: 0,
