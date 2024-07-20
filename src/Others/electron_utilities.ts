@@ -117,16 +117,6 @@ export function toggleRecord() {
   win.webContents.send(Channel.TOGGLE_RECORD, recording); // Send message to change UI (disable search bar)
 }
 
-// Export for Ctrl + P to toggle replay
-export function toggleReplay() {
-  replaying = !replaying;
-  // Send test case to process for replay.
-  view.webContents.send(Channel.SEND_EVENT, testCase);
-  // Send message to toggle playback
-  view.webContents.send(Channel.TOGGLE_REPLAY, replaying);
-  console.log("Replaying : ", replaying);
-}
-
 // Handle URL change via search bar with abort controller
 function changeUrlWithAbort(
   url: string,
@@ -187,7 +177,7 @@ export function updateViewBounds() {
 }
 
 // Function to access the URL in the browser view, from another file
-export function gotourl() {
+export function goToUrl() {
   if (
     getCurrentMode() === "normal" &&
     testCase &&
@@ -221,7 +211,7 @@ export function executeReplay() {
     return;
 
   //replaying = !replaying;
-  gotourl();
+  goToUrl();
   // Send state to UI
   win.webContents.send(Channel.TOGGLE_REPLAY, !replaying);
   console.log(
@@ -230,7 +220,12 @@ export function executeReplay() {
   setTimeout(() => {
     //replaying = !replaying;
     if (testCase && testCase.events && testCase.events.length > 0) {
-      toggleReplay();
+      replaying = !replaying;
+      // Send test case to process for replay.
+      view.webContents.send(Channel.SEND_EVENT, testCase);
+      // Send message to toggle playback
+      view.webContents.send(Channel.TOGGLE_REPLAY, replaying);
+      console.log("Replaying : ", replaying);
     } else {
       //view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
       win.webContents.send(Channel.TOGGLE_REPLAY, false);
@@ -253,9 +248,7 @@ export function handleUIEvents() {
 export function handleRecordEvents(eventNames: string[]) {
   for (const eventName of eventNames) {
     ipcMain.on(eventName, (event, data) => {
-      //testCase.events.push(data);
       win.webContents.send(Channel.ADD_EVENT, data);
-      //console.log(data);
     });
   }
 }
@@ -286,7 +279,7 @@ function ipcGetMode() {
 function updateReplay() {
   ipcMain.on(Channel.UPDATE_REPLAY, (event, data) => {
     replaying = data;
-    //console.log("Replaying: ", replaying);
+    console.log("Replaying : ", replaying);
   });
 }
 
@@ -369,7 +362,6 @@ function handleClickRecord() {
 function handleClickReplay() {
   ipcMain.handle(Channel.TOGGLE_REPLAY, async (event) => {
     executeReplay();
-    //toggleReplay();
     return getCurrentMode();
   });
 }
