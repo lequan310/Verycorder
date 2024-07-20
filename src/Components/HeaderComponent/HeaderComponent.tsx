@@ -10,8 +10,8 @@ const HeaderComponent = () => {
   const ipcRenderer = window.api;
   const [recordState, setRecordState] = useState(false);
   const [playState, setPlayState] = useState(false);
-  const [disable, setDisable] = useState(true);
 
+  //USECONTEXT FUNC HERE
   const targetContext = useContext(TargetContext);
   const dispatch = useContext(TargetDispatchContext);
   const setGlobalRecordState = (newRecordState: boolean) => {
@@ -19,19 +19,12 @@ const HeaderComponent = () => {
       dispatch({ type: "SET_RECORD_STATE", payload: newRecordState });
     }
   };
-
   const setGlobalReplayState = (newRecordState: boolean) => {
     if (dispatch) {
       dispatch({ type: "SET_REPLAY_STATE", payload: newRecordState });
     }
   };
   // const [replayTimeOut, setReplayTimeOut] = useState(targetContext.replayState);
-
-  const setReplayState = (data: boolean) => {
-    setPlayState(data);
-    console.log("------------------ record state");
-    setGlobalRecordState(false);
-  };
 
   // Clean up stuff
   useEffect(() => {
@@ -46,26 +39,33 @@ const HeaderComponent = () => {
         setGlobalRecordState(false);
       }
     };
-
     const removeUpdateUrl = ipcRenderer.on(Channel.UPDATE_URL, updateUrl);
 
-    //Set record only for record or not record (local var)
-    const setState = (data: boolean) => {
-      setRecordState(data);
-      console.log("---------------------- setstate");
-      console.log(targetContext.testCaseSize);
-      // console.log(targetContext.replayState);
-      // console.log(targetContext.recordState);
-      // console.log(targetContext.testCaseSize);
-      if (targetContext.testCaseSize > 0) setGlobalReplayState(!data);
+    //Set record only for record or not record (local var) will be called when IPC toggle record
+    const setRecordStateHandler = (state: boolean) => {
+      setRecordState(state);
     };
 
-    const removeToggleRecord = ipcRenderer.on(Channel.TOGGLE_RECORD, setState);
+    const removeToggleRecord = ipcRenderer.on(
+      Channel.TOGGLE_RECORD,
+      setRecordStateHandler
+    );
 
-    //Set play state only for on or off
+    //Set play state if trigger by IPC and also set record state to false
+    const setReplayStateHandler = (replay: boolean) => {
+      setPlayState(replay);
+      if (replay) {
+        setGlobalRecordState(!replay);
+      }
+      ipcRenderer.send(Channel.TEST_LOG, "------------------ replay state");
+      ipcRenderer.send(Channel.TEST_LOG, replay);
+      ipcRenderer.send(Channel.TEST_LOG, targetContext.recordState);
+    };
+
+    //Set play state only for recording or not recording
     const removeToggleReplay = ipcRenderer.on(
       Channel.TOGGLE_REPLAY,
-      setPlayState
+      setReplayStateHandler
     );
 
     return () => {
@@ -85,14 +85,11 @@ const HeaderComponent = () => {
 
   return (
     <div className="header__container">
-      <button
-        disabled={
-          !targetContext.replayState || !(targetContext.testCaseSize > 0)
-        }
-      >
+      <button disabled={!targetContext.replayState}>
         <span
-          className={`material-symbols-rounded replay_icon ${playState ? "play" : ""
-            }`}
+          className={`material-symbols-rounded replay_icon ${
+            playState ? "play" : ""
+          }`}
           onClick={replayHandler}
         >
           {!playState ? "play_arrow" : "pause"}

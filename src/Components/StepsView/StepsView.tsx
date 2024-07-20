@@ -17,9 +17,6 @@ const StepsView = () => {
   const [eventList, setEventList] = useState<RecordedEvent[]>([]);
   const [currentReplayIndex, setCurrentReplayIndex] = useState(initState);
 
-  //Check for the last replay if exist
-  // const [recordState, setRecordState] = useState(false);
-
   const listRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   // const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -27,11 +24,10 @@ const StepsView = () => {
   //Check if is not record and the event list have items----------
   const dispatch = useContext(TargetDispatchContext);
   const targetContext = useContext(TargetContext);
-  const setGlobalTestCaseSizeState = (newState: number) => {
+
+  const setGlobalReplayState = (newRecordState: boolean) => {
     if (dispatch) {
-      if (targetContext.recordState) {
-        dispatch({ type: "SET_TEST_CASE_SIZE", payload: newState });
-      }
+      dispatch({ type: "SET_REPLAY_STATE", payload: newRecordState });
     }
   };
 
@@ -41,21 +37,22 @@ const StepsView = () => {
   };
 
   const toggleRecord = (recording: boolean) => {
-    if (recording) setEventList([]); // Reset event list when recording starts
-    else ipcRenderer.send(Channel.UPDATE_TEST_CASE, eventList); // Send recordedevents to main process when finish recording
+    if (recording) {
+      //If recording, disable the replay button
+      setGlobalReplayState(false);
+      setEventList([]); // Reset event list when recording starts
+    } else {
+      //Only check when stop recording to get test case list
+      //Check if there is no test case, disable replay btn
+      if (eventList.length > 0) {
+        setGlobalReplayState(true);
+      } else {
+        setGlobalReplayState(false);
+      }
+      ipcRenderer.send(Channel.UPDATE_TEST_CASE, eventList); // Send recordedevents to main process when finish recording
+    }
+    //This is for removing grey background when recording
     setCurrentReplayIndex(initState);
-    // if (!recording) {
-    //   if (eventList.length == 0) {
-    console.log("-----------toggleRecord" + false);
-    //     setGlobalReplayState(false);
-    //   } else {
-    //     console.log("-----------toggleRecord" + true);
-    //     setGlobalReplayState(true);
-    //   }
-    // }
-    setGlobalTestCaseSizeState(eventList.length);
-    console.log(targetContext.testCaseSize);
-    console.log(eventList.length);
   };
 
   //Get data from IPC with contains the index as well as state for fail or succeed
@@ -68,17 +65,6 @@ const StepsView = () => {
     //   behavior: "smooth",
     //   block: "center",
     // });
-  };
-
-  //If not replay, hide the gray background
-  const resetState = (state: boolean) => {
-    // setGlobalRecordState(!state);
-    if (state) {
-      setCurrentReplayIndex({
-        index: 0,
-        state: null,
-      });
-    }
   };
 
   useEffect(() => {
@@ -102,9 +88,19 @@ const StepsView = () => {
       handleReplay
     );
 
+    //If replay, move the index back to starting point
+    const revertStateHandler = (state: boolean) => {
+      // setGlobalRecordState(!state);
+      if (state) {
+        setCurrentReplayIndex({
+          index: 0,
+          state: null,
+        });
+      }
+    };
     const removeToggleReplay = ipcRenderer.on(
       Channel.TOGGLE_REPLAY,
-      resetState
+      revertStateHandler
     );
 
     return () => {

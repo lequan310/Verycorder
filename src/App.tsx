@@ -22,10 +22,16 @@ const App = () => {
   // const [enableRecord, setEnableRecord] = useState(false);
   const ipcRenderer = window.api;
 
+  //This is to handle if URL is invalid
   function handleResponse(object: { success: boolean; message: string }) {
     setResponseMessage(object.message);
     setRecordState(!object.success);
   }
+  const setRecordState = (newRecordState: boolean) => {
+    if (dispatch) {
+      dispatch({ type: "SET_RECORD_STATE", payload: newRecordState });
+    }
+  };
 
   const handleButtonClick = () => {
     setShrink((prev) => {
@@ -51,13 +57,6 @@ const App = () => {
   // const setReplayState = (newReplayState: boolean) => {
   //   dispatch({ type: "SET_REPLAY_STATE", payload: newReplayState });
   // };
-
-  const setRecordState = (newRecordState: boolean) => {
-    if (dispatch) {
-      console.log("--------------------- record state" + newRecordState);
-      dispatch({ type: "SET_RECORD_STATE", payload: newRecordState });
-    }
-  };
 
   // Handle resize-----------------------
   const [leftWidth, setLeftWidth] = useState(350); // Initial width as percentage
@@ -96,24 +95,6 @@ const App = () => {
     // console.log(e.clientX);
     // const newLeftWidth = e.clientX - containerRect.left;
   };
-
-  // //Handle IPCRENDER for record and replay state
-  // useEffect(() => {
-  //   const removeToggleReplay = ipcRenderer.on(
-  //     Channel.ENABLE_RECORD,
-  //     setRecordState
-  //   );
-
-  //   const enableReplayBtn = ipcRenderer.on(
-  //     Channel.ENABLE_REPLAY,
-  //     setReplayState
-  //   );
-
-  //   return () => {
-  //     removeToggleReplay();
-  //     enableReplayBtn();
-  //   };
-  // });
 
   return (
     <TargetContext.Provider value={state}>
