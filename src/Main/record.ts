@@ -13,6 +13,7 @@ import {
 import { RecordedEvent } from "../Types/recordedEvent";
 import { ipcRenderer } from "electron";
 import { Channel } from "../Others/listenerConst";
+import { buttonMode } from "../Others/electron_utilities";
 
 // ------------------- GLOBAL VARIABLES -------------------
 // Variables for editing target element
@@ -285,4 +286,7 @@ export function stopRecording() {
   document.body.removeEventListener("mouseenter", hoverHandler, true);
   document.body.removeEventListener("change", changeHandler, true);
   document.body.removeEventListener("focus", focusHandler, true);
+
+  // Reset buttons to normal after recording
+  ipcRenderer.send(Channel.UPDATE_STATE, buttonMode.normal);
 }

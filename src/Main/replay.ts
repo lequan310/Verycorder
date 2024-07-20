@@ -3,6 +3,7 @@ import { Channel } from "../Others/listenerConst";
 import { TestCase } from "../Types/testCase";
 import { delay } from "../Others/utilities";
 import { RecordedEvent } from "../Types/recordedEvent";
+import { buttonMode } from "../Others/electron_utilities";
 
 let testCase: TestCase;
 let isReplaying = true; // Flag to control the replay
@@ -253,6 +254,8 @@ export function stopReplaying() {
   isReplaying = false;
   ipcRenderer.send(Channel.UPDATE_REPLAY, isReplaying);
   ipcRenderer.send(Channel.TOGGLE_REPLAY, false);
+  // After stopping replay, update the button mode to normal
+  ipcRenderer.send(Channel.UPDATE_STATE, buttonMode.normal);
   //console.log("toggle_replay false");
   //ipcRenderer.send(Channel.TEST_LOG, 'Replay process is stopping soon');
 }

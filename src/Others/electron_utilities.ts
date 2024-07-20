@@ -21,7 +21,7 @@ let leftPosition = 350 + 24;
 let win: BrowserWindow;
 let view: BrowserView;
 
-enum buttonMode{
+export enum buttonMode{
   record,
   replay,
   normal
@@ -110,6 +110,13 @@ export function toggleRecord() {
     return;
 
   recording = !recording;
+  //Send meesage to front end to update buttons to normal state, when paused/ interrupted
+  if (!recording){
+    view.webContents.send(Channel.UPDATE_STATE, buttonMode.normal);
+  }
+  else {
+    view.webContents.send(Channel.UPDATE_STATE, buttonMode.record);
+  }
 
   if (recording) {
     const { x, y, width, height } = view.getBounds();
@@ -216,6 +223,15 @@ export async function toggleReplay() {
   goToUrl();
 
   await delay(1500);
+
+  //Send meesage to front end to update buttons to normal state, when paused/ interrupted
+  if (!replaying){
+    view.webContents.send(Channel.UPDATE_STATE, buttonMode.normal);
+  }
+  else {
+    view.webContents.send(Channel.UPDATE_STATE, buttonMode.replay);
+  }
+
   if (testCase && testCase.events && testCase.events.length > 0) {
       
       // Send test case to process for replay.
