@@ -32,6 +32,7 @@ const HeaderComponent = () => {
     console.log("------------------ record state");
     setGlobalRecordState(false);
   };
+
   // Clean up stuff
   useEffect(() => {
     //FOR SEARCHBAR ------------
@@ -45,6 +46,7 @@ const HeaderComponent = () => {
         setGlobalRecordState(false);
       }
     };
+
     const removeUpdateUrl = ipcRenderer.on(Channel.UPDATE_URL, updateUrl);
 
     //Set record only for record or not record (local var)
@@ -55,9 +57,7 @@ const HeaderComponent = () => {
       // console.log(targetContext.replayState);
       // console.log(targetContext.recordState);
       // console.log(targetContext.testCaseSize);
-      // if (targetContext.testCaseSize > 0) {
-      setGlobalReplayState(!data);
-      // }
+      if (targetContext.testCaseSize > 0) setGlobalReplayState(!data);
     };
 
     const removeToggleRecord = ipcRenderer.on(Channel.TOGGLE_RECORD, setState);
@@ -87,15 +87,12 @@ const HeaderComponent = () => {
     <div className="header__container">
       <button
         disabled={
-          !targetContext.replayState
-
-          // || targetContext.testCaseSize > 0
+          !targetContext.replayState || !(targetContext.testCaseSize > 0)
         }
       >
         <span
-          className={`material-symbols-rounded replay_icon ${
-            playState ? "play" : ""
-          }`}
+          className={`material-symbols-rounded replay_icon ${playState ? "play" : ""
+            }`}
           onClick={replayHandler}
         >
           {!playState ? "play_arrow" : "pause"}

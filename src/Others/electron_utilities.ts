@@ -102,8 +102,6 @@ export function toggleRecord() {
   )
     return;
 
-  console.log("Replaying: ", replaying);
-  console.log("Recording: ", recording);
   recording = !recording;
 
   if (recording) {
@@ -117,7 +115,6 @@ export function toggleRecord() {
 
   view.webContents.send(Channel.TOGGLE_RECORD, recording); // Send message to attach event listeners
   win.webContents.send(Channel.TOGGLE_RECORD, recording); // Send message to change UI (disable search bar)
-  console.log(`Recording: ${recording}`);
 }
 
 // Export for Ctrl + P to toggle replay

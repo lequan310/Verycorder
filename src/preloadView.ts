@@ -12,12 +12,12 @@ function onload(load: boolean) {
 }
 
 window.addEventListener('load', () => {
-    document.body.addEventListener('mouseenter', hoverEditHandler, true);
+    //document.body.addEventListener('mouseenter', hoverEditHandler, true);
     onload(true);
 });
 
 window.addEventListener('beforeunload', () => {
-    document.body.removeEventListener('mouseenter', hoverEditHandler, true);
+    //document.body.removeEventListener('mouseenter', hoverEditHandler, true);
     onload(false);
 });
 
