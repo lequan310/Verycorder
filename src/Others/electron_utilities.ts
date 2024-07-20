@@ -89,7 +89,7 @@ export const createWindow = (): void => {
   });
 };
 
-function getCurrentMode() {
+export function getCurrentMode() {
   return recording ? "record" : replaying ? "replay" : "normal";
 }
 
@@ -185,13 +185,9 @@ export function goToUrl() {
     testCase.events.length > 0
   ) {
     const view = win.getBrowserView();
-    //console.log('Load URL: ' + testCase.url);
+    console.log('Load URL: ' + testCase.url);
     view.webContents.loadURL(testCase.url);
-
-    view.webContents.on("did-finish-load", () => {
-      console.log("URL successfully loaded");
-      // Your callback code here
-    });
+    
   } else {
     console.log(
       "Cant load because current mode is ",

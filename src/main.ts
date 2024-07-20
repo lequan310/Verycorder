@@ -8,13 +8,17 @@ import {
   getWin,
   createWindow,
   executeReplay,
+  getCurrentMode,
 } from "./Others/electron_utilities";
 import { handleReplayEvents } from "./Main/replay_functions";
+import { Channel } from "./Others/listenerConst";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
   app.quit();
 }
+
+
 
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
@@ -23,6 +27,23 @@ app.whenReady().then(() => {
   createWindow();
   const win = getWin();
   const view = getView();
+
+
+  view.webContents.on("did-navigate-in-page", () => {
+    if (getCurrentMode() === "replay") {
+      const status = true;
+      console.log("Navigation started during replay");
+      view.webContents.send(Channel.UPDATE_NAVIGATE, status);
+    }
+  });
+
+  view.webContents.on("did-finish-load", () => {
+    if (getCurrentMode() === "replay") {
+      const status = false;
+      console.log("Navigation finished during replay");
+      view.webContents.send(Channel.UPDATE_NAVIGATE, status);
+    }
+  });
 
   // May consider removing this feature in production
   globalShortcut.register("CommandOrControl+Shift+J", () => {
@@ -59,6 +80,7 @@ app.whenReady().then(() => {
     "input-event",
   ]);
   handleReplayEvents();
+
 });
 
 app.on("will-quit", () => {

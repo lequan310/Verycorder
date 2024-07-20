@@ -10,6 +10,7 @@ export const Channel = {
   SEND_EVENT: "send-event", // send test case to replay.ts
   LOAD_URL: "load-url", // load URL in BrowserView
   UPDATE_REPLAY: "update-replay", // update replay status
+  UPDATE_NAVIGATE: "begin-navigate", // begin navigation
 
   // Replay feature
   REPLAY_SCROLL: "replay-scroll",

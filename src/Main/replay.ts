@@ -6,21 +6,21 @@ import { RecordedEvent } from "../Types/recordedEvent";
 
 let testCase: TestCase;
 let isReplaying = true; // Flag to control the replay
+let forceStopReplaying = false;
+let currentEventIndex = 0;
 
 // Function to get the test case from main process
 export function getTestCase(newTestCase: TestCase) {
   testCase = newTestCase;
 }
 
-// Modified replayManager to be async and controlled by isReplaying flag
-async function replayManager() {
-  //ipcRenderer.send(Channel.TEST_LOG, 'Replay manager started');
-  for (const [index, event] of testCase.events.entries()) {
-    if (!isReplaying) return; // Stop if isReplaying is false
+export function getNavigationStatus(status: boolean) {
+  forceStopReplaying = status;
+  ipcRenderer.send(Channel.TEST_LOG, "Navigation status: " + forceStopReplaying);
+}
 
-    await delay(1500);
-
-    //if (!isReplaying) return; // Stop if isReplaying is false
+async function replayLogicController(index: number, event: RecordedEvent) {
+  //if (!isReplaying) return; // Stop if isReplaying is false
     //ipcRenderer.send(Channel.TEST_LOG, event);
     if (event.target.css && event.target.css !== "window") {
       let element: Element | null = null;
@@ -113,6 +113,32 @@ async function replayManager() {
         state: "next",
       });
     }
+}
+
+
+// Modified replayManager to be async and controlled by isReplaying flag
+async function replayManager() {
+  //ipcRenderer.send(Channel.TEST_LOG, 'Replay manager started');
+  for (currentEventIndex; currentEventIndex < testCase.events.length; currentEventIndex++) {
+
+    ipcRenderer.send(Channel.TEST_LOG, "Replaying event " + currentEventIndex);
+    const index = currentEventIndex;
+    const event = testCase.events[currentEventIndex];
+
+    if (!isReplaying) return; // Stop if isReplaying is false
+
+    ipcRenderer.send(Channel.TEST_LOG, "Before force stop check " + forceStopReplaying);
+    
+    while (forceStopReplaying) {
+      ipcRenderer.send(Channel.TEST_LOG, "Force stop replaying " + forceStopReplaying);
+      await delay(500);
+    }
+
+
+    await delay(1500);
+    replayLogicController(index, event);
+
+    
   }
 }
 

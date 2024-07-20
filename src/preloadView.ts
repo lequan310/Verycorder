@@ -1,6 +1,6 @@
 import { ipcRenderer } from 'electron';
 import { record, stopRecording, hoverEditHandler } from './Main/record';
-import { replay, stopReplaying, getTestCase } from './Main/replay';
+import { replay, stopReplaying, getTestCase, getNavigationStatus } from './Main/replay';
 import { Channel } from './Others/listenerConst';
 
 function onload(load: boolean) {
@@ -35,3 +35,10 @@ ipcRenderer.on(Channel.TOGGLE_REPLAY, (event, replaying) => {
 ipcRenderer.on(Channel.SEND_EVENT, (event, testCase) => {
     getTestCase(testCase);
 });
+
+ipcRenderer.on(Channel.UPDATE_NAVIGATE, (event, status) => {
+    getNavigationStatus(status);
+});
+
+
+
