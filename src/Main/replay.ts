@@ -2,6 +2,7 @@ import { ipcRenderer } from "electron";
 import { Channel } from "../Others/listenerConst";
 import { TestCase } from "../Types/testCase";
 import { RecordedEvent } from "../Types/recordedEvent";
+import { buttonMode } from "../Others/electron_utilities";
 
 let testCase: TestCase;
 let isReplaying = true; // Flag to control the replay

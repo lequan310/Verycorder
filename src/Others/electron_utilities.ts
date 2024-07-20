@@ -111,6 +111,13 @@ export function toggleRecord() {
     return;
 
   recording = !recording;
+  //Send meesage to front end to update buttons to normal state, when paused/ interrupted
+  if (!recording) {
+    view.webContents.send(Channel.UPDATE_STATE, buttonMode.normal);
+  }
+  else {
+    view.webContents.send(Channel.UPDATE_STATE, buttonMode.record);
+  }
 
   if (recording) {
     const { x, y, width, height } = view.getBounds();
