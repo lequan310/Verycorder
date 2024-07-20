@@ -27,8 +27,9 @@ ipcRenderer.on(Channel.TOGGLE_RECORD, (event, recording) => {
 });
 
 // Handle when toggle replay notification is received
-ipcRenderer.on(Channel.TOGGLE_REPLAY, (event, replaying) => {
-    replaying ? replay() : stopReplaying();
+ipcRenderer.on(Channel.TOGGLE_REPLAY, async (event, replaying) => {
+    if (replaying) await replay();
+    else stopReplaying();
 });
 
 // Handle when test case is sent
@@ -39,6 +40,3 @@ ipcRenderer.on(Channel.SEND_EVENT, (event, testCase) => {
 ipcRenderer.on(Channel.UPDATE_NAVIGATE, (event, status) => {
     getNavigationStatus(status);
 });
-
-
-

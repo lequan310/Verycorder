@@ -28,23 +28,6 @@ app.whenReady().then(() => {
   const win = getWin();
   const view = getView();
 
-
-  view.webContents.on("did-navigate-in-page", () => {
-    if (getCurrentMode() === "replay") {
-      const status = true;
-      console.log("Navigation started during replay");
-      view.webContents.send(Channel.UPDATE_NAVIGATE, status);
-    }
-  });
-
-  view.webContents.on("did-finish-load", () => {
-    if (getCurrentMode() === "replay") {
-      const status = false;
-      console.log("Navigation finished during replay");
-      view.webContents.send(Channel.UPDATE_NAVIGATE, status);
-    }
-  });
-
   // May consider removing this feature in production
   globalShortcut.register("CommandOrControl+Shift+J", () => {
     view.webContents.toggleDevTools();

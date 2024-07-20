@@ -1,13 +1,13 @@
 import { ipcRenderer } from "electron";
 import { Channel } from "../Others/listenerConst";
 import { TestCase } from "../Types/testCase";
-import { delay } from "../Others/utilities";
 import { RecordedEvent } from "../Types/recordedEvent";
 
 let testCase: TestCase;
 let isReplaying = true; // Flag to control the replay
 let forceStopReplaying = false;
 let currentEventIndex = 0;
+let abortController: AbortController;
 
 // Function to get the test case from main process
 export function getTestCase(newTestCase: TestCase) {
@@ -19,124 +19,135 @@ export function getNavigationStatus(status: boolean) {
   ipcRenderer.send(Channel.TEST_LOG, "Navigation status: " + forceStopReplaying);
 }
 
+async function delayWithAbort(ms: number, signal: AbortSignal) {
+  return new Promise((resolve, reject) => {
+    const timeout = setTimeout(resolve, ms);
+    signal.addEventListener('abort', () => {
+      clearTimeout(timeout);
+      reject(new Error('aborted'));
+    });
+  });
+}
+
 async function replayLogicController(index: number, event: RecordedEvent) {
   //if (!isReplaying) return; // Stop if isReplaying is false
-    //ipcRenderer.send(Channel.TEST_LOG, event);
-    if (event.target.css && event.target.css !== "window") {
-      let element: Element | null = null;
-      try {
-        // Attempt to find the element based on the CSS selector
-        element = document.querySelector(event.target.css);
-        if (!element)
-          throw new Error(
-            `Element not found for selector: ${event.target.css}`
-          );
-      } catch (error) {
-        // If element not found by CSS, attempt to find it based on XPath
-        ipcRenderer.send(Channel.TEST_LOG, error.message);
-        try {
-          const xpathResult = document.evaluate(
-            event.target.xpath,
-            document,
-            null,
-            XPathResult.FIRST_ORDERED_NODE_TYPE,
-            null
-          );
-          if (xpathResult.singleNodeValue instanceof Element) {
-            element = xpathResult.singleNodeValue;
-            ipcRenderer.send(
-              Channel.TEST_LOG,
-              `Element found by xpath instead of CSS: ${element}`
-            );
-          } else {
-            throw new Error(
-              `Element not found for XPath: ${event.target.xpath}`
-            );
-          }
-        } catch (xpathError) {
-          ipcRenderer.send(Channel.TEST_LOG, xpathError.message);
-          return; // Exit the function if element is not found by both methods
-        }
-      }
-      if (element) {
-        const rect = element.getBoundingClientRect();
-        // Log the element's bounding rectangle or use it as needed
-        //ipcRenderer.send(Channel.TEST_LOG, `Element rect: ${JSON.stringify(rect)}`);
-
-        // Depending on the event type, you might want to handle it differently
-        // For example, for a click event, you might want to simulate a click based on the element's position
-
-        ipcRenderer.send(Channel.NEXT_REPLAY, {
-          index: index,
-          state: "playing",
-        });
-        console.log("----------NEXTREPLAY index");
-        switch (event.type) {
-          case "click":
-            await clickEvent(event, rect);
-            break;
-          case "input":
-            await inputEvent(event, rect);
-            break;
-          case "hover":
-            await hoverEvent(event, rect);
-            break;
-          case "scroll":
-            await scrollEvent(event, element);
-            break;
-          // Add cases for other event types if needed
-        }
-        ipcRenderer.send(Channel.NEXT_REPLAY, {
-          index: index + 1,
-          state: "next",
-        });
-        console.log("----------NEXTREPLAY index+1");
-      } else {
-        // Element not found, handle accordingly
-        ipcRenderer.send(
-          Channel.TEST_LOG,
+  //ipcRenderer.send(Channel.TEST_LOG, event);
+  if (event.target.css && event.target.css !== "window") {
+    let element: Element | null = null;
+    try {
+      // Attempt to find the element based on the CSS selector
+      element = document.querySelector(event.target.css);
+      if (!element)
+        throw new Error(
           `Element not found for selector: ${event.target.css}`
         );
-        ipcRenderer.send(Channel.NEXT_REPLAY, {
-          index: index,
-          state: "fail",
-        });
+    } catch (error) {
+      // If element not found by CSS, attempt to find it based on XPath
+      ipcRenderer.send(Channel.TEST_LOG, error.message);
+      try {
+        const xpathResult = document.evaluate(
+          event.target.xpath,
+          document,
+          null,
+          XPathResult.FIRST_ORDERED_NODE_TYPE,
+          null
+        );
+        if (xpathResult.singleNodeValue instanceof Element) {
+          element = xpathResult.singleNodeValue;
+          ipcRenderer.send(
+            Channel.TEST_LOG,
+            `Element found by xpath instead of CSS: ${element}`
+          );
+        } else {
+          throw new Error(
+            `Element not found for XPath: ${event.target.xpath}`
+          );
+        }
+      } catch (xpathError) {
+        ipcRenderer.send(Channel.TEST_LOG, xpathError.message);
+        return; // Exit the function if element is not found by both methods
       }
-    } else if (event.target.css == "window") {
-      // If event.target.css is not provided or invalid, and the event is a scroll event
-      await scrollEvent(event);
     }
+    if (element) {
+      const rect = element.getBoundingClientRect();
+      // Log the element's bounding rectangle or use it as needed
+      //ipcRenderer.send(Channel.TEST_LOG, `Element rect: ${JSON.stringify(rect)}`);
 
-    if (index == testCase.events.length - 1) {
+      // Depending on the event type, you might want to handle it differently
+      // For example, for a click event, you might want to simulate a click based on the element's position
+
+      ipcRenderer.send(Channel.NEXT_REPLAY, {
+        index: index,
+        state: "playing",
+      });
+      console.log("----------NEXTREPLAY index");
+      switch (event.type) {
+        case "click":
+          await clickEvent(event, rect);
+          break;
+        case "input":
+          await inputEvent(event, rect);
+          break;
+        case "hover":
+          await hoverEvent(event, rect);
+          break;
+        case "scroll":
+          await scrollEvent(event, element);
+          break;
+        // Add cases for other event types if needed
+      }
       ipcRenderer.send(Channel.NEXT_REPLAY, {
         index: index + 1,
         state: "next",
       });
+      console.log("----------NEXTREPLAY index+1");
+    } else {
+      // Element not found, handle accordingly
+      ipcRenderer.send(
+        Channel.TEST_LOG,
+        `Element not found for selector: ${event.target.css}`
+      );
+      ipcRenderer.send(Channel.NEXT_REPLAY, {
+        index: index,
+        state: "fail",
+      });
     }
-}
+  } else if (event.target.css == "window") {
+    // If event.target.css is not provided or invalid, and the event is a scroll event
+    await scrollEvent(event);
+  }
 
+  if (index == testCase.events.length - 1) {
+    ipcRenderer.send(Channel.NEXT_REPLAY, {
+      index: index + 1,
+      state: "next",
+    });
+  }
+}
 
 // Modified replayManager to be async and controlled by isReplaying flag
 async function replayManager() {
-  //ipcRenderer.send(Channel.TEST_LOG, 'Replay manager started');
-  for (currentEventIndex; currentEventIndex < testCase.events.length; currentEventIndex++) {
+  abortController = new AbortController();
+  const signal = abortController.signal;
 
-    ipcRenderer.send(Channel.TEST_LOG, "Replaying event " + currentEventIndex);
-    const index = currentEventIndex;
+  for (currentEventIndex = 0; currentEventIndex < testCase.events.length; currentEventIndex++) {
+    if (signal.aborted || !isReplaying) return; // Stop if the abort signal is triggered or isReplaying is false
+
+    ipcRenderer.send(Channel.TEST_LOG, `Replaying event: ${currentEventIndex + 1}`);
     const event = testCase.events[currentEventIndex];
 
-    if (!isReplaying) return; // Stop if isReplaying is false
+    replayLogicController(currentEventIndex, event);
 
-    //ipcRenderer.send(Channel.TEST_LOG, "Before force stop check " + forceStopReplaying);
-    
-    // while (forceStopReplaying) {
-    //   ipcRenderer.send(Channel.TEST_LOG, "Force stop replaying " + forceStopReplaying);
-    //   await delay(500);
-    // }
+    // Stop when complete immediately
+    if (currentEventIndex == testCase.events.length - 1) return;
 
-    await delay(1500);
-    replayLogicController(index, event);
-    
+    // Delay with abort handling
+    try {
+      await delayWithAbort(1500, signal);
+    } catch (error) {
+      ipcRenderer.send(Channel.TEST_LOG, error.message);
+      return;
+    }
   }
 }
 
@@ -244,15 +255,12 @@ async function scrollEvent(event: RecordedEvent, element?: Element) {
 export async function replay() {
   //ipcRenderer.send(Channel.TEST_LOG, 'Replay started');
   await replayManager();
-  stopReplaying();
+  if (currentEventIndex == testCase.events.length - 1) stopReplaying(); // Only call stop replaying here if not aborted
   ipcRenderer.send(Channel.TEST_LOG, "Replay ended");
 }
 
 // Function to stop replaying
 export function stopReplaying() {
   isReplaying = false;
-  ipcRenderer.send(Channel.UPDATE_REPLAY, isReplaying);
-  ipcRenderer.send(Channel.TOGGLE_REPLAY, false);
-  //console.log("toggle_replay false");
-  //ipcRenderer.send(Channel.TEST_LOG, 'Replay process is stopping soon');
+  abortController.abort();
 }
