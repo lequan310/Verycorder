@@ -134,10 +134,8 @@ async function replayManager() {
       await delay(500);
     }
 
-
     await delay(1500);
     replayLogicController(index, event);
-
     
   }
 }
@@ -255,6 +253,6 @@ export function stopReplaying() {
   isReplaying = false;
   ipcRenderer.send(Channel.UPDATE_REPLAY, isReplaying);
   ipcRenderer.send(Channel.TOGGLE_REPLAY, false);
-  console.log("toggle_replay false");
+  //console.log("toggle_replay false");
   //ipcRenderer.send(Channel.TEST_LOG, 'Replay process is stopping soon');
 }

@@ -7,7 +7,7 @@ import {
   getView,
   getWin,
   createWindow,
-  executeReplay,
+  toggleReplay,
   getCurrentMode,
 } from "./Others/electron_utilities";
 import { handleReplayEvents } from "./Main/replay_functions";
@@ -57,7 +57,7 @@ app.whenReady().then(() => {
 
   // Remember to add UI for playback later
   globalShortcut.register("CommandOrControl+P", () => {
-    executeReplay();
+    toggleReplay();
   });
 
   // On OS X it's common to re-create a window in the app when the

@@ -179,7 +179,7 @@ export function updateViewBounds() {
 // Function to access the URL in the browser view, from another file
 export function goToUrl() {
   if (
-    getCurrentMode() === "normal" &&
+    getCurrentMode() === "replay" &&
     testCase &&
     testCase.events &&
     testCase.events.length > 0
@@ -198,25 +198,19 @@ export function goToUrl() {
   }
 }
 
-export function executeReplay() {
+export function toggleReplay() {
   if (recording) return;
   if (
     view.webContents.getURL() === "" ||
     view.webContents.getURL() === BLANK_PAGE
   )
     return;
-
-  //replaying = !replaying;
+  replaying = !replaying;
   goToUrl();
-  // Send state to UI
-  win.webContents.send(Channel.TOGGLE_REPLAY, !replaying);
-  console.log(
-    "--------------------------toggle_replay executeReplay" + !replaying
-  );
+
   setTimeout(() => {
-    //replaying = !replaying;
     if (testCase && testCase.events && testCase.events.length > 0) {
-      replaying = !replaying;
+      
       // Send test case to process for replay.
       view.webContents.send(Channel.SEND_EVENT, testCase);
       // Send message to toggle playback
@@ -357,7 +351,7 @@ function handleClickRecord() {
 
 function handleClickReplay() {
   ipcMain.handle(Channel.TOGGLE_REPLAY, async (event) => {
-    executeReplay();
+    toggleReplay();
     return getCurrentMode();
   });
 }
