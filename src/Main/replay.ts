@@ -2,7 +2,6 @@ import { ipcRenderer } from "electron";
 import { Channel } from "../Others/listenerConst";
 import { TestCase } from "../Types/testCase";
 import { RecordedEvent } from "../Types/recordedEvent";
-import { buttonMode } from "../Others/electron_utilities";
 
 let testCase: TestCase;
 let isReplaying = true; // Flag to control the replay
@@ -144,7 +143,7 @@ async function replayManager() {
 
     // Delay with abort handling
     try {
-      await delayWithAbort(1500, signal);
+      await delayWithAbort(1200, signal);
     } catch (error) {
       ipcRenderer.send(Channel.TEST_LOG, error.message);
       return;
