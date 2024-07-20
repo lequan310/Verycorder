@@ -27,10 +27,10 @@ const StepsView = () => {
   //Check if is not record and the event list have items----------
   const dispatch = useContext(TargetDispatchContext);
   const targetContext = useContext(TargetContext);
-  const setGlobalRecordState = (newRecordState: boolean) => {
+  const setGlobalTestCaseSizeState = (newState: number) => {
     if (dispatch) {
       if (targetContext.recordState) {
-        dispatch({ type: "SET_REPLAY_STATE", payload: newRecordState });
+        dispatch({ type: "SET_TEST_CASE_SIZE", payload: newState });
       }
     }
   };
@@ -44,6 +44,18 @@ const StepsView = () => {
     if (recording) setEventList([]); // Reset event list when recording starts
     else ipcRenderer.send(Channel.UPDATE_TEST_CASE, eventList); // Send recordedevents to main process when finish recording
     setCurrentReplayIndex(initState);
+    // if (!recording) {
+    //   if (eventList.length == 0) {
+    console.log("-----------toggleRecord" + false);
+    //     setGlobalReplayState(false);
+    //   } else {
+    //     console.log("-----------toggleRecord" + true);
+    //     setGlobalReplayState(true);
+    //   }
+    // }
+    setGlobalTestCaseSizeState(eventList.length);
+    console.log(targetContext.testCaseSize);
+    console.log(eventList.length);
   };
 
   //Get data from IPC with contains the index as well as state for fail or succeed
@@ -60,7 +72,7 @@ const StepsView = () => {
 
   //If not replay, hide the gray background
   const resetState = (state: boolean) => {
-    setGlobalRecordState(state);
+    // setGlobalRecordState(!state);
     if (state) {
       setCurrentReplayIndex({
         index: 0,

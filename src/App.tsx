@@ -37,7 +37,8 @@ const App = () => {
   const initialState: TargetContext = {
     target: TargetEnum.css,
     replayState: null,
-    recordState: false,
+    recordState: true,
+    testCaseSize: 0,
   };
 
   const [state, dispatch] = useReducer(reducer, initialState);
@@ -47,12 +48,13 @@ const App = () => {
     dispatch({ type: "SET_TARGET", payload: newTarget });
   };
 
-  const setReplayState = (newReplayState: boolean) => {
-    dispatch({ type: "SET_REPLAY_STATE", payload: newReplayState });
-  };
+  // const setReplayState = (newReplayState: boolean) => {
+  //   dispatch({ type: "SET_REPLAY_STATE", payload: newReplayState });
+  // };
 
   const setRecordState = (newRecordState: boolean) => {
     if (dispatch) {
+      console.log("--------------------- record state" + newRecordState);
       dispatch({ type: "SET_RECORD_STATE", payload: newRecordState });
     }
   };
@@ -94,6 +96,24 @@ const App = () => {
     // console.log(e.clientX);
     // const newLeftWidth = e.clientX - containerRect.left;
   };
+
+  // //Handle IPCRENDER for record and replay state
+  // useEffect(() => {
+  //   const removeToggleReplay = ipcRenderer.on(
+  //     Channel.ENABLE_RECORD,
+  //     setRecordState
+  //   );
+
+  //   const enableReplayBtn = ipcRenderer.on(
+  //     Channel.ENABLE_REPLAY,
+  //     setReplayState
+  //   );
+
+  //   return () => {
+  //     removeToggleReplay();
+  //     enableReplayBtn();
+  //   };
+  // });
 
   return (
     <TargetContext.Provider value={state}>

@@ -236,7 +236,7 @@ export function executeReplay() {
       toggleReplay();
     } else {
       //view.webContents.send(Channel.TOGGLE_REPLAY, replaying); // Send message to toggle playback
-      // win.webContents.send(Channel.TOGGLE_REPLAY, false);
+      win.webContents.send(Channel.TOGGLE_REPLAY, false);
       console.log("There are no test cases.");
     }
   }, 2000);
