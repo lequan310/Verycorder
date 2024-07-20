@@ -55,18 +55,7 @@ const StepsView = () => {
     setCurrentReplayIndex(initState);
   };
 
-  //Get data from IPC with contains the index as well as state for fail or succeed
-  const handleReplay = (data: { index: number; state: string }) => {
-    setCurrentReplayIndex({
-      index: data.index,
-      state: data.state,
-    });
-    // stepRefs.current[currentReplayIndex.index]?.scrollIntoView({
-    //   behavior: "smooth",
-    //   block: "center",
-    // });
-  };
-
+  //This handle scroll when adding new test case
   useEffect(() => {
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
@@ -82,6 +71,17 @@ const StepsView = () => {
       toggleRecord
     );
 
+    //Get data from IPC with contains the index as well as state for fail or succeed
+    const handleReplay = (data: { index: number; state: string }) => {
+      setCurrentReplayIndex({
+        index: data.index,
+        state: data.state,
+      });
+      // stepRefs.current[currentReplayIndex.index]?.scrollIntoView({
+      //   behavior: "smooth",
+      //   block: "center",
+      // });
+    };
     //replay func handle the gray background
     const handleCurrentReplay = ipcRenderer.on(
       Channel.NEXT_REPLAY,

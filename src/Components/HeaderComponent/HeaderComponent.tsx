@@ -31,12 +31,13 @@ const HeaderComponent = () => {
     //FOR SEARCHBAR ------------
     const updateUrl = (url: string) => {
       if (url === "about:blank") {
-        console.log(targetContext.recordState);
         setGlobalRecordState(true);
         setGlobalReplayState(false);
       } else {
-        console.log(targetContext.recordState);
-        setGlobalRecordState(false);
+        //if is replaying, don't set record state
+        if (!targetContext.replayState) {
+          setGlobalRecordState(false);
+        }
       }
     };
     const removeUpdateUrl = ipcRenderer.on(Channel.UPDATE_URL, updateUrl);
@@ -54,12 +55,7 @@ const HeaderComponent = () => {
     //Set play state if trigger by IPC and also set record state to false
     const setReplayStateHandler = (replay: boolean) => {
       setPlayState(replay);
-      if (replay) {
-        setGlobalRecordState(!replay);
-      }
-      ipcRenderer.send(Channel.TEST_LOG, "------------------ replay state");
-      ipcRenderer.send(Channel.TEST_LOG, replay);
-      ipcRenderer.send(Channel.TEST_LOG, targetContext.recordState);
+      setGlobalRecordState(replay);
     };
 
     //Set play state only for recording or not recording
@@ -73,8 +69,9 @@ const HeaderComponent = () => {
       removeUpdateUrl();
       removeToggleReplay();
     };
-  }, []);
+  }, [targetContext.recordState]);
 
+  //Onclick func to trigger to electron
   const recordHandler = async () => {
     ipcRenderer.invoke(Channel.CLICK_RECORD);
   };
