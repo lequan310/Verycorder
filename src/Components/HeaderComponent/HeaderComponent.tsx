@@ -55,9 +55,9 @@ const HeaderComponent = () => {
       // console.log(targetContext.replayState);
       // console.log(targetContext.recordState);
       // console.log(targetContext.testCaseSize);
-      if (targetContext.testCaseSize > 0) {
-        setGlobalReplayState(!data);
-      }
+      // if (targetContext.testCaseSize > 0) {
+      setGlobalReplayState(!data);
+      // }
     };
 
     const removeToggleRecord = ipcRenderer.on(Channel.TOGGLE_RECORD, setState);
@@ -86,7 +86,11 @@ const HeaderComponent = () => {
   return (
     <div className="header__container">
       <button
-        disabled={!targetContext.replayState || targetContext.testCaseSize > 0}
+        disabled={
+          !targetContext.replayState
+
+          // || targetContext.testCaseSize > 0
+        }
       >
         <span
           className={`material-symbols-rounded replay_icon ${
