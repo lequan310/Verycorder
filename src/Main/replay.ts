@@ -127,12 +127,12 @@ async function replayManager() {
 
     if (!isReplaying) return; // Stop if isReplaying is false
 
-    ipcRenderer.send(Channel.TEST_LOG, "Before force stop check " + forceStopReplaying);
+    //ipcRenderer.send(Channel.TEST_LOG, "Before force stop check " + forceStopReplaying);
     
-    while (forceStopReplaying) {
-      ipcRenderer.send(Channel.TEST_LOG, "Force stop replaying " + forceStopReplaying);
-      await delay(500);
-    }
+    // while (forceStopReplaying) {
+    //   ipcRenderer.send(Channel.TEST_LOG, "Force stop replaying " + forceStopReplaying);
+    //   await delay(500);
+    // }
 
     await delay(1500);
     replayLogicController(index, event);

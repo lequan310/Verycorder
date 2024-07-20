@@ -20,6 +20,12 @@ let leftPosition = 350 + 24;
 let win: BrowserWindow;
 let view: BrowserView;
 
+enum buttonMode{
+  record,
+  replay,
+  normal
+}
+
 // Getter for win
 export function getWin(): BrowserWindow {
   return win;
