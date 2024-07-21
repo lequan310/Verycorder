@@ -1,4 +1,10 @@
-import React, { useEffect, useReducer, useRef, useState } from "react";
+import React, {
+  useContext,
+  useEffect,
+  useReducer,
+  useRef,
+  useState,
+} from "react";
 import {
   ControllerItem,
   HeaderComponent,
@@ -13,6 +19,7 @@ import {
 } from "./Types/targetContext";
 import { TargetEnum } from "./Types/eventComponents";
 import { Channel } from "./Others/listenerConst";
+import { AppMode } from "./Types/appMode";
 
 const App = () => {
   const [shrink, setShrink] = useState(false);
@@ -27,11 +34,6 @@ const App = () => {
     setResponseMessage(object.message);
     setRecordState(!object.success);
   }
-  const setRecordState = (newRecordState: boolean) => {
-    if (dispatch) {
-      dispatch({ type: "SET_RECORD_STATE", payload: newRecordState });
-    }
-  };
 
   const handleButtonClick = () => {
     setShrink((prev) => {
@@ -42,21 +44,80 @@ const App = () => {
   //GLOBAL REDUCER----------------
   const initialState: TargetContext = {
     target: TargetEnum.css,
-    replayState: null,
-    recordState: true,
+    replayState: false,
+    recordState: false,
+    replayingButtonEnable: false,
+    recordingButtonEnable: false,
     testCaseSize: 0,
   };
 
   const [state, dispatch] = useReducer(reducer, initialState);
 
+  //State for target css or x-path
   const setTarget = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const newTarget = event.target.value as TargetEnum;
     dispatch({ type: "SET_TARGET", payload: newTarget });
   };
 
-  // const setReplayState = (newReplayState: boolean) => {
-  //   dispatch({ type: "SET_REPLAY_STATE", payload: newReplayState });
-  // };
+  //USECONTEXT FUNC HERE---------------------------------
+  const targetContext = useContext(TargetContext);
+
+  const setRecordState = (newRecordState: boolean) => {
+    if (dispatch) {
+      dispatch({ type: "SET_RECORD_STATE", payload: newRecordState });
+    }
+  };
+
+  const setReplayState = (newReplayState: boolean) => {
+    if (dispatch) {
+      dispatch({ type: "SET_REPLAY_STATE", payload: newReplayState });
+    }
+  };
+
+  const setRecordingButtonEnable = (newRecording: boolean) => {
+    if (dispatch) {
+      dispatch({ type: "SET_RECORDING_BUTTON_ENABLE", payload: newRecording });
+    }
+  };
+
+  const setReplayingButtonEnable = (newReplaying: boolean) => {
+    if (dispatch) {
+      dispatch({ type: "SET_REPLAYING_BUTTON_ENABLE", payload: newReplaying });
+    }
+  };
+
+  useEffect(() => {
+    //handle state change --------------
+    const updateStateHandler = (mode: AppMode) => {
+      ipcRenderer.send(Channel.TEST_LOG, mode);
+      switch (mode) {
+        case AppMode.normal:
+          setRecordingButtonEnable(!targetContext.recordingButtonEnable);
+          //record will be handled in Step view
+          setRecordState(false);
+          setReplayState(false);
+          break;
+        case AppMode.record:
+          setRecordState(!targetContext.recordState);
+          setReplayingButtonEnable(false);
+          break;
+        case AppMode.replay:
+          setReplayState(!targetContext.replayState);
+          setRecordingButtonEnable(false);
+          break;
+        default:
+          break;
+      }
+    };
+    const updateState = ipcRenderer.on(
+      Channel.UPDATE_STATE,
+      updateStateHandler
+    );
+
+    return () => {
+      updateState();
+    };
+  }, []);
 
   // Handle resize-----------------------
   const [leftWidth, setLeftWidth] = useState(350); // Initial width as percentage

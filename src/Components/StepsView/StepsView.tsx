@@ -3,7 +3,10 @@ import StepItem from "./StepItem/StepItem";
 import "./StepsView.css";
 import { RecordedEvent } from "../../Types/recordedEvent";
 import { Channel } from "../../Others/listenerConst";
-import { TargetContext, TargetDispatchContext } from "../../../src/Types/targetContext";
+import {
+  TargetContext,
+  TargetDispatchContext,
+} from "../../../src/Types/targetContext";
 import { AppMode } from "../../Types/appMode";
 
 const StepsView = () => {
@@ -23,9 +26,12 @@ const StepsView = () => {
   const dispatch = useContext(TargetDispatchContext);
   const targetContext = useContext(TargetContext);
 
-  const setGlobalReplayState = (newRecordState: boolean) => {
+  const setGlobalReplaying = (newRecordState: boolean) => {
     if (dispatch) {
-      dispatch({ type: "SET_REPLAY_STATE", payload: newRecordState });
+      dispatch({
+        type: "SET_REPLAYING_BUTTON_ENABLE",
+        payload: newRecordState,
+      });
     }
   };
 
@@ -36,16 +42,14 @@ const StepsView = () => {
 
   const toggleRecord = (currentMode: AppMode) => {
     if (currentMode === AppMode.record) {
-      //If recording, disable the replay button
-      setGlobalReplayState(false);
       setEventList([]); // Reset event list when recording starts
     } else if (currentMode === AppMode.normal) {
       //Only check when stop recording to get test case list
       //Check if there is no test case, disable replay btn
       if (eventList.length > 0) {
-        setGlobalReplayState(true);
+        setGlobalReplaying(true);
       } else {
-        setGlobalReplayState(false);
+        setGlobalReplaying(false);
       }
       ipcRenderer.send(Channel.UPDATE_TEST_CASE, eventList); // Send recordedevents to main process when finish recording
     }

@@ -24,9 +24,9 @@ export function getNavigationStatus(status: boolean) {
 async function delayWithAbort(ms: number, signal: AbortSignal) {
   return new Promise((resolve, reject) => {
     const timeout = setTimeout(resolve, ms);
-    signal.addEventListener('abort', () => {
+    signal.addEventListener("abort", () => {
       clearTimeout(timeout);
-      reject(new Error('aborted'));
+      reject(new Error("aborted"));
     });
   });
 }
@@ -40,9 +40,7 @@ async function replayLogicController(index: number, event: RecordedEvent) {
       // Attempt to find the element based on the CSS selector
       element = document.querySelector(event.target.css);
       if (!element)
-        throw new Error(
-          `Element not found for selector: ${event.target.css}`
-        );
+        throw new Error(`Element not found for selector: ${event.target.css}`);
     } catch (error) {
       // If element not found by CSS, attempt to find it based on XPath
       ipcRenderer.send(Channel.TEST_LOG, error.message);
@@ -61,9 +59,7 @@ async function replayLogicController(index: number, event: RecordedEvent) {
             `Element found by xpath instead of CSS: ${element}`
           );
         } else {
-          throw new Error(
-            `Element not found for XPath: ${event.target.xpath}`
-          );
+          throw new Error(`Element not found for XPath: ${event.target.xpath}`);
         }
       } catch (xpathError) {
         ipcRenderer.send(Channel.TEST_LOG, xpathError.message);
@@ -132,10 +128,17 @@ async function replayManager() {
   abortController = new AbortController();
   const signal = abortController.signal;
 
-  for (currentEventIndex = 0; currentEventIndex < testCase.events.length; currentEventIndex++) {
+  for (
+    currentEventIndex = 0;
+    currentEventIndex < testCase.events.length;
+    currentEventIndex++
+  ) {
     if (signal.aborted || !isReplaying) return; // Stop if the abort signal is triggered or isReplaying is false
 
-    ipcRenderer.send(Channel.TEST_LOG, `Replaying event: ${currentEventIndex + 1}`);
+    ipcRenderer.send(
+      Channel.TEST_LOG,
+      `Replaying event: ${currentEventIndex + 1}`
+    );
     const event = testCase.events[currentEventIndex];
 
     replayLogicController(currentEventIndex, event);

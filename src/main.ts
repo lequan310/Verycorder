@@ -8,7 +8,6 @@ import {
   getWin,
   createWindow,
   toggleReplay,
-  getCurrentMode,
 } from "./Others/electronUtilities";
 import { handleReplayEvents } from "./Main/replay_functions";
 import { Channel } from "./Others/listenerConst";
@@ -61,7 +60,6 @@ app.whenReady().then(() => {
     "input-event",
   ]);
   handleReplayEvents();
-
 });
 
 app.on("will-quit", () => {
