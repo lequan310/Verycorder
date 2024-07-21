@@ -15,10 +15,10 @@ export function getTestCase(newTestCase: TestCase) {
 }
 
 export function getNavigationStatus(status: boolean) {
-  //forceStopReplaying = status;
+  forceStopReplaying = status;
   //ipcRenderer.send(Channel.TEST_LOG, "Navigation status: " + status);
-  ipcRenderer.send(Channel.TEST_LOG, testCase);
-  ipcRenderer.send(Channel.TEST_LOG, currentEventIndex);
+  //ipcRenderer.send(Channel.TEST_LOG, testCase.events[currentEventIndex]);
+  //ipcRenderer.send(Channel.TEST_LOG, currentEventIndex);
 }
 
 async function delayWithAbort(ms: number, signal: AbortSignal) {
@@ -31,80 +31,85 @@ async function delayWithAbort(ms: number, signal: AbortSignal) {
   });
 }
 
-async function replayLogicController(index: number, event: RecordedEvent) {
-  //if (!isReplaying) return; // Stop if isReplaying is false
-  //ipcRenderer.send(Channel.TEST_LOG, event);
-  if (event.target.css && event.target.css !== "window") {
-    let element: Element | null = null;
+// Function to locate the element based on the CSS selector or XPath
+async function locatorController(event: RecordedEvent) {
+  let element: Element | null = null;
+  try {
+    // Attempt to find the element based on the CSS selector
+    element = document.querySelector(event.target.css);
+    if (!element)
+      throw new Error(
+        `Element not found for selector: ${event.target.css}`
+      );
+  } catch (error) {
+    // If element not found by CSS, attempt to find it based on XPath
+    ipcRenderer.send(Channel.TEST_LOG, error.message);
     try {
-      // Attempt to find the element based on the CSS selector
-      element = document.querySelector(event.target.css);
-      if (!element)
+      const xpathResult = document.evaluate(
+        event.target.xpath,
+        document,
+        null,
+        XPathResult.FIRST_ORDERED_NODE_TYPE,
+        null
+      );
+      if (xpathResult.singleNodeValue instanceof Element) {
+        element = xpathResult.singleNodeValue;
+        ipcRenderer.send(
+          Channel.TEST_LOG,
+          `Element found by xpath instead of CSS: ${element}`
+        );
+      } else {
         throw new Error(
-          `Element not found for selector: ${event.target.css}`
+          `Element not found for XPath: ${event.target.xpath}`
         );
-    } catch (error) {
-      // If element not found by CSS, attempt to find it based on XPath
-      ipcRenderer.send(Channel.TEST_LOG, error.message);
-      try {
-        const xpathResult = document.evaluate(
-          event.target.xpath,
-          document,
-          null,
-          XPathResult.FIRST_ORDERED_NODE_TYPE,
-          null
-        );
-        if (xpathResult.singleNodeValue instanceof Element) {
-          element = xpathResult.singleNodeValue;
-          ipcRenderer.send(
-            Channel.TEST_LOG,
-            `Element found by xpath instead of CSS: ${element}`
-          );
-        } else {
-          throw new Error(
-            `Element not found for XPath: ${event.target.xpath}`
-          );
-        }
-      } catch (xpathError) {
-        ipcRenderer.send(Channel.TEST_LOG, xpathError.message);
-        return; // Exit the function if element is not found by both methods
       }
+    } catch (xpathError) {
+      ipcRenderer.send(Channel.TEST_LOG, xpathError.message);
+      return; // Exit the function if element is not found by both methods
     }
-    if (element) {
-      const rect = element.getBoundingClientRect();
+  }
+  return element;
+
+}
+
+// Function to handle the event type
+async function eventTypeController(element: Element, event: RecordedEvent, index: number) {
+  const rect = element.getBoundingClientRect();
       // Log the element's bounding rectangle or use it as needed
       //ipcRenderer.send(Channel.TEST_LOG, `Element rect: ${JSON.stringify(rect)}`);
 
       // Depending on the event type, you might want to handle it differently
       // For example, for a click event, you might want to simulate a click based on the element's position
 
-      ipcRenderer.send(Channel.NEXT_REPLAY, {
-        index: index,
-        state: "playing",
-      });
-      console.log("----------NEXTREPLAY index");
-      switch (event.type) {
-        case "click":
-          await clickEvent(event, rect);
-          break;
-        case "input":
-          await inputEvent(event, rect);
-          break;
-        case "hover":
-          await hoverEvent(event, rect);
-          break;
-        case "scroll":
-          await scrollEvent(event, element);
-          break;
-        // Add cases for other event types if needed
-      }
-      ipcRenderer.send(Channel.NEXT_REPLAY, {
-        index: index + 1,
-        state: "next",
-      });
-      console.log("----------NEXTREPLAY index+1");
-    } else {
-      // Element not found, handle accordingly
+  ipcRenderer.send(Channel.NEXT_REPLAY, {
+    index: index,
+    state: "playing",
+  });
+  console.log("----------NEXTREPLAY index");
+  switch (event.type) {
+    case "click":
+      await clickEvent(event, rect);
+      break;
+    case "input":
+      await inputEvent(event, rect);
+      break;
+    case "hover":
+      await hoverEvent(event, rect);
+      break;
+    case "scroll":
+      await scrollEvent(event, element);
+      break;
+    // Add cases for other event types if needed
+  }
+  ipcRenderer.send(Channel.NEXT_REPLAY, {
+    index: index + 1,
+    state: "next",
+  });
+  console.log("----------NEXTREPLAY index+1");
+}
+
+async function elementNotFoundHandler(index: number, event: RecordedEvent) {
+// Element not found, handle accordingly
       ipcRenderer.send(
         Channel.TEST_LOG,
         `Element not found for selector: ${event.target.css}`
@@ -113,6 +118,25 @@ async function replayLogicController(index: number, event: RecordedEvent) {
         index: index,
         state: "fail",
       });
+}
+
+
+async function replayLogicController(index: number, event: RecordedEvent) {
+  //if (!isReplaying) return; // Stop if isReplaying is false
+  //ipcRenderer.send(Channel.TEST_LOG, event);
+  if (event.target.css && event.target.css !== "window") {
+    let element: Element | null = null;
+    
+    element = await locatorController(event);
+
+    if (element) {
+
+      await eventTypeController(element, event, index);
+
+    } else {
+
+      elementNotFoundHandler(index, event);
+
     }
   } else if (event.target.css == "window") {
     // If event.target.css is not provided or invalid, and the event is a scroll event
