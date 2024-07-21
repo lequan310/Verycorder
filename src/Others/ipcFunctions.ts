@@ -1,6 +1,12 @@
 import { AppMode } from "../Types/appMode";
 import { Channel } from "./listenerConst";
-import { BrowserView, BrowserWindow, ipcMain, webContents } from "electron";
+import {
+  BrowserView,
+  BrowserWindow,
+  ipcMain,
+  ipcRenderer,
+  webContents,
+} from "electron";
 import {
   getCurrentMode,
   setMode,
@@ -69,10 +75,10 @@ export function handleNavigate(view: BrowserView) {
   });
 }
 
-export function handleTestCaseEnded() {
+export function handleTestCaseEnded(win: BrowserWindow) {
   ipcMain.on(Channel.TEST_CASE_ENDED, (event) => {
     setMode(AppMode.normal);
+    console.log("ENEDED-------------");
+    win.webContents.send(Channel.UPDATE_STATE, getCurrentMode());
   });
-
-  console.log("ENEDED-------------");
 }

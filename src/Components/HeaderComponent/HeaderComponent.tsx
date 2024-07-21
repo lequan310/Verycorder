@@ -5,7 +5,6 @@ import {
   TargetContext,
   TargetDispatchContext,
 } from "../../Types/targetContext";
-import { AppMode } from "../../Types/appMode";
 
 const HeaderComponent = () => {
   const ipcRenderer = window.api;
@@ -29,7 +28,11 @@ const HeaderComponent = () => {
       });
     }
   };
-  const [replayTimeOut, setReplayTimeOut] = useState(targetContext.replayState);
+  const setReplayState = (newReplayState: boolean) => {
+    if (dispatch) {
+      dispatch({ type: "SET_REPLAY_STATE", payload: newReplayState });
+    }
+  };
 
   // Clean up stuff
   useEffect(() => {
@@ -39,9 +42,6 @@ const HeaderComponent = () => {
         setGlobalRecordingButtonEnable(true);
         setGlobalReplayingButtonEnable(false);
       } else {
-        ipcRenderer.on(Channel.TEST_LOG, "--------------------");
-        ipcRenderer.on(Channel.TEST_LOG, targetContext.replayState);
-        setGlobalRecordingButtonEnable(false);
         //if is replaying, don't set record state
         if (!targetContext.replayState) {
           setGlobalRecordingButtonEnable(false);
@@ -49,34 +49,6 @@ const HeaderComponent = () => {
       }
     };
     const removeUpdateUrl = ipcRenderer.on(Channel.UPDATE_URL, updateUrl);
-
-    // //Set record only for record or not record (local var) will be called when IPC toggle record
-    // const setRecordStateHandler = (state: boolean) => {
-    //   setRecordState(state);
-    // };
-    //Set record only for record or not record (local var) will be called when IPC toggle record
-    const setRecordStateHandler = (currentMode: AppMode) => {
-      currentMode === AppMode.record
-        ? setGlobalRecordingButtonEnable(true)
-        : setGlobalRecordingButtonEnable(false);
-    };
-
-    // const removeToggleRecord = ipcRenderer.on(
-    //   Channel.TOGGLE_RECORD,
-    //   setRecordStateHandler
-    // );
-
-    // //Set play state if trigger by IPC and also set record state to false
-    // const setReplayStateHandler = (replay: boolean) => {
-    //   setReplayState(replay);
-    //   // setGlobalRecordState(replay);
-    // };
-
-    // //Set play state only for recording or not recording
-    // const removeToggleReplay = ipcRenderer.on(
-    //   Channel.TOGGLE_REPLAY,
-    //   setReplayStateHandler
-    // );
 
     return () => {
       // removeToggleRecord();
@@ -88,10 +60,13 @@ const HeaderComponent = () => {
   //Onclick func to trigger to electron
   const recordHandler = async () => {
     ipcRenderer.invoke(Channel.CLICK_RECORD);
+    // setGlobalRecordingButtonEnable(true);
   };
 
   const replayHandler = async () => {
     ipcRenderer.invoke(Channel.CLICK_REPLAY);
+    // setGlobalReplayingButtonEnable(true);
+    setReplayState(true);
   };
 
   return (

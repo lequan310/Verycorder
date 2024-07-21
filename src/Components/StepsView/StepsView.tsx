@@ -26,7 +26,7 @@ const StepsView = () => {
   const dispatch = useContext(TargetDispatchContext);
   const targetContext = useContext(TargetContext);
 
-  const setGlobalReplaying = (newRecordState: boolean) => {
+  const setGlobalReplayingButtonEnable = (newRecordState: boolean) => {
     if (dispatch) {
       dispatch({
         type: "SET_REPLAYING_BUTTON_ENABLE",
@@ -40,23 +40,6 @@ const StepsView = () => {
     setCurrentReplayIndex(initState);
   };
 
-  const toggleRecord = (currentMode: AppMode) => {
-    if (currentMode === AppMode.record) {
-      setEventList([]); // Reset event list when recording starts
-    } else if (currentMode === AppMode.normal) {
-      //Only check when stop recording to get test case list
-      //Check if there is no test case, disable replay btn
-      if (eventList.length > 0) {
-        setGlobalReplaying(true);
-      } else {
-        setGlobalReplaying(false);
-      }
-      ipcRenderer.send(Channel.UPDATE_TEST_CASE, eventList); // Send recordedevents to main process when finish recording
-    }
-    //This is for removing grey background when recording
-    setCurrentReplayIndex(initState);
-  };
-
   //This handle scroll when adding new test case
   useEffect(() => {
     if (bottomRef.current) {
@@ -67,11 +50,6 @@ const StepsView = () => {
   // Clean up stuff
   useEffect(() => {
     const removeAddEvent = ipcRenderer.on(Channel.ADD_EVENT, addEvent);
-    //If click record, remove greybrackground
-    const removeToggleRecord = ipcRenderer.on(
-      Channel.TOGGLE_RECORD,
-      toggleRecord
-    );
 
     //Get data from IPC with contains the index as well as state for fail or succeed
     const handleReplay = (data: { index: number; state: string }) => {
@@ -90,26 +68,41 @@ const StepsView = () => {
       handleReplay
     );
 
-    //If replay, move the index back to starting point
-    const revertStateHandler = (state: boolean) => {
-      // setGlobalRecordState(!state);
-      if (state) {
-        setCurrentReplayIndex({
-          index: 0,
-          state: null,
-        });
+    //handle state change --------------
+    const updateStateHandler = (mode: AppMode) => {
+      ipcRenderer.send(Channel.TEST_LOG, mode);
+      switch (mode) {
+        case AppMode.normal:
+          if (eventList.length > 0) {
+            ipcRenderer.send(Channel.UPDATE_TEST_CASE, eventList); // Send recordedevents to main process when finish recording
+            setGlobalReplayingButtonEnable(true);
+          } else {
+            setGlobalReplayingButtonEnable(false);
+          }
+          break;
+        case AppMode.record:
+          setEventList([]);
+          setCurrentReplayIndex(initState);
+          break;
+        case AppMode.replay:
+          setCurrentReplayIndex({
+            index: 0,
+            state: null,
+          });
+          break;
+        default:
+          break;
       }
     };
-    const removeToggleReplay = ipcRenderer.on(
-      Channel.TOGGLE_REPLAY,
-      revertStateHandler
+    const updateState = ipcRenderer.on(
+      Channel.UPDATE_STATE,
+      updateStateHandler
     );
 
     return () => {
       removeAddEvent();
-      removeToggleRecord();
       handleCurrentReplay();
-      removeToggleReplay();
+      updateState();
     };
   }, [eventList]);
 

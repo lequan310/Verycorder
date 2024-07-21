@@ -30,8 +30,6 @@ declare const MAIN_WINDOW_WEBPACK_ENTRY: string;
 declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 declare const BROWSER_VIEW_PRELOAD_WEBPACK_ENTRY: string;
 
-let recording = false;
-let replaying = false;
 let currentMode = AppMode.disabled;
 let testCase: TestCase;
 let abortController: AbortController;
@@ -213,7 +211,7 @@ async function changeUrlFinal(url: string) {
   abortController = new AbortController();
   const signal = abortController.signal;
 
-  let response = await changeUrlWithAbort(url, view, signal).catch((error) =>
+  const response = await changeUrlWithAbort(url, view, signal).catch((error) =>
     console.log("Aborted")
   );
 
@@ -259,6 +257,9 @@ export async function toggleReplay() {
 
   // Return if there are no test steps or no test cases, since cannot replay
   toggleMode(AppMode.replay);
+  win.webContents.send(Channel.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
+  console.log("Current mode: ", currentMode);
+
   await goToUrlReplay();
 
   // If replay meets condition
@@ -278,8 +279,6 @@ export async function toggleReplay() {
   }
 
   view.webContents.send(Channel.TOGGLE_REPLAY, currentMode);
-  win.webContents.send(Channel.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
-  console.log("Current mode: ", currentMode);
 }
 
 // ------------------- HANDLING GROUP FUNCTIONS -------------------
@@ -305,7 +304,7 @@ export function handleRecordEvents(eventNames: string[]) {
 export function handleViewEvents() {
   ipcGetMode();
   testLogEvents();
-  handleTestCaseEnded();
+  handleTestCaseEnded(win);
   handleNavigateInPage(view);
   handleNavigate(view);
 }
@@ -341,11 +340,3 @@ function handleUrlChange() {
     return response;
   });
 }
-
-// export function handleTestCaseEnded() {
-//   ipcMain.on(Channel.TEST_CASE_ENDED, (event) => {
-//     setMode(AppMode.normal);
-//   });
-//   win.webContents.send(Channel.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
-//   console.log("Current mode: ", currentMode);
-// }
