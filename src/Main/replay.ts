@@ -77,14 +77,20 @@ async function eventTypeController(
   // Log the element's bounding rectangle or use it as needed
   //ipcRenderer.send(Channel.TEST_LOG, `Element rect: ${JSON.stringify(rect)}`);
 
-  // Depending on the event type, you might want to handle it differently
-  // For example, for a click event, you might want to simulate a click based on the element's position
+  const xBox = rect.x;
+  const yBox = rect.y;
 
   ipcRenderer.send(Channel.NEXT_REPLAY, {
     index: index,
     state: "playing",
   });
   console.log("----------NEXTREPLAY index");
+
+  if (xBox * yBox == 0) {
+    elementNotFoundHandler(index, event);
+    return;
+  }
+
   switch (event.type) {
     case "click":
       await clickEvent(event, rect);
@@ -100,11 +106,6 @@ async function eventTypeController(
       break;
     // Add cases for other event types if needed
   }
-  ipcRenderer.send(Channel.NEXT_REPLAY, {
-    index: index + 1,
-    state: "next",
-  });
-  console.log("----------NEXTREPLAY index+1");
 }
 
 async function elementNotFoundHandler(index: number, event: RecordedEvent) {
@@ -129,6 +130,11 @@ async function replayLogicController(index: number, event: RecordedEvent) {
 
     if (element) {
       await eventTypeController(element, event, index);
+      ipcRenderer.send(Channel.NEXT_REPLAY, {
+        index: index + 1,
+        state: "next",
+      });
+      console.log("----------NEXTREPLAY index+1");
     } else {
       elementNotFoundHandler(index, event);
     }
