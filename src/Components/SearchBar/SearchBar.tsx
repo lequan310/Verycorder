@@ -1,6 +1,17 @@
-import React, { ChangeEvent, FormEvent, useState, useRef, useEffect } from "react";
+import React, {
+  ChangeEvent,
+  FormEvent,
+  useState,
+  useRef,
+  useEffect,
+  useContext,
+} from "react";
 import { Channel } from "../../Others/listenerConst";
 import "./SearchBar.css";
+import {
+  TargetContext,
+  TargetDispatchContext,
+} from "../../Types/targetContext";
 
 interface SearchBarProps {
   response: (response: { success: boolean; message: string }) => void;
@@ -10,29 +21,60 @@ const SearchBar = ({ response }: SearchBarProps) => {
   const [searchValue, setSearchValue] = useState("");
   const searchBarRef = useRef<HTMLInputElement>(null);
   const ipcRenderer = window.api;
+  const targetContext = useContext(TargetContext);
+  const dispatch = useContext(TargetDispatchContext);
+  const setGlobalRecordingButtonEnable = (newRecordState: boolean) => {
+    if (dispatch) {
+      dispatch({
+        type: "SET_RECORDING_BUTTON_ENABLE",
+        payload: newRecordState,
+      });
+    }
+  };
+  const setGlobalReplayingButtonEnable = (newRecordState: boolean) => {
+    if (dispatch) {
+      dispatch({
+        type: "SET_REPLAYING_BUTTON_ENABLE",
+        payload: newRecordState,
+      });
+    }
+  };
 
   // Clean up stuff
   useEffect(() => {
+    //FOR SEARCHBAR ------------
     const updateUrl = (url: string) => {
       let checkUrl = url;
       if (url === "about:blank") {
         checkUrl = searchValue;
+        setGlobalRecordingButtonEnable(true);
+        setGlobalReplayingButtonEnable(false);
+      } else {
+        //if is replaying, don't set record state
+        if (!targetContext.replayState) {
+          setGlobalRecordingButtonEnable(false);
+        }
       }
       setSearchValue(checkUrl);
-    }
-
-    const toggleRecord = (recording: boolean) => {
-      searchBarRef.current.disabled = recording;
-    }
-
+    };
     const removeUpdateUrl = ipcRenderer.on(Channel.UPDATE_URL, updateUrl);
-    const removeToggleRecord = ipcRenderer.on(Channel.TOGGLE_RECORD, toggleRecord);
+
+    const disableSearchBarHandler = () => {
+      if (targetContext.recordState || targetContext.replayState) {
+        searchBarRef.current.disabled = true;
+        ipcRenderer.send(Channel.TEST_LOG, "-------------");
+        ipcRenderer.send(Channel.TEST_LOG, targetContext.replayState);
+        ipcRenderer.send(Channel.TEST_LOG, targetContext.recordState);
+      } else {
+        searchBarRef.current.disabled = false;
+      }
+    };
 
     return () => {
       removeUpdateUrl();
-      removeToggleRecord();
+      // disableSearchBarHandler();
     };
-  }, []);
+  }, [targetContext]);
 
   const onSubmitHandler = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();

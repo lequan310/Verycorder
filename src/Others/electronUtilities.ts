@@ -277,7 +277,7 @@ export async function toggleReplay() {
     currentMode = AppMode.normal;
     console.log("There are no test cases.");
   }
-
+  win.webContents.send(Channel.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
   view.webContents.send(Channel.TOGGLE_REPLAY, currentMode);
 }
 

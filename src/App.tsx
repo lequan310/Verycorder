@@ -32,7 +32,7 @@ const App = () => {
   //This is to handle if URL is invalid
   function handleResponse(object: { success: boolean; message: string }) {
     setResponseMessage(object.message);
-    setRecordState(!object.success);
+    setRecordingButtonEnable(object.success);
   }
 
   const handleButtonClick = () => {

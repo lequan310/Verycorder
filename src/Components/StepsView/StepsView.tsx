@@ -24,7 +24,7 @@ const StepsView = () => {
 
   //Check if is not record and the event list have items----------
   const dispatch = useContext(TargetDispatchContext);
-  const targetContext = useContext(TargetContext);
+  // const targetContext = useContext(TargetContext);
 
   const setGlobalReplayingButtonEnable = (newRecordState: boolean) => {
     if (dispatch) {
@@ -35,6 +35,7 @@ const StepsView = () => {
     }
   };
 
+  //This func handle event cases
   const addEvent = (event: RecordedEvent) => {
     setEventList([...eventList, event]);
     setCurrentReplayIndex(initState);
@@ -73,6 +74,7 @@ const StepsView = () => {
       ipcRenderer.send(Channel.TEST_LOG, mode);
       switch (mode) {
         case AppMode.normal:
+          //This is where we handle if replay button is shown or not
           if (eventList.length > 0) {
             ipcRenderer.send(Channel.UPDATE_TEST_CASE, eventList); // Send recordedevents to main process when finish recording
             setGlobalReplayingButtonEnable(true);
@@ -81,14 +83,20 @@ const StepsView = () => {
           }
           break;
         case AppMode.record:
+          //when going to record state, reset the test case list
           setEventList([]);
           setCurrentReplayIndex(initState);
           break;
         case AppMode.replay:
+          //if replay, hightlight on the first test casec
           setCurrentReplayIndex({
             index: 0,
             state: null,
           });
+          break;
+        case AppMode.disabled:
+          setEventList([]);
+          setCurrentReplayIndex(initState);
           break;
         default:
           break;
