@@ -3,10 +3,8 @@ import StepItem from "./StepItem/StepItem";
 import "./StepsView.css";
 import { RecordedEvent } from "../../Types/recordedEvent";
 import { Channel } from "../../Others/listenerConst";
-import {
-  TargetContext,
-  TargetDispatchContext,
-} from "../../../src/Types/targetContext";
+import { TargetContext, TargetDispatchContext } from "../../../src/Types/targetContext";
+import { AppMode } from "../../Types/appMode";
 
 const StepsView = () => {
   const initState: { index: number; state: string } = {
@@ -36,12 +34,12 @@ const StepsView = () => {
     setCurrentReplayIndex(initState);
   };
 
-  const toggleRecord = (recording: boolean) => {
-    if (recording) {
+  const toggleRecord = (currentMode: AppMode) => {
+    if (currentMode === AppMode.record) {
       //If recording, disable the replay button
       setGlobalReplayState(false);
       setEventList([]); // Reset event list when recording starts
-    } else {
+    } else if (currentMode === AppMode.normal) {
       //Only check when stop recording to get test case list
       //Check if there is no test case, disable replay btn
       if (eventList.length > 0) {

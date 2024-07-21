@@ -1,6 +1,6 @@
 import { ipcMain } from "electron";
 import { Channel } from "../Others/listenerConst";
-import { getView } from "../Others/electron_utilities";
+import { getView } from "../Others/electronUtilities";
 
 export function handleReplayEvents() {
   replayInputEvent();

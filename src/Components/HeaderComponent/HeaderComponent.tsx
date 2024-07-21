@@ -1,10 +1,8 @@
 import React, { useContext, useEffect, useState } from "react";
 import { Channel } from "../../Others/listenerConst";
 import "./HeaderComponent.css";
-import {
-  TargetContext,
-  TargetDispatchContext,
-} from "../../../src/Types/targetContext";
+import { TargetContext, TargetDispatchContext } from "../../Types/targetContext";
+import { AppMode } from "../../Types/appMode";
 
 const HeaderComponent = () => {
   const ipcRenderer = window.api;
@@ -43,8 +41,8 @@ const HeaderComponent = () => {
     const removeUpdateUrl = ipcRenderer.on(Channel.UPDATE_URL, updateUrl);
 
     //Set record only for record or not record (local var) will be called when IPC toggle record
-    const setRecordStateHandler = (state: boolean) => {
-      setRecordState(state);
+    const setRecordStateHandler = (currentMode: AppMode) => {
+      currentMode === AppMode.record ? setRecordState(true) : setRecordState(false);
     };
 
     const removeToggleRecord = ipcRenderer.on(

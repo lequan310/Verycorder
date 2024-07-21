@@ -8,12 +8,6 @@ export interface TargetContext {
   testCaseSize: number;
 }
 
-export enum buttonMode {
-  record,
-  replay,
-  normal
-}
-
 export const TargetContext = React.createContext<TargetContext>({
   target: null,
   replayState: false,

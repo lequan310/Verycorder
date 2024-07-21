@@ -9,7 +9,7 @@ import {
   createWindow,
   toggleReplay,
   getCurrentMode,
-} from "./Others/electron_utilities";
+} from "./Others/electronUtilities";
 import { handleReplayEvents } from "./Main/replay_functions";
 import { Channel } from "./Others/listenerConst";
 
