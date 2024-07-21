@@ -4,14 +4,9 @@ import React, {
   useState,
   useRef,
   useEffect,
-  useContext,
 } from "react";
 import { Channel } from "../../Others/listenerConst";
 import "./SearchBar.css";
-import {
-  TargetContext,
-  TargetDispatchContext,
-} from "../../Types/targetContext";
 
 interface SearchBarProps {
   response: (response: { success: boolean; message: string }) => void;

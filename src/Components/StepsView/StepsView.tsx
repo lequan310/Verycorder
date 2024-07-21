@@ -107,19 +107,10 @@ const StepsView = () => {
       updateStateHandler
     );
 
-    // const handleUpdateUrl = () => {
-    //   if (targetContext.recordState || targetContext.replayState) {
-    //     setEventList([]);
-    //     setCurrentReplayIndex(initState);
-    //   }
-    // };
-    // const removeUpdateUrl = ipcRenderer.on(Channel.UPDATE_URL, handleUpdateUrl);
-
     return () => {
       removeAddEvent();
       handleCurrentReplay();
       updateState();
-      // removeUpdateUrl();
     };
   }, [eventList]);
 
