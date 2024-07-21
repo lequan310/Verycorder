@@ -26,7 +26,7 @@ const App = () => {
   const [responseMessage, setResponseMessage] = useState(
     "Please enter a link to continue"
   );
-  // const [enableRecord, setEnableRecord] = useState(false);
+  const [enableSeachBar, setEnableSeachBar] = useState(true);
   const ipcRenderer = window.api;
 
   //This is to handle if URL is invalid
@@ -96,16 +96,24 @@ const App = () => {
           //record will be handled in Step view
           setRecordState(false);
           setReplayState(false);
+          setEnableSeachBar(true);
           break;
         case AppMode.record:
           setRecordState(!targetContext.recordState);
           setReplayingButtonEnable(false);
+          setEnableSeachBar(false);
           break;
         case AppMode.replay:
           setReplayState(!targetContext.replayState);
           setRecordingButtonEnable(false);
+          setEnableSeachBar(false);
           break;
         default:
+          setRecordState(false);
+          setReplayState(false);
+          setReplayingButtonEnable(false);
+          setRecordingButtonEnable(false);
+          setEnableSeachBar(true);
           break;
       }
     };
@@ -217,7 +225,7 @@ const App = () => {
             className="searchbar__wrapper"
             style={{ width: `${100 - leftWidth}px` }}
           >
-            <SearchBar response={handleResponse} />
+            <SearchBar response={handleResponse} disable={enableSeachBar} />
             <div className="message__wrapper">
               <h2 className="message">{responseMessage}</h2>
             </div>

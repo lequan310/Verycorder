@@ -143,7 +143,6 @@ export function toggleRecord() {
 
   toggleMode(AppMode.record);
   view.webContents.send(Channel.TOGGLE_RECORD, currentMode); // Send message to attach event listeners
-  win.webContents.send(Channel.TOGGLE_RECORD, currentMode); // Send message to change UI (disable search bar)
   win.webContents.send(Channel.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
   console.log("Current mode: ", currentMode);
 
@@ -166,12 +165,16 @@ function changeUrlWithAbort(
   if (!url) {
     // If the URL is invalid
     view.webContents.loadURL(BLANK_PAGE);
+    currentMode = AppMode.disabled;
+    win.webContents.send(Channel.UPDATE_STATE, currentMode);
     return Promise.resolve({ success: false, message: "Invalid URL" });
   }
 
   if (!view) {
     // If there is no browser view available
     view.webContents.loadURL(BLANK_PAGE);
+    currentMode = AppMode.disabled;
+    win.webContents.send(Channel.UPDATE_STATE, currentMode);
     return Promise.resolve({ success: false, message: "Browser view error" });
   }
 

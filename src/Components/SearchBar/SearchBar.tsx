@@ -15,66 +15,30 @@ import {
 
 interface SearchBarProps {
   response: (response: { success: boolean; message: string }) => void;
+  disable: boolean;
 }
 
-const SearchBar = ({ response }: SearchBarProps) => {
+const SearchBar = ({ response, disable }: SearchBarProps) => {
   const [searchValue, setSearchValue] = useState("");
   const searchBarRef = useRef<HTMLInputElement>(null);
   const ipcRenderer = window.api;
-  const targetContext = useContext(TargetContext);
-  const dispatch = useContext(TargetDispatchContext);
-  const setGlobalRecordingButtonEnable = (newRecordState: boolean) => {
-    if (dispatch) {
-      dispatch({
-        type: "SET_RECORDING_BUTTON_ENABLE",
-        payload: newRecordState,
-      });
-    }
-  };
-  const setGlobalReplayingButtonEnable = (newRecordState: boolean) => {
-    if (dispatch) {
-      dispatch({
-        type: "SET_REPLAYING_BUTTON_ENABLE",
-        payload: newRecordState,
-      });
-    }
-  };
 
   // Clean up stuff
   useEffect(() => {
-    //FOR SEARCHBAR ------------
+    //Handle case for invalid url, will only show user input instead of about:blank
     const updateUrl = (url: string) => {
       let checkUrl = url;
       if (url === "about:blank") {
         checkUrl = searchValue;
-        setGlobalRecordingButtonEnable(true);
-        setGlobalReplayingButtonEnable(false);
-      } else {
-        //if is replaying, don't set record state
-        if (!targetContext.replayState) {
-          setGlobalRecordingButtonEnable(false);
-        }
       }
       setSearchValue(checkUrl);
     };
     const removeUpdateUrl = ipcRenderer.on(Channel.UPDATE_URL, updateUrl);
 
-    const disableSearchBarHandler = () => {
-      if (targetContext.recordState || targetContext.replayState) {
-        searchBarRef.current.disabled = true;
-        ipcRenderer.send(Channel.TEST_LOG, "-------------");
-        ipcRenderer.send(Channel.TEST_LOG, targetContext.replayState);
-        ipcRenderer.send(Channel.TEST_LOG, targetContext.recordState);
-      } else {
-        searchBarRef.current.disabled = false;
-      }
-    };
-
     return () => {
       removeUpdateUrl();
-      // disableSearchBarHandler();
     };
-  }, [targetContext]);
+  }, []);
 
   const onSubmitHandler = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -108,6 +72,7 @@ const SearchBar = ({ response }: SearchBarProps) => {
         value={searchValue}
         ref={searchBarRef}
         onChange={onChangeHandler}
+        disabled={!disable}
       />
       <button type="submit" value="Submit" form="form" className="search_Btn">
         <span className="material-symbols-rounded">search</span>

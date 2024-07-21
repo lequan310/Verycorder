@@ -24,7 +24,7 @@ const StepsView = () => {
 
   //Check if is not record and the event list have items----------
   const dispatch = useContext(TargetDispatchContext);
-  // const targetContext = useContext(TargetContext);
+  const targetContext = useContext(TargetContext);
 
   const setGlobalReplayingButtonEnable = (newRecordState: boolean) => {
     if (dispatch) {
@@ -107,10 +107,19 @@ const StepsView = () => {
       updateStateHandler
     );
 
+    // const handleUpdateUrl = () => {
+    //   if (targetContext.recordState || targetContext.replayState) {
+    //     setEventList([]);
+    //     setCurrentReplayIndex(initState);
+    //   }
+    // };
+    // const removeUpdateUrl = ipcRenderer.on(Channel.UPDATE_URL, handleUpdateUrl);
+
     return () => {
       removeAddEvent();
       handleCurrentReplay();
       updateState();
+      // removeUpdateUrl();
     };
   }, [eventList]);
 
