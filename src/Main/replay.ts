@@ -12,11 +12,22 @@ let abortController: AbortController;
 // Function to get the test case from main process
 export function getTestCase(newTestCase: TestCase) {
   testCase = newTestCase;
+  ipcRenderer.send(Channel.TEST_LOG, "Test case received: " + testCase.events);
 }
 
 export function getNavigationStatus(status: boolean) {
   forceStopReplaying = status;
-  //ipcRenderer.send(Channel.TEST_LOG, "Navigation status: " + status);
+  ipcRenderer.send(Channel.TEST_LOG, "Navigation status: " + status);
+  if (testCase) {
+    ipcRenderer.send(Channel.TEST_LOG, "Test case: " + testCase.events);
+  } else {
+    ipcRenderer.send(Channel.TEST_LOG, "Test case not available");
+  }
+  ipcRenderer.send(
+    Channel.TEST_LOG,
+    "Current event index: " + currentEventIndex
+  );
+  //ipcRenderer.send(Channel.TEST_LOG, );
   //ipcRenderer.send(Channel.TEST_LOG, testCase.events[currentEventIndex]);
   //ipcRenderer.send(Channel.TEST_LOG, currentEventIndex);
 }
@@ -32,7 +43,7 @@ async function delayWithAbort(ms: number, signal: AbortSignal) {
 }
 
 // Function to locate the element based on the CSS selector or XPath
-async function locatorController(event: RecordedEvent) {
+function handleLocatorType(event: RecordedEvent) {
   let element: Element | null = null;
   try {
     // Attempt to find the element based on the CSS selector
@@ -68,7 +79,7 @@ async function locatorController(event: RecordedEvent) {
 }
 
 // Function to handle the event type
-async function eventTypeController(
+function controlEventType(
   element: Element,
   event: RecordedEvent,
   index: number
@@ -87,28 +98,28 @@ async function eventTypeController(
   console.log("----------NEXTREPLAY index");
 
   if (xBox * yBox == 0) {
-    elementNotFoundHandler(index, event);
+    handleElementNotFound(index, event);
     return;
   }
 
   switch (event.type) {
     case "click":
-      await clickEvent(event, rect);
+      runClickEvent(event, rect);
       break;
     case "input":
-      await inputEvent(event, rect);
+      runInputEvent(event, rect);
       break;
     case "hover":
-      await hoverEvent(event, rect);
+      runHoverEvent(event, rect);
       break;
     case "scroll":
-      await scrollEvent(event, element);
+      runScrollEvent(event, element);
       break;
     // Add cases for other event types if needed
   }
 }
 
-async function elementNotFoundHandler(index: number, event: RecordedEvent) {
+function handleElementNotFound(index: number, event: RecordedEvent) {
   // Element not found, handle accordingly
   ipcRenderer.send(
     Channel.TEST_LOG,
@@ -120,27 +131,27 @@ async function elementNotFoundHandler(index: number, event: RecordedEvent) {
   });
 }
 
-async function replayLogicController(index: number, event: RecordedEvent) {
+function controlReplayLogic(index: number, event: RecordedEvent) {
   //if (!isReplaying) return; // Stop if isReplaying is false
   //ipcRenderer.send(Channel.TEST_LOG, event);
   if (event.target.css && event.target.css !== "window") {
     let element: Element | null = null;
 
-    element = await locatorController(event);
+    element = handleLocatorType(event);
 
     if (element) {
-      await eventTypeController(element, event, index);
+      controlEventType(element, event, index);
       ipcRenderer.send(Channel.NEXT_REPLAY, {
         index: index + 1,
         state: "next",
       });
       console.log("----------NEXTREPLAY index+1");
     } else {
-      elementNotFoundHandler(index, event);
+      handleElementNotFound(index, event);
     }
   } else if (event.target.css == "window") {
     // If event.target.css is not provided or invalid, and the event is a scroll event
-    await scrollEvent(event);
+    runScrollEvent(event);
   }
 
   if (index == testCase.events.length - 1) {
@@ -152,7 +163,7 @@ async function replayLogicController(index: number, event: RecordedEvent) {
 }
 
 // Modified replayManager to be async and controlled by isReplaying flag
-async function replayManager() {
+async function manageReplay() {
   abortController = new AbortController();
   const signal = abortController.signal;
 
@@ -169,7 +180,7 @@ async function replayManager() {
     );
     const event = testCase.events[currentEventIndex];
 
-    replayLogicController(currentEventIndex, event);
+    controlReplayLogic(currentEventIndex, event);
 
     // Stop when complete immediately
     if (currentEventIndex == testCase.events.length - 1) return;
@@ -184,7 +195,7 @@ async function replayManager() {
   }
 }
 
-async function inputEvent(event: RecordedEvent, rect: DOMRect) {
+function runInputEvent(event: RecordedEvent, rect: DOMRect) {
   const box = rect;
   const inputX = box.x + box.width / 2;
   const inputY = box.y + box.height / 2;
@@ -198,7 +209,7 @@ async function inputEvent(event: RecordedEvent, rect: DOMRect) {
   });
 }
 
-async function hoverEvent(event: RecordedEvent, rect: DOMRect) {
+function runHoverEvent(event: RecordedEvent, rect: DOMRect) {
   const box = rect;
   const hoverX = box.x + box.width / 2;
   const hoverY = box.y + box.height / 2;
@@ -207,7 +218,7 @@ async function hoverEvent(event: RecordedEvent, rect: DOMRect) {
   ipcRenderer.send(Channel.REPLAY_HOVER, { x: hoverX, y: hoverY });
 }
 
-async function clickEvent(event: RecordedEvent, rect: DOMRect) {
+function runClickEvent(event: RecordedEvent, rect: DOMRect) {
   const box = rect;
   const clickX = box.x + box.width / 2;
   const clickY = box.y + box.height / 2;
@@ -216,7 +227,7 @@ async function clickEvent(event: RecordedEvent, rect: DOMRect) {
   ipcRenderer.send(Channel.REPLAY_CLICK, { x: clickX, y: clickY });
 }
 
-async function scrollEvent(event: RecordedEvent, element?: Element) {
+function runScrollEvent(event: RecordedEvent, element?: Element) {
   if (event.type == "scroll") {
     //ipcRenderer.send(Channel.TEST_LOG, `Scrolling to ${event.value.x}, ${event.value.y}`);
     //ipcRenderer.send(Channel.TEST_LOG, `Scrolling from cursor position ${event.mousePosition.x}, ${event.mousePosition.y}`);
@@ -286,7 +297,7 @@ async function scrollEvent(event: RecordedEvent, element?: Element) {
 
 // Modified replay function to start replayManager asynchronously
 export async function replay() {
-  await replayManager();
+  await manageReplay();
 
   // If not aborted
   if (isReplaying) {
