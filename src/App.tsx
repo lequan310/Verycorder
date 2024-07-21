@@ -20,6 +20,7 @@ import {
 import { TargetEnum } from "./Types/eventComponents";
 import { Channel } from "./Others/listenerConst";
 import { AppMode } from "./Types/appMode";
+import PopupSettings from "./Components/PopupSettings/PopupSettings";
 
 const App = () => {
   const [shrink, setShrink] = useState(false);
@@ -28,6 +29,7 @@ const App = () => {
   );
   const [enableSeachBar, setEnableSeachBar] = useState(true);
   const ipcRenderer = window.api;
+  const [settingState, setSettingState] = useState(false);
 
   //This is to handle if URL is invalid
   function handleResponse(object: { success: boolean; message: string }) {
@@ -183,20 +185,16 @@ const App = () => {
                 <div className="commands__wrapper__title">
                   <h3>Commands</h3>
                   <div className="select_box__wrapper">
-                    <p>Target: </p>
-                    <select
-                      name="target"
-                      id="target"
-                      value={state.target ?? ""}
-                      onChange={(e) => {
-                        setTarget(e);
+                    {settingState && (
+                      <PopupSettings popupState={setSettingState} />
+                    )}
+                    <button
+                      onClick={() => {
+                        setSettingState(!settingState);
                       }}
                     >
-                      <option value={TargetEnum.css}>{TargetEnum.css}</option>
-                      <option value={TargetEnum["x-path"]}>
-                        {TargetEnum["x-path"]}
-                      </option>
-                    </select>
+                      <span className="material-symbols-rounded">settings</span>
+                    </button>
                   </div>
                 </div>
                 <StepsView />

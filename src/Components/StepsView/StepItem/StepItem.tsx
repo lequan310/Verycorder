@@ -5,6 +5,7 @@ import { TargetEnum } from "../../../Types/eventComponents";
 import { TargetContext } from "../../../Types/targetContext";
 
 import { LegacyRef } from "react";
+import { Channel } from "../../../Others/listenerConst";
 
 interface StepItemProps {
   data: RecordedEvent;
@@ -21,6 +22,7 @@ const StepItem: React.FC<StepItemProps> = ({
   prevState,
   // ref,
 }) => {
+  const ipcRenderer = window.api;
   const value = () => {
     if (data.value instanceof Object) {
       // Add your statement here

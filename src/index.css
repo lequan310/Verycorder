@@ -190,10 +190,10 @@ textarea {
 }
 
 .select_box__wrapper {
-  display: flex;
+  /* display: flex;
   flex-direction: row;
-  align-items: center;
-  gap: 4px;
+  align-items: center; */
+  /* gap: 4px; */
 }
 .controllers__wrapper {
   overflow: hidden;
