@@ -2,6 +2,7 @@ import { ipcRenderer } from "electron";
 import { Channel } from "../Others/listenerConst";
 import { TestCase } from "../Types/testCase";
 import { RecordedEvent } from "../Types/recordedEvent";
+import { buttonMode } from "../Types/targetContext";
 
 let testCase: TestCase;
 let isReplaying = true; // Flag to control the replay
@@ -261,6 +262,7 @@ export async function replay() {
   if (isReplaying) {
     isReplaying = false;
     ipcRenderer.send(Channel.TEST_CASE_ENDED);
+    ipcRenderer.send(Channel.UPDATE_STATE, buttonMode.normal);
   }
 }
 
@@ -268,4 +270,6 @@ export async function replay() {
 export function stopReplaying() {
   isReplaying = false;
   abortController.abort();
+
+  
 }
