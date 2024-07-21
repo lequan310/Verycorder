@@ -15,8 +15,10 @@ export function getTestCase(newTestCase: TestCase) {
 }
 
 export function getNavigationStatus(status: boolean) {
-  forceStopReplaying = status;
-  ipcRenderer.send(Channel.TEST_LOG, "Navigation status: " + forceStopReplaying);
+  //forceStopReplaying = status;
+  //ipcRenderer.send(Channel.TEST_LOG, "Navigation status: " + status);
+  ipcRenderer.send(Channel.TEST_LOG, testCase);
+  ipcRenderer.send(Channel.TEST_LOG, currentEventIndex);
 }
 
 async function delayWithAbort(ms: number, signal: AbortSignal) {
@@ -253,10 +255,13 @@ async function scrollEvent(event: RecordedEvent, element?: Element) {
 
 // Modified replay function to start replayManager asynchronously
 export async function replay() {
-  //ipcRenderer.send(Channel.TEST_LOG, 'Replay started');
   await replayManager();
-  if (currentEventIndex == testCase.events.length - 1) stopReplaying(); // Only call stop replaying here if not aborted
-  ipcRenderer.send(Channel.TEST_LOG, "Replay ended");
+
+  // If not aborted
+  if (isReplaying) {
+    isReplaying = false;
+    ipcRenderer.send(Channel.TEST_CASE_ENDED);
+  }
 }
 
 // Function to stop replaying

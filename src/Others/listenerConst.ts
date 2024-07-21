@@ -17,6 +17,7 @@ export const Channel = {
   REPLAY_CLICK: "replay-click",
   REPLAY_HOVER: "replay-hover",
   REPLAY_INPUT: "replay-input",
+  TEST_CASE_ENDED: "test-case-ended",
 
   // Replay UI register
   NEXT_REPLAY: "next-replay",
@@ -26,6 +27,7 @@ export const Channel = {
   URL_CHANGE: "url-change",
   UPDATE_TEST_CASE: "update-test-case",
   CLICK_RECORD: "click-record",
+  CLICK_REPLAY: "click-replay",
 
   // Handle view events from BrowserView
   GET_MODE: "get-mode",

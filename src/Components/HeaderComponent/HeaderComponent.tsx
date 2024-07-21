@@ -77,16 +77,15 @@ const HeaderComponent = () => {
   };
 
   const replayHandler = async () => {
-    ipcRenderer.invoke(Channel.TOGGLE_REPLAY);
+    ipcRenderer.invoke(Channel.CLICK_REPLAY);
   };
 
   return (
     <div className="header__container">
       <button disabled={!targetContext.replayState}>
         <span
-          className={`material-symbols-rounded replay_icon ${
-            playState ? "play" : ""
-          }`}
+          className={`material-symbols-rounded replay_icon ${playState ? "play" : ""
+            }`}
           onClick={replayHandler}
         >
           {!playState ? "play_arrow" : "pause"}

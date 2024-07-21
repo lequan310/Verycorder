@@ -28,8 +28,7 @@ ipcRenderer.on(Channel.TOGGLE_RECORD, (event, recording) => {
 
 // Handle when toggle replay notification is received
 ipcRenderer.on(Channel.TOGGLE_REPLAY, async (event, replaying) => {
-    if (replaying) await replay();
-    else stopReplaying();
+    replaying ? replay() : stopReplaying();
 });
 
 // Handle when test case is sent
