@@ -345,6 +345,7 @@ function handleUrlChange() {
   });
 }
 
+// Get the current index of the test case during replay
 export function getCurrentIndex() {
   ipcMain.on(Channel.GET_INDEX, async (event, data) => {
     currentEventIndex = data;
@@ -358,6 +359,7 @@ export function handleNavigate(view: BrowserView) {
       console.log("Navigation finished during replay");
       //console.log("Current Index (from view): ", currentEventIndex);
 
+      // Start replay again whenever the page is loaded during replay
       if (currentEventIndex > 0) {
         view.webContents.send(Channel.SEND_EVENT, testCase);
         //console.log("Test case sent again");

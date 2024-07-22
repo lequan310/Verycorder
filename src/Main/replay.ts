@@ -20,6 +20,7 @@ export function setCurrentIndex(index: number) {
   //ipcRenderer.send(Channel.TEST_LOG, "Current index set to: " + index);
 }
 
+// Reset index in both replay.ts and electron Utils to 0
 function resetIndex() {
   currentEventIndex = 0;
   ipcRenderer.send(Channel.GET_INDEX, currentEventIndex);
@@ -122,6 +123,10 @@ function handleElementNotFound(index: number, event: RecordedEvent) {
     index: index,
     state: "fail",
   });
+
+  ipcRenderer.send(Channel.EVENT_FAILED, {
+    index: index,
+  });
 }
 
 function controlReplayLogic(index: number, event: RecordedEvent) {
@@ -181,6 +186,7 @@ async function manageReplay() {
 
     // Stop when complete immediately
     if (currentEventIndex == testCase.events.length - 1) {
+      // Reset index when out of test cases
       resetIndex();
       return;
     }
@@ -304,13 +310,13 @@ export async function replay() {
     isReplaying = false;
     ipcRenderer.send(Channel.TEST_CASE_ENDED);
   }
-
-  //currentEventIndex = 0;
 }
 
 // Function to stop replaying
 export function stopReplaying() {
   isReplaying = false;
   abortController.abort();
+
+  // Reset index when aborted
   resetIndex();
 }
