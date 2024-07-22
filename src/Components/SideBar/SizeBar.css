@@ -8,3 +8,22 @@
   background-color: #fafafc;
   box-sizing: border-box;
 }
+
+.top_sizeBar_wrapper {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+}
+
+.sizeBar__wrapper button {
+  padding: 6px;
+}
+
+.sizeBar__wrapper button:hover {
+  background-color: antiquewhite;
+}
+
+.hover {
+  background-color: antiquewhite;
+}

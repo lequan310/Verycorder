@@ -1,4 +1,6 @@
 :root {
+  --success-color: #5cb85c;
+  --danger-color: #d9534f;
   --title-bar-height: 40px;
   --side-bar-height: 54px;
   --border-radius: 12px;
@@ -25,7 +27,7 @@
   --arc-palette-cutoutColor: #4f5f00ff;
   --arc-palette-minContrastColor: #4f5f00ff;
   --arc-background-simple-color: #8fab00ff;
-  --arc-palette-background: #181c00ff;
+  --arc-palette-background: rgb(44, 44, 44);
   --arc-palette-hover: #7e8a407a;
   --arc-palette-foregroundPrimary: #d5ff03ff;
 }

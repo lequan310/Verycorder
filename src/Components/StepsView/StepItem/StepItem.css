@@ -32,9 +32,9 @@
 }
 
 .grey {
-  background-color: gray !important;
+  background-color: #c5c5c5 !important;
 }
 
 .green {
-  background-color: var(--arc-palette-foregroundTertiary) !important;
+  background-color: var(--success-color) !important;
 }

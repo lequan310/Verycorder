@@ -33,7 +33,7 @@ declare const BROWSER_VIEW_PRELOAD_WEBPACK_ENTRY: string;
 let currentMode = AppMode.disabled;
 let testCase: TestCase;
 let abortController: AbortController;
-let leftPosition = 350;
+let leftPosition = 328;
 
 let win: BrowserWindow;
 let view: BrowserView;
@@ -234,9 +234,9 @@ export function updateViewBounds() {
     if (view) {
       const { x, y, width, height } = bounds;
       view.setBounds({
-        x: leftPosition - 27,
+        x: leftPosition,
         y: 40,
-        width: Math.floor(width - leftPosition + 28),
+        width: Math.floor(width - leftPosition),
         height: Math.floor(height - 40),
       });
     }
@@ -326,7 +326,7 @@ function handleEndResize() {
     if (win) {
       const bounds = win.getContentBounds();
       const view = win.getBrowserView();
-      leftPosition = leftX + 72;
+      leftPosition = leftX + 78;
       if (view) {
         const { x, y, width, height } = bounds;
         view.setBounds({

@@ -12,9 +12,9 @@ const TitleBar = ({ response, disable }: TitleBarProps) => {
   return (
     <div className="titleBar_wrapper">
       <div className="titleBar_right_header">
-        <img src={Logo} alt="React Logo" style={{ width: "60px" }} />
+        {/* <img src={Logo} alt="React Logo" style={{ width: "60px" }} />
         <p>ML Recoder base</p>
-        <div className="drag__wrapper fill_gap"></div>
+        <div className="drag__wrapper fill_gap"></div> */}
       </div>
       <div className="search__wrapper">
         <SearchBar response={response} disable={disable} />

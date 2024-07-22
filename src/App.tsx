@@ -24,7 +24,7 @@ import TitleBar from "./Components/TitleBar/TitleBar";
 import SideBar from "./Components/SideBar/SizeBar";
 
 const App = () => {
-  const [shrink, setShrink] = useState(false);
+  const [shrink, setShrink] = useState(true);
   const [responseMessage, setResponseMessage] = useState(
     "Please enter a link to continue"
   );
@@ -185,18 +185,18 @@ const App = () => {
                   </div>
                   <StepsView />
                 </div>
-                <div
+                {/* <div
                   className={`controllers__wrapper ${
                     shrink ? "shrink" + " change-padding-bottom" : "expand"
                   }`}
-                >
-                  <button className="collapse_btn" onClick={handleButtonClick}>
+                > */}
+                {/* <button className="collapse_btn" onClick={handleButtonClick}>
                     {shrink ? "^ Expand" : " v Collapse"}
                   </button>
                   <ControllerItem hide={shrink ? "hide" : ""}></ControllerItem>
                   <ControllerItem hide={shrink ? "hide" : ""}></ControllerItem>
-                  <textarea placeholder={"Comment"} />
-                </div>
+                  <textarea placeholder={"Comment"} /> */}
+                {/* </div> */}
               </div>
             </div>
             <div
