@@ -33,7 +33,7 @@ declare const BROWSER_VIEW_PRELOAD_WEBPACK_ENTRY: string;
 let currentMode = AppMode.disabled;
 let testCase: TestCase;
 let abortController: AbortController;
-let leftPosition = 350 + 24;
+let leftPosition = 400;
 
 let win: BrowserWindow;
 let view: BrowserView;

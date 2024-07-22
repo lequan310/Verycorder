@@ -30,7 +30,6 @@ const App = () => {
   );
   const [enableSeachBar, setEnableSeachBar] = useState(true);
   const ipcRenderer = window.api;
-  const [settingState, setSettingState] = useState(false);
 
   //This is to handle if URL is invalid
   function handleResponse(object: { success: boolean; message: string }) {
@@ -179,27 +178,10 @@ const App = () => {
               className="main-content__wrapper"
               style={{ width: `${leftWidth}px` }}
             >
-              <div className="header__wrapper">
-                {/* <button>hello</button> */}
-              </div>
               <div className="controller__content">
                 <div className="commands__wrapper">
                   <div className="commands__wrapper__title">
-                    <h3>Commands</h3>
-                    <div className="select_box__wrapper">
-                      {settingState && (
-                        <PopupSettings popupState={setSettingState} />
-                      )}
-                      <button
-                        onClick={() => {
-                          setSettingState(!settingState);
-                        }}
-                      >
-                        <span className="material-symbols-rounded">
-                          settings
-                        </span>
-                      </button>
-                    </div>
+                    <h4>Commands</h4>
                   </div>
                   <StepsView />
                 </div>

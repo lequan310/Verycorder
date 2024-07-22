@@ -1,5 +1,6 @@
 :root {
   --title-bar-height: 40px;
+  --side-bar-height: 54px;
   --border-radius: 12px;
   --border-color: #e5e5e5;
   /* --arc-palette-cutoutColor: #6f00eeff;
@@ -124,14 +125,6 @@ textarea {
   flex-grow: 1;
 }
 
-.header__wrapper {
-  /* background-color: aqua; */
-  display: flex;
-  justify-content: space-between;
-  padding: 0 16px;
-  margin-left: 12px;
-}
-
 .draggable_wrapper {
   cursor: col-resize;
   display: flex;
@@ -160,12 +153,8 @@ textarea {
   display: flex;
   flex-direction: column;
   height: 100%;
-  margin: 0 4px 12px 12px;
   /* border: 1px solid var(--border-color); */
   overflow: hidden;
-  box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px,
-    rgba(17, 17, 26, 0.05) 0px 8px 32px;
-  border-radius: var(--border-radius);
 }
 .commands__wrapper {
   flex: 1;
@@ -197,12 +186,6 @@ textarea {
   margin-top: 0;
 }
 
-.select_box__wrapper {
-  /* display: flex;
-  flex-direction: row;
-  align-items: center; */
-  /* gap: 4px; */
-}
 .controllers__wrapper {
   overflow: hidden;
   -webkit-transition: max-height 0.3s;

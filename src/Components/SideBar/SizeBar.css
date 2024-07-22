@@ -1,7 +1,10 @@
 .sizeBar__wrapper {
   display: flex;
+  padding: 12px 0;
   flex-direction: column;
-  height: 100vh;
-  width: var(--title-bar-height);
+  justify-content: space-between;
+  height: calc(100vh - var(--title-bar-height));
+  width: var(--side-bar-height);
   background-color: #fafafc;
+  box-sizing: border-box;
 }
