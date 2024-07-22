@@ -7,6 +7,7 @@ let testCase: TestCase;
 let isReplaying = true; // Flag to control the replay
 let currentEventIndex = 0;
 let abortController: AbortController;
+let forceStop = false;
 
 // Function to get the test case from main process
 export function getTestCase(newTestCase: TestCase) {
@@ -157,7 +158,7 @@ function controlEventType(
 
   // Check if the element is visible in the viewport
   if (!checkElementVisibility(element)) {
-    handleElementNotFound(index, event);
+    forceStop = true;
     return;
   }
 
@@ -184,16 +185,12 @@ function controlEventType(
   }
 }
 
-function handleElementNotFound(index: number, event: RecordedEvent) {
+function handleElementNotFound(index: number) {
   // Element not found, handle accordingly
   ipcRenderer.send(
     Channel.TEST_LOG,
-    `Element not found for selector: ${event.target.css}`
+    `Element not found for event ${index + 1}`
   );
-  ipcRenderer.send(Channel.NEXT_REPLAY, {
-    index: index,
-    state: "fail",
-  });
 
   ipcRenderer.send(Channel.EVENT_FAILED, {
     index: index,
@@ -216,7 +213,7 @@ function controlReplayLogic(index: number, event: RecordedEvent) {
       });
       console.log("----------NEXTREPLAY index+1");
     } else {
-      handleElementNotFound(index, event);
+      handleElementNotFound(index);
     }
   } else if (event.target.css == "window") {
     ipcRenderer.send(Channel.NEXT_REPLAY, {
@@ -263,6 +260,17 @@ async function manageReplay() {
     if (currentEventIndex == testCase.events.length - 1) {
       // Reset index when out of test cases
       resetIndex();
+      return;
+    }
+
+    if (forceStop) {
+      forceStop = false;
+      handleElementNotFound(currentEventIndex);
+      resetIndex();
+      ipcRenderer.send(
+        Channel.TEST_LOG,
+        "Force stop replaying due to element not found"
+      );
       return;
     }
 
