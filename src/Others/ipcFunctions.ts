@@ -65,16 +65,6 @@ export function handleNavigateInPage(view: BrowserView) {
   });
 }
 
-export function handleNavigate(view: BrowserView) {
-  view.webContents.on("did-finish-load", () => {
-    if (getCurrentMode() === AppMode.replay) {
-      const status = false;
-      console.log("Navigation finished during replay");
-      view.webContents.send(Channel.UPDATE_NAVIGATE, status);
-    }
-  });
-}
-
 export function handleTestCaseEnded(win: BrowserWindow) {
   ipcMain.on(Channel.TEST_CASE_ENDED, (event) => {
     setMode(AppMode.normal);

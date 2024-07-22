@@ -2,10 +2,10 @@ import { ipcRenderer } from "electron";
 import { Channel } from "../Others/listenerConst";
 import { TestCase } from "../Types/testCase";
 import { RecordedEvent } from "../Types/recordedEvent";
+import { delay } from "../Others/utilities";
 
 let testCase: TestCase;
 let isReplaying = true; // Flag to control the replay
-let forceStopReplaying = false;
 let currentEventIndex = 0;
 let abortController: AbortController;
 
@@ -15,21 +15,14 @@ export function getTestCase(newTestCase: TestCase) {
   ipcRenderer.send(Channel.TEST_LOG, "Test case received: " + testCase.events);
 }
 
-export function getNavigationStatus(status: boolean) {
-  forceStopReplaying = status;
-  ipcRenderer.send(Channel.TEST_LOG, "Navigation status: " + status);
-  if (testCase) {
-    ipcRenderer.send(Channel.TEST_LOG, "Test case: " + testCase.events);
-  } else {
-    ipcRenderer.send(Channel.TEST_LOG, "Test case not available");
-  }
-  ipcRenderer.send(
-    Channel.TEST_LOG,
-    "Current event index: " + currentEventIndex
-  );
-  //ipcRenderer.send(Channel.TEST_LOG, );
-  //ipcRenderer.send(Channel.TEST_LOG, testCase.events[currentEventIndex]);
-  //ipcRenderer.send(Channel.TEST_LOG, currentEventIndex);
+export function setCurrentIndex(index: number) {
+  currentEventIndex = index;
+  ipcRenderer.send(Channel.TEST_LOG, "Current index set to: " + index);
+}
+
+function resetIndex() {
+  currentEventIndex = 0;
+  ipcRenderer.send(Channel.GET_INDEX, currentEventIndex);
 }
 
 async function delayWithAbort(ms: number, signal: AbortSignal) {
@@ -168,22 +161,29 @@ async function manageReplay() {
   const signal = abortController.signal;
 
   for (
-    currentEventIndex = 0;
+    currentEventIndex;
     currentEventIndex < testCase.events.length;
     currentEventIndex++
   ) {
     if (signal.aborted || !isReplaying) return; // Stop if the abort signal is triggered or isReplaying is false
 
+    //await delay(1500);
     ipcRenderer.send(
       Channel.TEST_LOG,
       `Replaying event: ${currentEventIndex + 1}`
     );
+
+    ipcRenderer.send(Channel.GET_INDEX, currentEventIndex);
+
     const event = testCase.events[currentEventIndex];
 
     controlReplayLogic(currentEventIndex, event);
 
     // Stop when complete immediately
-    if (currentEventIndex == testCase.events.length - 1) return;
+    if (currentEventIndex == testCase.events.length - 1) {
+      resetIndex();
+      return;
+    }
 
     // Delay with abort handling
     try {
@@ -304,10 +304,13 @@ export async function replay() {
     isReplaying = false;
     ipcRenderer.send(Channel.TEST_CASE_ENDED);
   }
+
+  //currentEventIndex = 0;
 }
 
 // Function to stop replaying
 export function stopReplaying() {
   isReplaying = false;
   abortController.abort();
+  resetIndex();
 }

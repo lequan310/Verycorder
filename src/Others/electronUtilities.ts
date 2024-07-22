@@ -14,7 +14,6 @@ import { RecordedEvent } from "../Types/recordedEvent";
 import {
   handleClickRecord,
   handleClickReplay,
-  handleNavigate,
   handleNavigateInPage,
   handleUpdateTestCase,
   updateTestSteps,
@@ -34,6 +33,7 @@ let currentMode = AppMode.disabled;
 let testCase: TestCase;
 let abortController: AbortController;
 let leftPosition = 350 + 24;
+let currentEventIndex = 0;
 
 let win: BrowserWindow;
 let view: BrowserView;
@@ -310,6 +310,7 @@ export function handleViewEvents() {
   handleTestCaseEnded(win);
   handleNavigateInPage(view);
   handleNavigate(view);
+  getCurrentIndex();
 }
 
 // ------------------- IPC EVENT FUNCTIONS -------------------
@@ -341,5 +342,30 @@ function handleUrlChange() {
     url = handleUrl(url); // Assume this function properly formats the URL
     const response = await changeUrlFinal(url);
     return response;
+  });
+}
+
+export function getCurrentIndex() {
+  ipcMain.on(Channel.GET_INDEX, async (event, data) => {
+    currentEventIndex = data;
+    console.log("Current Index updated: ", currentEventIndex);
+  });
+}
+
+export function handleNavigate(view: BrowserView) {
+  view.webContents.on("did-finish-load", () => {
+    if (getCurrentMode() === AppMode.replay) {
+      console.log("Navigation finished during replay");
+      //console.log("Current Index (from view): ", currentEventIndex);
+
+      if (currentEventIndex > 0) {
+        view.webContents.send(Channel.SEND_EVENT, testCase);
+        //console.log("Test case sent again");
+        view.webContents.send(Channel.SET_INDEX, currentEventIndex + 1);
+        //console.log("Current Index sent: ", currentEventIndex + 1);
+        view.webContents.send(Channel.TOGGLE_REPLAY, currentMode);
+        //console.log("Replay mode toggled again");
+      }
+    }
   });
 }

@@ -18,7 +18,8 @@ export const Channel = {
   REPLAY_HOVER: "replay-hover",
   REPLAY_INPUT: "replay-input",
   TEST_CASE_ENDED: "test-case-ended",
-  GET_EVENT: "get-event",
+  GET_INDEX: "get-index",
+  SET_INDEX: "set-index",
 
   // Replay UI register
   NEXT_REPLAY: "next-replay",
