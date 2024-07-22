@@ -348,7 +348,7 @@ function handleUrlChange() {
 export function getCurrentIndex() {
   ipcMain.on(Channel.GET_INDEX, async (event, data) => {
     currentEventIndex = data;
-    console.log("Current Index updated: ", currentEventIndex);
+    //console.log("Current Index updated: ", currentEventIndex);
   });
 }
 

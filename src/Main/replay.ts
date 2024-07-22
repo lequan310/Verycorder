@@ -12,12 +12,12 @@ let abortController: AbortController;
 // Function to get the test case from main process
 export function getTestCase(newTestCase: TestCase) {
   testCase = newTestCase;
-  ipcRenderer.send(Channel.TEST_LOG, "Test case received: " + testCase.events);
+  //ipcRenderer.send(Channel.TEST_LOG, "Test case received: " + testCase.events);
 }
 
 export function setCurrentIndex(index: number) {
   currentEventIndex = index;
-  ipcRenderer.send(Channel.TEST_LOG, "Current index set to: " + index);
+  //ipcRenderer.send(Channel.TEST_LOG, "Current index set to: " + index);
 }
 
 function resetIndex() {
