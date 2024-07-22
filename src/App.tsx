@@ -21,6 +21,7 @@ import { Channel } from "./Others/listenerConst";
 import { AppMode } from "./Types/appMode";
 import PopupSettings from "./Components/PopupSettings/PopupSettings";
 import TitleBar from "./Components/TitleBar/TitleBar";
+import SideBar from "./Components/SideBar/SizeBar";
 
 const App = () => {
   const [shrink, setShrink] = useState(false);
@@ -171,61 +172,66 @@ const App = () => {
     <TargetContext.Provider value={state}>
       <TargetDispatchContext.Provider value={dispatch}>
         <TitleBar response={handleResponse} disable={enableSeachBar} />
-        <div className="main__wrapper" ref={containerRef}>
-          <div
-            className="main-content__wrapper"
-            style={{ width: `${leftWidth}px` }}
-          >
-            <div className="header__wrapper">
-              {/* <button>hello</button> */}
-
-              <HeaderComponent />
-            </div>
-            <div className="controller__content">
-              <div className="commands__wrapper">
-                <div className="commands__wrapper__title">
-                  <h3>Commands</h3>
-                  <div className="select_box__wrapper">
-                    {settingState && (
-                      <PopupSettings popupState={setSettingState} />
-                    )}
-                    <button
-                      onClick={() => {
-                        setSettingState(!settingState);
-                      }}
-                    >
-                      <span className="material-symbols-rounded">settings</span>
-                    </button>
+        <div className="app__container">
+          <SideBar />
+          <div className="main__wrapper" ref={containerRef}>
+            <div
+              className="main-content__wrapper"
+              style={{ width: `${leftWidth}px` }}
+            >
+              <div className="header__wrapper">
+                {/* <button>hello</button> */}
+              </div>
+              <div className="controller__content">
+                <div className="commands__wrapper">
+                  <div className="commands__wrapper__title">
+                    <h3>Commands</h3>
+                    <div className="select_box__wrapper">
+                      {settingState && (
+                        <PopupSettings popupState={setSettingState} />
+                      )}
+                      <button
+                        onClick={() => {
+                          setSettingState(!settingState);
+                        }}
+                      >
+                        <span className="material-symbols-rounded">
+                          settings
+                        </span>
+                      </button>
+                    </div>
                   </div>
+                  <StepsView />
                 </div>
-                <StepsView />
-              </div>
-              <div
-                className={`controllers__wrapper ${
-                  shrink ? "shrink" + " change-padding-bottom" : "expand"
-                }`}
-              >
-                <button className="collapse_btn" onClick={handleButtonClick}>
-                  {shrink ? "^ Expand" : " v Collapse"}
-                </button>
-                <ControllerItem hide={shrink ? "hide" : ""}></ControllerItem>
-                <ControllerItem hide={shrink ? "hide" : ""}></ControllerItem>
-                <textarea placeholder={"Comment"} />
+                <div
+                  className={`controllers__wrapper ${
+                    shrink ? "shrink" + " change-padding-bottom" : "expand"
+                  }`}
+                >
+                  <button className="collapse_btn" onClick={handleButtonClick}>
+                    {shrink ? "^ Expand" : " v Collapse"}
+                  </button>
+                  <ControllerItem hide={shrink ? "hide" : ""}></ControllerItem>
+                  <ControllerItem hide={shrink ? "hide" : ""}></ControllerItem>
+                  <textarea placeholder={"Comment"} />
+                </div>
               </div>
             </div>
-          </div>
-          <div
-            className={`${"draggable_wrapper"} ${isDragging ? "dragging" : ""}`}
-            onMouseDown={handleMouseDown}
-          >
-            <span className="material-symbols-rounded">drag_handle</span>
-          </div>
-          <div
-            className="searchbar__wrapper"
-            style={{ width: `${100 - leftWidth}px` }}
-          >
-            <div className="message__wrapper">
-              <h2 className="message">{responseMessage}</h2>
+            <div
+              className={`${"draggable_wrapper"} ${
+                isDragging ? "dragging" : ""
+              }`}
+              onMouseDown={handleMouseDown}
+            >
+              <span className="material-symbols-rounded">drag_handle</span>
+            </div>
+            <div
+              className="searchbar__wrapper"
+              style={{ width: `${100 - leftWidth}px` }}
+            >
+              <div className="message__wrapper">
+                <h2 className="message">{responseMessage}</h2>
+              </div>
             </div>
           </div>
         </div>

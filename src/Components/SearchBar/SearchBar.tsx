@@ -70,7 +70,7 @@ const SearchBar = ({ response, disable }: SearchBarProps) => {
         disabled={!disable}
       />
       <button type="submit" value="Submit" form="form" className="search_Btn">
-        <span className="material-symbols-rounded">search</span>
+        <span className="material-symbols-rounded">arrow_forward</span>
       </button>
     </form>
   );

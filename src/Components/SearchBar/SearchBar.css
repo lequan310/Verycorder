@@ -10,7 +10,7 @@
   box-sizing: border-box;
   /* padding: 12px; */
   padding-left: 12px;
-  padding-right: 40px;
+  padding-right: 12px;
   height: 30px;
   min-width: 300px;
   flex: 1;
@@ -18,10 +18,10 @@
   border-radius: var(--border-radius);
 }
 
-.form__wrapper button {
+/* .form__wrapper button {
   position: absolute;
   right: 0;
-}
+} */
 
 .form__wrapper input:focus {
   outline: solid 1.5px var(--arc-palette-cutoutColor) !important;

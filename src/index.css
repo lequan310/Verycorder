@@ -35,7 +35,7 @@ html {
   right: 50%;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
-  background-color: #fff !important;
+  background-color: #fafafc;
 }
 
 body {
@@ -61,7 +61,6 @@ button {
   justify-content: center;
   border: 0;
   border-radius: var(--border-radius);
-  padding: 12px;
   background-color: transparent;
   cursor: pointer;
 }
@@ -100,12 +99,19 @@ textarea {
   background-color: var(--border-color);
   height: 1px;
 }
+.app__container {
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+}
 
 .main__wrapper {
   display: flex;
   flex-direction: row;
   height: calc(100vh - var(--title-bar-height));
-  width: 100vw;
+  flex: 1 0 auto;
+  border-radius: var(--border-radius) 0 0 0;
+  background-color: white;
 }
 
 .main-content__wrapper {

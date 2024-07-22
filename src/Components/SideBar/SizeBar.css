@@ -1,0 +1,7 @@
+.sizeBar__wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: var(--title-bar-height);
+  background-color: #fafafc;
+}
