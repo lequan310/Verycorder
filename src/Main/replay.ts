@@ -144,10 +144,7 @@ function findElement(event: RecordedEvent) {
 }
 
 // Function to handle the event type
-function controlEventType(
-  element: Element,
-  event: RecordedEvent,
-) {
+function controlEventType(element: Element, event: RecordedEvent) {
   if (!checkElementVisibility(element)) {
     return false;
   }
@@ -205,12 +202,22 @@ async function manageReplay() {
     const result = controlReplayLogic(event);
 
     if (!result) {
-      ipcRenderer.send(Channel.NEXT_REPLAY, { index: currentEventIndex, state: false });
-      ipcRenderer.send(Channel.TEST_LOG, `Event ${currentEventIndex} failed to replay`);
+      ipcRenderer.send(Channel.NEXT_REPLAY, {
+        index: currentEventIndex,
+        state: false,
+      });
+      ipcRenderer.send(
+        Channel.TEST_LOG,
+        `Event ${currentEventIndex} failed to replay`
+      );
+      resetIndex();
       return;
     }
 
-    ipcRenderer.send(Channel.NEXT_REPLAY, { index: currentEventIndex, state: true });
+    ipcRenderer.send(Channel.NEXT_REPLAY, {
+      index: currentEventIndex,
+      state: true,
+    });
 
     // Stop when complete immediately
     if (currentEventIndex == testCase.events.length - 1) {

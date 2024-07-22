@@ -42,3 +42,8 @@
 .red_background {
   background-color: red !important;
 }
+
+.testcase_wrapper {
+  min-height: 12px;
+  padding: 12px;
+}
