@@ -17,6 +17,7 @@ const StepsView = () => {
   const ipcRenderer = window.api;
   const [eventList, setEventList] = useState<RecordedEvent[]>([]);
   const [currentReplayIndex, setCurrentReplayIndex] = useState(initState);
+  const [failedTestCase, setFailedTestCase] = useState(-1);
 
   const listRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -69,6 +70,13 @@ const StepsView = () => {
       handleReplay
     );
 
+    const failed = (data: number) => {
+      setFailedTestCase(data);
+      ipcRenderer.send(Channel.TEST_LOG, "-------------------");
+      ipcRenderer.send(Channel.TEST_LOG, data);
+    };
+    const handleFailedTestCase = ipcRenderer.on(Channel.EVENT_FAILED, failed);
+
     //handle state change --------------
     const updateStateHandler = (mode: AppMode) => {
       ipcRenderer.send(Channel.TEST_LOG, mode);
@@ -111,6 +119,7 @@ const StepsView = () => {
       removeAddEvent();
       handleCurrentReplay();
       updateState();
+      handleFailedTestCase();
     };
   }, [eventList]);
 
@@ -122,7 +131,7 @@ const StepsView = () => {
             key={index}
             data={event}
             // ref={(el) => (stepRefs.current[index] = el)}
-            state={currentReplayIndex.state}
+            state={failedTestCase == index ? true : false}
             current={currentReplayIndex.index == index ? true : false}
             prevState={currentReplayIndex.index > index ? true : false}
           />

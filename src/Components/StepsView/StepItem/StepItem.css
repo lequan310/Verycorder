@@ -38,3 +38,7 @@
 .green {
   background-color: var(--arc-palette-foregroundTertiary) !important;
 }
+
+.red_background {
+  background-color: red !important;
+}

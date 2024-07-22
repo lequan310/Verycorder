@@ -161,11 +161,11 @@ function controlEventType(
     return;
   }
 
-  ipcRenderer.send(Channel.NEXT_REPLAY, {
-    index: index,
-    state: "playing",
-  });
-  console.log("----------NEXTREPLAY index");
+  // ipcRenderer.send(Channel.NEXT_REPLAY, {
+  //   index: index,
+  //   state: "playing",
+  // });
+  // console.log("----------NEXTREPLAY index");
 
   switch (event.type) {
     case "click":
@@ -219,6 +219,10 @@ function controlReplayLogic(index: number, event: RecordedEvent) {
       handleElementNotFound(index, event);
     }
   } else if (event.target.css == "window") {
+    ipcRenderer.send(Channel.NEXT_REPLAY, {
+      index: index,
+      state: "playing",
+    });
     // If event.target.css is not provided or invalid, and the event is a scroll event
     runScrollEvent(event);
   }
@@ -264,7 +268,7 @@ async function manageReplay() {
 
     // Delay with abort handling
     try {
-      await delayWithAbort(1200, signal);
+      await delayWithAbort(2000, signal);
     } catch (error) {
       ipcRenderer.send(Channel.TEST_LOG, error.message);
       return;

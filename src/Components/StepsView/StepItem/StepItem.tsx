@@ -9,7 +9,7 @@ import { Channel } from "../../../Others/listenerConst";
 
 interface StepItemProps {
   data: RecordedEvent;
-  state: string;
+  state: boolean;
   current: boolean;
   prevState: boolean;
   // ref: LegacyRef<HTMLDivElement>;
@@ -58,7 +58,7 @@ const StepItem: React.FC<StepItemProps> = ({
       // ref={ref}
       className={`stepitem__container ${
         current && targetContext.replayState ? "grey" : ""
-      } ${prevState ? "green" : ""}`}
+      } ${prevState && !state ? "green" : ""} ${state ? "red_background" : ""}`}
     >
       <div className="oneline_spacebetween_flex">
         <h4>{data.type}</h4>
