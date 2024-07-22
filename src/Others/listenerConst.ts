@@ -18,12 +18,13 @@ export const Channel = {
   REPLAY_HOVER: "replay-hover",
   REPLAY_INPUT: "replay-input",
   TEST_CASE_ENDED: "test-case-ended",
-  GET_EVENT: "get-event",
+  GET_INDEX: "get-index",
+  SET_INDEX: "set-index",
 
   // Replay UI register
   NEXT_REPLAY: "next-replay",
   UPDATE_STATE: "update-state",
-  EVENT_FAIL: "event-fail",
+  EVENT_FAILED: "event-fail",
 
   // Handle UI events from React to Electron
   URL_CHANGE: "url-change",

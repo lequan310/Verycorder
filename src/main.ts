@@ -8,6 +8,7 @@ import {
   getWin,
   createWindow,
   toggleReplay,
+  getCurrentIndex,
 } from "./Others/electronUtilities";
 import { handleReplayEvents } from "./Main/replay_functions";
 import { Channel } from "./Others/listenerConst";

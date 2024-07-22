@@ -5,31 +5,26 @@ import { RecordedEvent } from "../Types/recordedEvent";
 
 let testCase: TestCase;
 let isReplaying = true; // Flag to control the replay
-let forceStopReplaying = false;
 let currentEventIndex = 0;
 let abortController: AbortController;
+let forceStop = false;
 
 // Function to get the test case from main process
 export function getTestCase(newTestCase: TestCase) {
   testCase = newTestCase;
-  ipcRenderer.send(Channel.TEST_LOG, "Test case received: " + testCase.events);
+  //ipcRenderer.send(Channel.TEST_LOG, "Test case received: " + testCase.events);
 }
 
-export function getNavigationStatus(status: boolean) {
-  forceStopReplaying = status;
-  ipcRenderer.send(Channel.TEST_LOG, "Navigation status: " + status);
-  if (testCase) {
-    ipcRenderer.send(Channel.TEST_LOG, "Test case: " + testCase.events);
-  } else {
-    ipcRenderer.send(Channel.TEST_LOG, "Test case not available");
-  }
-  ipcRenderer.send(
-    Channel.TEST_LOG,
-    "Current event index: " + currentEventIndex
-  );
-  //ipcRenderer.send(Channel.TEST_LOG, );
-  //ipcRenderer.send(Channel.TEST_LOG, testCase.events[currentEventIndex]);
-  //ipcRenderer.send(Channel.TEST_LOG, currentEventIndex);
+// Function to set the current index based on the one existing in electron utilities
+export function setCurrentIndex(index: number) {
+  currentEventIndex = index;
+  //ipcRenderer.send(Channel.TEST_LOG, "Current index set to: " + index);
+}
+
+// Reset index in both replay.ts and electron Utils to 0
+function resetIndex() {
+  currentEventIndex = 0;
+  ipcRenderer.send(Channel.GET_INDEX, currentEventIndex);
 }
 
 async function delayWithAbort(ms: number, signal: AbortSignal) {
@@ -40,6 +35,80 @@ async function delayWithAbort(ms: number, signal: AbortSignal) {
       reject(new Error("aborted"));
     });
   });
+}
+
+function checkElementVisibility(element: Element): boolean {
+  // Get computed style of the element
+  const computedStyle = window.getComputedStyle(element);
+
+  // Check for display: none
+  if (computedStyle.display === "none") {
+    ipcRenderer.send(Channel.TEST_LOG, "Element is display: none");
+    return false;
+  }
+
+  // Check for visibility: hidden or collapse
+  if (
+    computedStyle.visibility === "hidden" ||
+    computedStyle.visibility === "collapse"
+  ) {
+    ipcRenderer.send(
+      Channel.TEST_LOG,
+      "Element is visibility: hidden or collapse"
+    );
+    return false;
+  }
+
+  // Check for opacity: 0
+  if (computedStyle.opacity === "0") {
+    ipcRenderer.send(Channel.TEST_LOG, "Element has opacity: 0");
+    return false;
+  }
+
+  // Check for zero dimensions
+  const rect = element.getBoundingClientRect();
+  if (rect.width === 0 || rect.height === 0) {
+    ipcRenderer.send(Channel.TEST_LOG, "Element has zero dimensions");
+    return false;
+  }
+
+  // Check if it's in the viewport
+  const inViewport =
+    rect.bottom > 0 &&
+    rect.right > 0 &&
+    rect.left < (window.innerWidth || document.documentElement.clientWidth) &&
+    rect.top < (window.innerHeight || document.documentElement.clientHeight);
+  if (!inViewport) {
+    ipcRenderer.send(Channel.TEST_LOG, "Element is not in the viewport");
+    return false;
+  }
+
+  // Check parent visibility recursively
+  function isParentVisible(elem: Element): boolean {
+    if (elem === document.body) return true; // Reached the top of the DOM tree
+    const parent = elem.parentElement;
+    if (!parent) return true; // No parent element
+    const parentStyle = window.getComputedStyle(parent);
+    if (
+      parentStyle.display === "none" ||
+      parentStyle.visibility === "hidden" ||
+      parentStyle.visibility === "collapse" ||
+      parentStyle.opacity === "0"
+    ) {
+      ipcRenderer.send(
+        Channel.TEST_LOG,
+        `Parent element (${parent.tagName}) is not visible`
+      );
+      return false;
+    }
+    return isParentVisible(parent);
+  }
+
+  if (!isParentVisible(element)) {
+    return false; // Note: The specific failing parent is logged in the recursive function
+  }
+
+  return true;
 }
 
 // Function to locate the element based on the CSS selector or XPath
@@ -77,7 +146,6 @@ function handleLocatorType(event: RecordedEvent) {
   }
   return element;
 }
-
 // Function to handle the event type
 function controlEventType(
   element: Element,
@@ -88,19 +156,17 @@ function controlEventType(
   // Log the element's bounding rectangle or use it as needed
   //ipcRenderer.send(Channel.TEST_LOG, `Element rect: ${JSON.stringify(rect)}`);
 
-  const xBox = rect.x;
-  const yBox = rect.y;
-
-  ipcRenderer.send(Channel.NEXT_REPLAY, {
-    index: index,
-    state: "playing",
-  });
-  console.log("----------NEXTREPLAY index");
-
-  if (xBox * yBox == 0) {
-    handleElementNotFound(index, event);
+  // Check if the element is visible in the viewport
+  if (!checkElementVisibility(element)) {
+    forceStop = true;
     return;
   }
+
+  // ipcRenderer.send(Channel.NEXT_REPLAY, {
+  //   index: index,
+  //   state: "playing",
+  // });
+  // console.log("----------NEXTREPLAY index");
 
   switch (event.type) {
     case "click":
@@ -119,15 +185,15 @@ function controlEventType(
   }
 }
 
-function handleElementNotFound(index: number, event: RecordedEvent) {
+function handleElementNotFound(index: number) {
   // Element not found, handle accordingly
   ipcRenderer.send(
     Channel.TEST_LOG,
-    `Element not found for selector: ${event.target.css}`
+    `Element not found for event ${index + 1}`
   );
-  ipcRenderer.send(Channel.NEXT_REPLAY, {
+
+  ipcRenderer.send(Channel.EVENT_FAILED, {
     index: index,
-    state: "fail",
   });
 }
 
@@ -147,9 +213,13 @@ function controlReplayLogic(index: number, event: RecordedEvent) {
       });
       console.log("----------NEXTREPLAY index+1");
     } else {
-      handleElementNotFound(index, event);
+      handleElementNotFound(index);
     }
   } else if (event.target.css == "window") {
+    ipcRenderer.send(Channel.NEXT_REPLAY, {
+      index: index,
+      state: "playing",
+    });
     // If event.target.css is not provided or invalid, and the event is a scroll event
     runScrollEvent(event);
   }
@@ -168,26 +238,46 @@ async function manageReplay() {
   const signal = abortController.signal;
 
   for (
-    currentEventIndex = 0;
+    currentEventIndex;
     currentEventIndex < testCase.events.length;
     currentEventIndex++
   ) {
     if (signal.aborted || !isReplaying) return; // Stop if the abort signal is triggered or isReplaying is false
 
+    //await delay(1500);
     ipcRenderer.send(
       Channel.TEST_LOG,
       `Replaying event: ${currentEventIndex + 1}`
     );
+
+    ipcRenderer.send(Channel.GET_INDEX, currentEventIndex);
+
     const event = testCase.events[currentEventIndex];
 
     controlReplayLogic(currentEventIndex, event);
 
+    // If an element couldn't be found, force stop the replay
+    if (forceStop) {
+      forceStop = false;
+      handleElementNotFound(currentEventIndex);
+      resetIndex();
+      ipcRenderer.send(
+        Channel.TEST_LOG,
+        "Force stop replaying due to element not found"
+      );
+      return;
+    }
+
     // Stop when complete immediately
-    if (currentEventIndex == testCase.events.length - 1) return;
+    if (currentEventIndex == testCase.events.length - 1) {
+      // Reset index when out of test cases
+      resetIndex();
+      return;
+    }
 
     // Delay with abort handling
     try {
-      await delayWithAbort(1200, signal);
+      await delayWithAbort(2000, signal);
     } catch (error) {
       ipcRenderer.send(Channel.TEST_LOG, error.message);
       return;
@@ -310,4 +400,7 @@ export async function replay() {
 export function stopReplaying() {
   isReplaying = false;
   abortController.abort();
+
+  // Reset index when aborted
+  resetIndex();
 }

@@ -38,3 +38,7 @@
 .green {
   background-color: var(--success-color) !important;
 }
+
+.red_background {
+  background-color: red !important;
+}
