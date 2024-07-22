@@ -256,13 +256,7 @@ async function manageReplay() {
 
     controlReplayLogic(currentEventIndex, event);
 
-    // Stop when complete immediately
-    if (currentEventIndex == testCase.events.length - 1) {
-      // Reset index when out of test cases
-      resetIndex();
-      return;
-    }
-
+    // If an element couldn't be found, force stop the replay
     if (forceStop) {
       forceStop = false;
       handleElementNotFound(currentEventIndex);
@@ -271,6 +265,13 @@ async function manageReplay() {
         Channel.TEST_LOG,
         "Force stop replaying due to element not found"
       );
+      return;
+    }
+
+    // Stop when complete immediately
+    if (currentEventIndex == testCase.events.length - 1) {
+      // Reset index when out of test cases
+      resetIndex();
       return;
     }
 
