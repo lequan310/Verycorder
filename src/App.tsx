@@ -11,7 +11,6 @@ import {
   SearchBar,
   StepsView,
 } from "./Components";
-import Logo from "./Assets/katalon_logo.svg";
 import {
   reducer,
   TargetContext,
@@ -21,6 +20,7 @@ import { TargetEnum } from "./Types/eventComponents";
 import { Channel } from "./Others/listenerConst";
 import { AppMode } from "./Types/appMode";
 import PopupSettings from "./Components/PopupSettings/PopupSettings";
+import TitleBar from "./Components/TitleBar/TitleBar";
 
 const App = () => {
   const [shrink, setShrink] = useState(false);
@@ -170,6 +170,7 @@ const App = () => {
   return (
     <TargetContext.Provider value={state}>
       <TargetDispatchContext.Provider value={dispatch}>
+        <TitleBar response={handleResponse} disable={enableSeachBar} />
         <div className="main__wrapper" ref={containerRef}>
           <div
             className="main-content__wrapper"
@@ -177,7 +178,7 @@ const App = () => {
           >
             <div className="header__wrapper">
               {/* <button>hello</button> */}
-              <img src={Logo} alt="React Logo" style={{ width: "100px" }} />
+
               <HeaderComponent />
             </div>
             <div className="controller__content">
@@ -223,7 +224,6 @@ const App = () => {
             className="searchbar__wrapper"
             style={{ width: `${100 - leftWidth}px` }}
           >
-            <SearchBar response={handleResponse} disable={enableSeachBar} />
             <div className="message__wrapper">
               <h2 className="message">{responseMessage}</h2>
             </div>

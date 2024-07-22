@@ -75,6 +75,12 @@ export const createWindow = (): void => {
   win = new BrowserWindow({
     width: 1280,
     height: 720,
+    frame: false,
+    titleBarStyle: 'hidden',
+    titleBarOverlay: {
+      color: '#fafafc',
+      symbolColor: '#28282B'
+    },
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       nodeIntegration: false,
@@ -97,7 +103,7 @@ export const createWindow = (): void => {
   win.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  //win.webContents.openDevTools({ mode: "detach" });
+  win.webContents.openDevTools({ mode: "detach" });
 
   // Handle resize app
   win.on("resize", () => updateViewBounds());
