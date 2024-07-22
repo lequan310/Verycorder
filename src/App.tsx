@@ -130,7 +130,7 @@ const App = () => {
   }, []);
 
   // Handle resize-----------------------
-  const [leftWidth, setLeftWidth] = useState(350); // Initial width as percentage
+  const [leftWidth, setLeftWidth] = useState(250); // Initial width as percentage
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
@@ -150,8 +150,8 @@ const App = () => {
       console.log(e.clientX);
       const newLeftWidth = e.clientX - containerRect.left;
       const finalLeftWidth = Math.min(
-        Math.max(newLeftWidth, 350),
-        containerRect.width - 250
+        Math.max(newLeftWidth, 250),
+        containerRect.width - 200
       );
       setLeftWidth(finalLeftWidth);
       ipcRenderer.send(Channel.END_RESIZE, finalLeftWidth); // Limit the width between 100px and container width - 100px

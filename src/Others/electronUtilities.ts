@@ -33,7 +33,7 @@ declare const BROWSER_VIEW_PRELOAD_WEBPACK_ENTRY: string;
 let currentMode = AppMode.disabled;
 let testCase: TestCase;
 let abortController: AbortController;
-let leftPosition = 400;
+let leftPosition = 350;
 
 let win: BrowserWindow;
 let view: BrowserView;
@@ -76,10 +76,10 @@ export const createWindow = (): void => {
     width: 1280,
     height: 720,
     frame: false,
-    titleBarStyle: 'hidden',
+    titleBarStyle: "hidden",
     titleBarOverlay: {
-      color: '#fafafc',
-      symbolColor: '#28282B'
+      color: "#fafafc",
+      symbolColor: "#28282B",
     },
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
@@ -234,10 +234,10 @@ export function updateViewBounds() {
     if (view) {
       const { x, y, width, height } = bounds;
       view.setBounds({
-        x: leftPosition,
-        y: 70,
-        width: Math.floor(width - leftPosition - 12),
-        height: Math.floor(height - 70 - 12),
+        x: leftPosition - 27,
+        y: 40,
+        width: Math.floor(width - leftPosition + 28),
+        height: Math.floor(height - 40),
       });
     }
   }
@@ -326,14 +326,14 @@ function handleEndResize() {
     if (win) {
       const bounds = win.getContentBounds();
       const view = win.getBrowserView();
-      leftPosition = leftX + 24;
+      leftPosition = leftX + 72;
       if (view) {
         const { x, y, width, height } = bounds;
         view.setBounds({
           x: leftPosition,
-          y: 70,
-          width: Math.floor(width - leftPosition - 12),
-          height: Math.floor(height - 70 - 12),
+          y: 40,
+          width: Math.floor(width - leftPosition),
+          height: Math.floor(height - 40),
         });
       }
     }
