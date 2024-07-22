@@ -2,7 +2,6 @@ import { ipcRenderer } from "electron";
 import { Channel } from "../Others/listenerConst";
 import { TestCase } from "../Types/testCase";
 import { RecordedEvent } from "../Types/recordedEvent";
-import { delay } from "../Others/utilities";
 
 let testCase: TestCase;
 let isReplaying = true; // Flag to control the replay
@@ -15,6 +14,7 @@ export function getTestCase(newTestCase: TestCase) {
   //ipcRenderer.send(Channel.TEST_LOG, "Test case received: " + testCase.events);
 }
 
+// Function to set the current index based on the one existing in electron utilities
 export function setCurrentIndex(index: number) {
   currentEventIndex = index;
   //ipcRenderer.send(Channel.TEST_LOG, "Current index set to: " + index);
@@ -34,6 +34,80 @@ async function delayWithAbort(ms: number, signal: AbortSignal) {
       reject(new Error("aborted"));
     });
   });
+}
+
+function checkElementVisibility(element: Element): boolean {
+  // Get computed style of the element
+  const computedStyle = window.getComputedStyle(element);
+
+  // Check for display: none
+  if (computedStyle.display === "none") {
+    ipcRenderer.send(Channel.TEST_LOG, "Element is display: none");
+    return false;
+  }
+
+  // Check for visibility: hidden or collapse
+  if (
+    computedStyle.visibility === "hidden" ||
+    computedStyle.visibility === "collapse"
+  ) {
+    ipcRenderer.send(
+      Channel.TEST_LOG,
+      "Element is visibility: hidden or collapse"
+    );
+    return false;
+  }
+
+  // Check for opacity: 0
+  if (computedStyle.opacity === "0") {
+    ipcRenderer.send(Channel.TEST_LOG, "Element has opacity: 0");
+    return false;
+  }
+
+  // Check for zero dimensions
+  const rect = element.getBoundingClientRect();
+  if (rect.width === 0 || rect.height === 0) {
+    ipcRenderer.send(Channel.TEST_LOG, "Element has zero dimensions");
+    return false;
+  }
+
+  // Check if it's in the viewport
+  const inViewport =
+    rect.bottom > 0 &&
+    rect.right > 0 &&
+    rect.left < (window.innerWidth || document.documentElement.clientWidth) &&
+    rect.top < (window.innerHeight || document.documentElement.clientHeight);
+  if (!inViewport) {
+    ipcRenderer.send(Channel.TEST_LOG, "Element is not in the viewport");
+    return false;
+  }
+
+  // Check parent visibility recursively
+  function isParentVisible(elem: Element): boolean {
+    if (elem === document.body) return true; // Reached the top of the DOM tree
+    const parent = elem.parentElement;
+    if (!parent) return true; // No parent element
+    const parentStyle = window.getComputedStyle(parent);
+    if (
+      parentStyle.display === "none" ||
+      parentStyle.visibility === "hidden" ||
+      parentStyle.visibility === "collapse" ||
+      parentStyle.opacity === "0"
+    ) {
+      ipcRenderer.send(
+        Channel.TEST_LOG,
+        `Parent element (${parent.tagName}) is not visible`
+      );
+      return false;
+    }
+    return isParentVisible(parent);
+  }
+
+  if (!isParentVisible(element)) {
+    return false; // Note: The specific failing parent is logged in the recursive function
+  }
+
+  return true;
 }
 
 // Function to locate the element based on the CSS selector or XPath
@@ -71,7 +145,6 @@ function handleLocatorType(event: RecordedEvent) {
   }
   return element;
 }
-
 // Function to handle the event type
 function controlEventType(
   element: Element,
@@ -82,19 +155,17 @@ function controlEventType(
   // Log the element's bounding rectangle or use it as needed
   //ipcRenderer.send(Channel.TEST_LOG, `Element rect: ${JSON.stringify(rect)}`);
 
-  const xBox = rect.x;
-  const yBox = rect.y;
+  // Check if the element is visible in the viewport
+  if (!checkElementVisibility(element)) {
+    handleElementNotFound(index, event);
+    return;
+  }
 
   ipcRenderer.send(Channel.NEXT_REPLAY, {
     index: index,
     state: "playing",
   });
   console.log("----------NEXTREPLAY index");
-
-  if (xBox * yBox == 0) {
-    handleElementNotFound(index, event);
-    return;
-  }
 
   switch (event.type) {
     case "click":
