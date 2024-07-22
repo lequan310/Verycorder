@@ -192,8 +192,9 @@ function handleElementNotFound(index: number) {
     `Element not found for event ${index + 1}`
   );
 
-  ipcRenderer.send(Channel.EVENT_FAILED, {
+  ipcRenderer.send(Channel.NEXT_REPLAY, {
     index: index,
+    state: false,
   });
 }
 
