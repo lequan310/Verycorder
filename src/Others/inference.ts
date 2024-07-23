@@ -2,7 +2,6 @@ const ort = require('onnxruntime-node');
 import * as Jimp from 'jimp';
 
 // Load ONNX model
-const sessionPromise = ort.InferenceSession.create(__dirname + '/model.onnx');
 
 type Tensor = typeof ort.Tensor;
 
@@ -33,11 +32,10 @@ function imageBufferToTensor(imageBufferData: Buffer, dims: number[]): Tensor {
     return inputTensor;
 }
 
-export async function loadImagefromPath(path: string, width: number = 640, height: number = 640): Promise<[Jimp, number, number]> {
+export async function loadImagefromPath(path: string, width: number = 640, height: number = 640): Promise<Jimp> {
     // Use Jimp to load the image and resize it.
     var imageData = await Jimp.default.read(path).then((imageBuffer: Jimp) => {
-        var originalWidth = imageBuffer.getWidth(), originalHeight = imageBuffer.getHeight();
-        return [imageBuffer.resize(width, height), originalWidth, originalHeight] as [Jimp, number, number];
+        return imageBuffer.resize(width, height);
     });
 
     return imageData;
@@ -45,9 +43,9 @@ export async function loadImagefromPath(path: string, width: number = 640, heigh
 
 
 // Function to process the image
-export async function processImage(imageBuffer: Buffer): Promise<Jimp> {
+export async function processImage(imageBuffer: Buffer, modelPath: string = "best.onnx"): Promise<Jimp> {
     // Wait for the session to be ready
-    const session = await sessionPromise;
+    const session = await ort.InferenceSession.create(modelPath);
 
     const image = await Jimp.default.create(imageBuffer), originalImage = image.clone();
     const originalWidth = image.getWidth(), originalHeight = image.getHeight();
@@ -91,8 +89,8 @@ export async function processImage(imageBuffer: Buffer): Promise<Jimp> {
             originalImage.scan(rescaledX2, rescaledY1, thickness, rescaledY2 - rescaledY1, function (x, y, idx) { // Right border
                 this.bitmap.data.writeUInt32BE(0xFF0000FF, idx);
             });
-            await Jimp.loadFont(Jimp.FONT_SANS_12_BLACK).then(font => {
-                originalImage.print(font, rescaledX1 - 20, rescaledY1, `Class: ${Math.round(classId)}, Conf: ${conf.toFixed(2)}`);
+            await Jimp.loadFont(Jimp.FONT_SANS_10_BLACK).then(font => {
+                originalImage.print(font, rescaledX1, rescaledY1, `Class: ${Math.round(classId)}, Conf: ${conf.toFixed(2)}`);
             });
 
             // console.log(`Class: ${Math.round(classId)}, Conf: ${conf.toFixed(2)}`);

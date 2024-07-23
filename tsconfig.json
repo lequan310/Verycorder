@@ -21,7 +21,6 @@
   },
   "include": [
     "src/**/*",
-    "playground.ts",
     "src/Declarations/**/*.d.ts"
   ],  
 }

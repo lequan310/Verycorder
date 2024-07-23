@@ -98,6 +98,4 @@ python/*.pt
 python/*.onnx
 python/*.ipynb
 
-playground.*
-
 *.png
