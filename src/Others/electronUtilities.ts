@@ -34,6 +34,7 @@ let testCase: TestCase;
 let abortController: AbortController;
 let leftPosition = 350 + 24;
 let currentEventIndex = 0;
+let navigationCheck = false;
 
 let win: BrowserWindow;
 let view: BrowserView;
@@ -347,9 +348,11 @@ function handleUrlChange() {
 
 // Get the current index of the test case during replay
 export function getCurrentIndex() {
-  ipcMain.on(Channel.GET_INDEX, async (event, data) => {
-    currentEventIndex = data;
-    //console.log("Current Index updated: ", currentEventIndex);
+  ipcMain.on(Channel.GET_INDEX, async (event, index, replayCheck) => {
+    currentEventIndex = index;
+    navigationCheck = replayCheck;
+    console.log("Current Index updated: ", currentEventIndex);
+    console.log("Navigation check: ", navigationCheck);
   });
 }
 
@@ -358,9 +361,9 @@ export function handleNavigate(view: BrowserView) {
     if (getCurrentMode() === AppMode.replay) {
       console.log("Navigation finished during replay");
       //console.log("Current Index (from view): ", currentEventIndex);
-
+      console.log("Navigation check (replay event started): ", navigationCheck);
       // Start replay again whenever the page is loaded during replay
-      if (currentEventIndex > 0) {
+      if (currentEventIndex >= 0 && navigationCheck) {
         view.webContents.send(Channel.SEND_EVENT, testCase);
         //console.log("Test case sent again");
         view.webContents.send(Channel.SET_INDEX, currentEventIndex + 1);

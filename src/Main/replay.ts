@@ -196,14 +196,14 @@ async function manageReplay() {
     if (signal.aborted || !isReplaying) return; // Stop if the abort signal is triggered or isReplaying is false
 
     // Save for when navigate to another page
-    ipcRenderer.send(Channel.GET_INDEX, currentEventIndex);
+    ipcRenderer.send(Channel.GET_INDEX, currentEventIndex, true);
 
     const event = testCase.events[currentEventIndex];
     const result = controlReplayLogic(event);
 
     if (!result) {
       ipcRenderer.send(Channel.NEXT_REPLAY, {
-        index: currentEventIndex,
+        index: currentEventIndex + 1,
         state: false,
       });
       ipcRenderer.send(
@@ -215,7 +215,7 @@ async function manageReplay() {
     }
 
     ipcRenderer.send(Channel.NEXT_REPLAY, {
-      index: currentEventIndex,
+      index: currentEventIndex + 1,
       state: true,
     });
 
