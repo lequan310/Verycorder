@@ -8,7 +8,6 @@ import {
 } from "./Main/replay";
 import { Channel } from "./Others/listenerConst";
 import { AppMode } from "./Types/appMode";
-import { getCurrentIndex } from "./Others/electronUtilities";
 
 function onload(load: boolean) {
   ipcRenderer.invoke(Channel.GET_MODE).then((mode: AppMode) => {

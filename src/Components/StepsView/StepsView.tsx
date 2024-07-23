@@ -10,14 +10,14 @@ import {
 import { AppMode } from "../../Types/appMode";
 
 const StepsView = () => {
-  const initState: { index: number; state: string } = {
+  const initState: { index: number; state: boolean } = {
     index: -1,
-    state: null,
+    state: true,
   };
   const ipcRenderer = window.api;
   const [eventList, setEventList] = useState<RecordedEvent[]>([]);
   const [currentReplayIndex, setCurrentReplayIndex] = useState(initState);
-  const [failedTestCase, setFailedTestCase] = useState(-1);
+  // const [failedTestCase, setFailedTestCase] = useState(-1);
 
   const listRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -54,11 +54,14 @@ const StepsView = () => {
     const removeAddEvent = ipcRenderer.on(Channel.ADD_EVENT, addEvent);
 
     //Get data from IPC with contains the index as well as state for fail or succeed
-    const handleReplay = (data: { index: number; state: string }) => {
+    const handleReplay = (data: { index: number; state: boolean }) => {
       setCurrentReplayIndex({
         index: data.index,
         state: data.state,
       });
+
+      ipcRenderer.send(Channel.TEST_LOG, "------------------------");
+      ipcRenderer.send(Channel.TEST_LOG, data);
       // stepRefs.current[currentReplayIndex.index]?.scrollIntoView({
       //   behavior: "smooth",
       //   block: "center",
@@ -70,12 +73,12 @@ const StepsView = () => {
       handleReplay
     );
 
-    const failed = (data: number) => {
-      setFailedTestCase(data);
-      ipcRenderer.send(Channel.TEST_LOG, "-------------------");
-      ipcRenderer.send(Channel.TEST_LOG, data);
-    };
-    const handleFailedTestCase = ipcRenderer.on(Channel.EVENT_FAILED, failed);
+    // const failed = (data: number) => {
+    //   setFailedTestCase(data);
+    //   ipcRenderer.send(Channel.TEST_LOG, "-------------------");
+    //   ipcRenderer.send(Channel.TEST_LOG, data);
+    // };
+    // const handleFailedTestCase = ipcRenderer.on(Channel.EVENT_FAILED, failed);
 
     //handle state change --------------
     const updateStateHandler = (mode: AppMode) => {
@@ -119,7 +122,7 @@ const StepsView = () => {
       removeAddEvent();
       handleCurrentReplay();
       updateState();
-      handleFailedTestCase();
+      // handleFailedTestCase();
     };
   }, [eventList]);
 
@@ -131,7 +134,11 @@ const StepsView = () => {
             key={index}
             data={event}
             // ref={(el) => (stepRefs.current[index] = el)}
-            state={failedTestCase == index ? true : false}
+            state={
+              currentReplayIndex.index == index && !currentReplayIndex.state
+                ? false
+                : null
+            }
             current={currentReplayIndex.index == index ? true : false}
             prevState={currentReplayIndex.index > index ? true : false}
           />

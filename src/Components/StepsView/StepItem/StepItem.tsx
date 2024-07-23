@@ -53,12 +53,20 @@ const StepItem: React.FC<StepItemProps> = ({
     }
   };
 
+  const handleCaseState = () => {
+    if (current && targetContext.replayState) {
+      return "grey";
+    } else if (prevState) {
+      return "green";
+    } else if (state == false) {
+      return "red_background";
+    } else return "";
+  };
+
   return (
     <div
       // ref={ref}
-      className={`stepitem__container ${
-        current && targetContext.replayState ? "grey" : ""
-      } ${prevState && !state ? "green" : ""} ${state ? "red_background" : ""}`}
+      className={`stepitem__container ${handleCaseState()}`}
     >
       <div className="oneline_spacebetween_flex">
         <h4>{data.type}</h4>
