@@ -8,7 +8,6 @@ let testCase: TestCase;
 let isReplaying = true; // Flag to control the replay
 let currentEventIndex = 0;
 let abortController: AbortController;
-let forceStop = false;
 
 // Function to get the test case from main process
 export function getTestCase(newTestCase: TestCase) {
@@ -25,7 +24,7 @@ export function setCurrentIndex(index: number) {
 // Reset index in both replay.ts and electron Utils to 0
 function resetIndex() {
   currentEventIndex = 0;
-  ipcRenderer.send(Channel.GET_INDEX, currentEventIndex);
+  ipcRenderer.send(Channel.GET_INDEX, currentEventIndex, false);
 }
 
 async function delayWithAbort(ms: number, signal: AbortSignal) {
