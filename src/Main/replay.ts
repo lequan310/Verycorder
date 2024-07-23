@@ -202,7 +202,7 @@ async function manageReplay() {
 
     if (!result) {
       ipcRenderer.send(Channel.NEXT_REPLAY, {
-        index: currentEventIndex + 1,
+        index: currentEventIndex,
         state: false,
       });
       ipcRenderer.send(
