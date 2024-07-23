@@ -23,6 +23,7 @@ const SideBar = () => {
       <div className="top_sizeBar_wrapper">
         {settingState && <PopupSettings popupState={setSettingState} />}
         <button
+          className={settingState && "hover"}
           onClick={() => {
             setSettingState(!settingState);
           }}

@@ -40,7 +40,7 @@
 }
 
 .red_background {
-  background-color: red !important;
+  background-color: var(--danger-color) !important;
 }
 
 .testcase_wrapper {
