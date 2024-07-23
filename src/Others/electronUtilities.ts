@@ -81,7 +81,14 @@ export const createWindow = (): void => {
     titleBarOverlay: {
       color: "#fafafc",
       symbolColor: "#28282B",
+      height: 40
     },
+    
+    trafficLightPosition: {
+      x: 15,
+      y: 13,  // macOS traffic lights seem to be 14px in diameter. If you want them vertically centered, set this to `titlebar_height / 2 - 7`.
+  },
+    
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       nodeIntegration: false,
