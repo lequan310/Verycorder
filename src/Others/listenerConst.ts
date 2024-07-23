@@ -38,4 +38,6 @@ export const Channel = {
   // Handle resize
   BEGIN_RESIZE: "begin-resize",
   END_RESIZE: "end-resize",
+
+  PROCESS_IMAGE: "process-image",
 } as const;

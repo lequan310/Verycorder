@@ -14,6 +14,8 @@ import {
   toggleReplay,
   updateTestEventList,
 } from "./electronUtilities";
+import { processImage } from "./inference";
+import Jimp from "jimp";
 
 // ------------------- IPC EVENT export functionS -------------------
 // export function to test log events
@@ -48,6 +50,25 @@ export function handleClickRecord() {
   });
 }
 
+export function handleProcessImage() {
+  // handle to process img
+  ipcMain.on(Channel.PROCESS_IMAGE, async (event, imageBuffer: Buffer) => {
+    const processedImageBuffer = await processImage(imageBuffer);
+    event.sender.send('processed-image', processedImageBuffer);
+  });
+
+  // save image
+  const imgName = "image";
+  Jimp.read(imgName + ".png").then((image: Jimp) => {
+    image.getBufferAsync(Jimp.MIME_JPEG).then((buffer: Buffer) => {
+      processImage(buffer).then((processedImageBuffer: Jimp) => {
+        processedImageBuffer.writeAsync(imgName + "-processed.png").then(() => {
+          console.log("Image saved");
+        });
+      });
+    });
+  });
+}
 export function handleClickReplay() {
   ipcMain.handle(Channel.CLICK_REPLAY, async (event) => {
     toggleReplay();

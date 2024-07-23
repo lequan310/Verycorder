@@ -97,3 +97,7 @@ python/detect
 python/*.pt
 python/*.onnx
 python/*.ipynb
+
+playground.*
+
+*.png
