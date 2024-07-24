@@ -20,7 +20,7 @@ export const Channel = {
   TEST_CASE_ENDED: "test-case-ended",
   GET_INDEX: "get-index",
   SET_INDEX: "set-index",
-
+  UPDATE_OVERLAY: "update-overlay",
   // Replay UI register
   NEXT_REPLAY: "next-replay",
   UPDATE_STATE: "update-state",

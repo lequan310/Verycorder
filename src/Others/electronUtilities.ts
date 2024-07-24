@@ -38,6 +38,7 @@ let navigationCheck = false;
 
 let win: BrowserWindow;
 let view: BrowserView;
+let overlayWin: BrowserWindow | null = null;
 
 // Getter for win
 export function getWin(): BrowserWindow {
@@ -81,14 +82,14 @@ export const createWindow = (): void => {
     titleBarOverlay: {
       color: "#fafafc",
       symbolColor: "#28282B",
-      height: 40
+      height: 40,
     },
-    
+
     trafficLightPosition: {
       x: 15,
-      y: 13,  // macOS traffic lights seem to be 14px in diameter. If you want them vertically centered, set this to `titlebar_height / 2 - 7`.
-  },
-    
+      y: 13, // macOS traffic lights seem to be 14px in diameter. If you want them vertically centered, set this to `titlebar_height / 2 - 7`.
+    },
+
     webPreferences: {
       preload: MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY,
       nodeIntegration: false,
@@ -120,6 +121,60 @@ export const createWindow = (): void => {
     win = null;
   });
 };
+
+// Create overlay window to prevent interaction during replay
+export function createOverlayWindow() {
+  const viewBounds = view.getBounds();
+  const winBounds = win.getBounds();
+
+  overlayWin = new BrowserWindow({
+    x: winBounds.x + viewBounds.x,
+    y: winBounds.y + viewBounds.y,
+    width: viewBounds.width,
+    height: viewBounds.height,
+    frame: false,
+    transparent: true,
+    alwaysOnTop: true,
+    focusable: false,
+    webPreferences: {
+      nodeIntegration: false,
+      contextIsolation: true,
+    },
+  });
+  overlayWin.setIgnoreMouseEvents(false);
+}
+
+export function enableOverlay() {
+  if (!overlayWin) {
+    createOverlayWindow();
+  }
+  overlayWin?.show();
+}
+
+export function disableOverlay() {
+  overlayWin?.hide();
+}
+
+// Turn off overlay when replay ends
+export function turnOffOverlay() {
+  ipcMain.on(Channel.UPDATE_OVERLAY, () => {
+    disableOverlay();
+  });
+}
+
+export function handleSwitchTab() {
+  win.on("blur", () => {
+    if (currentMode === AppMode.replay) {
+      disableOverlay();
+    }
+  });
+
+  win.on("focus", () => {
+    if (currentMode === AppMode.replay) {
+      enableOverlay();
+    }
+  });
+}
 
 export function getCurrentMode() {
   return currentMode;
@@ -294,6 +349,8 @@ export async function toggleReplay() {
     currentMode = AppMode.normal;
     console.log("There are no test cases.");
   }
+
+  currentMode === AppMode.replay ? enableOverlay() : disableOverlay();
   win.webContents.send(Channel.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
   view.webContents.send(Channel.TOGGLE_REPLAY, currentMode);
 }
@@ -325,6 +382,8 @@ export function handleViewEvents() {
   handleNavigateInPage(view);
   handleNavigate(view);
   getCurrentIndex();
+  turnOffOverlay();
+  handleSwitchTab();
 }
 
 // ------------------- IPC EVENT FUNCTIONS -------------------

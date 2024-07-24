@@ -210,6 +210,7 @@ async function manageReplay() {
         `Event ${currentEventIndex} failed to replay`
       );
       resetIndex();
+      turnOffOverlay();
       return;
     }
 
@@ -222,6 +223,7 @@ async function manageReplay() {
     if (currentEventIndex == testCase.events.length - 1) {
       // Reset index when out of test cases
       resetIndex();
+      turnOffOverlay();
       return;
     }
 
@@ -233,6 +235,10 @@ async function manageReplay() {
       return;
     }
   }
+}
+
+function turnOffOverlay() {
+  ipcRenderer.send(Channel.UPDATE_OVERLAY);
 }
 
 function runInputEvent(event: RecordedEvent, rect: DOMRect) {

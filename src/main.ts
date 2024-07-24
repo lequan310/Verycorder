@@ -8,10 +8,8 @@ import {
   getWin,
   createWindow,
   toggleReplay,
-  getCurrentIndex,
 } from "./Others/electronUtilities";
 import { handleReplayEvents } from "./Main/replay_functions";
-import { Channel } from "./Others/listenerConst";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
