@@ -1,10 +1,4 @@
-import {
-  BrowserView,
-  BrowserWindow,
-  ipcMain,
-  ipcRenderer,
-  webContents,
-} from "electron";
+import { BrowserView, BrowserWindow, ipcMain, app } from "electron";
 import { handleUrl } from "./utilities";
 import { TestCase } from "../Types/testCase";
 import { ChangeUrlResult } from "../Types/urlResult";
@@ -162,6 +156,12 @@ export function turnOffOverlay() {
   });
 }
 
+function cleanupOnExit() {
+  if (currentMode === AppMode.replay) {
+    disableOverlay();
+  }
+}
+
 export function handleSwitchTab() {
   win.on("blur", () => {
     if (currentMode === AppMode.replay) {
@@ -174,6 +174,15 @@ export function handleSwitchTab() {
       enableOverlay();
     }
   });
+}
+
+function controlOverlay() {
+  currentMode === AppMode.replay ? enableOverlay() : disableOverlay();
+}
+
+function handleAppTurnOff() {
+  app.on("before-quit", cleanupOnExit);
+  app.on("will-quit", cleanupOnExit);
 }
 
 export function getCurrentMode() {
@@ -350,7 +359,7 @@ export async function toggleReplay() {
     console.log("There are no test cases.");
   }
 
-  currentMode === AppMode.replay ? enableOverlay() : disableOverlay();
+  controlOverlay();
   win.webContents.send(Channel.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
   view.webContents.send(Channel.TOGGLE_REPLAY, currentMode);
 }
@@ -384,6 +393,7 @@ export function handleViewEvents() {
   getCurrentIndex();
   turnOffOverlay();
   handleSwitchTab();
+  //handleAppTurnOff();
 }
 
 // ------------------- IPC EVENT FUNCTIONS -------------------
