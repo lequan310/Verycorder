@@ -27,7 +27,7 @@ declare const BROWSER_VIEW_PRELOAD_WEBPACK_ENTRY: string;
 let currentMode = AppMode.disabled;
 let testCase: TestCase;
 let abortController: AbortController;
-let leftPosition = 328;
+let leftPosition = 326;
 let currentEventIndex = 0;
 let navigationCheck = false;
 
@@ -427,7 +427,7 @@ function handleEndResize() {
       const bounds = win.getContentBounds();
       const view = win.getBrowserView();
       const { x, y, width, height } = bounds;
-      leftPosition = leftX + 78;
+      leftPosition = leftX + 78 - 12;
       if (view) {
         const newBounds = {
           x: leftPosition,

@@ -29,6 +29,7 @@ const App = () => {
     "Please enter a link to continue"
   );
   const [enableSeachBar, setEnableSeachBar] = useState(true);
+  const [enableResize, setEnableResize] = useState(true);
   const ipcRenderer = window.api;
 
   //This is to handle if URL is invalid
@@ -99,16 +100,19 @@ const App = () => {
           setRecordState(false);
           setReplayState(false);
           setEnableSeachBar(true);
+          setEnableResize(true);
           break;
         case AppMode.record:
           setRecordState(!targetContext.recordState);
           setReplayingButtonEnable(false);
           setEnableSeachBar(false);
+          setEnableResize(false);
           break;
         case AppMode.replay:
           setReplayState(!targetContext.replayState);
           setRecordingButtonEnable(false);
           setEnableSeachBar(false);
+          setEnableResize(false);
           break;
         default:
           setRecordState(false);
@@ -116,6 +120,7 @@ const App = () => {
           setReplayingButtonEnable(false);
           setRecordingButtonEnable(false);
           setEnableSeachBar(true);
+          setEnableResize(false);
           break;
       }
     };
@@ -130,11 +135,11 @@ const App = () => {
   }, []);
 
   // Handle resize-----------------------
-  const [leftWidth, setLeftWidth] = useState(250); // Initial width as percentage
+  const [leftWidth, setLeftWidth] = useState(260); // Initial width as percentage
   const containerRef = useRef<HTMLDivElement>(null);
   const [isDragging, setIsDragging] = useState(false);
 
-  const handleMouseDown = (e: React.MouseEvent<HTMLDivElement>) => {
+  const handleMouseDown = (e: React.MouseEvent<HTMLButtonElement>) => {
     e.preventDefault();
     setIsDragging(true);
     document.addEventListener("mousemove", handleMouseMove);
@@ -199,14 +204,15 @@ const App = () => {
                 {/* </div> */}
               </div>
             </div>
-            <div
+            <button
               className={`${"draggable_wrapper"} ${
                 isDragging ? "dragging" : ""
               }`}
-              onMouseDown={handleMouseDown}
+              onMouseDown={enableResize ? handleMouseDown : undefined}
+              disabled={!enableResize}
             >
               <span className="material-symbols-rounded">drag_handle</span>
-            </div>
+            </button>
             <div
               className="searchbar__wrapper"
               style={{ width: `${100 - leftWidth}px` }}

@@ -73,13 +73,6 @@ const StepsView = () => {
       handleReplay
     );
 
-    // const failed = (data: number) => {
-    //   setFailedTestCase(data);
-    //   ipcRenderer.send(Channel.TEST_LOG, "-------------------");
-    //   ipcRenderer.send(Channel.TEST_LOG, data);
-    // };
-    // const handleFailedTestCase = ipcRenderer.on(Channel.EVENT_FAILED, failed);
-
     //handle state change --------------
     const updateStateHandler = (mode: AppMode) => {
       ipcRenderer.send(Channel.TEST_LOG, mode);

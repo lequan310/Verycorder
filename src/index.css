@@ -68,6 +68,11 @@ button {
   cursor: pointer;
 }
 
+button:disabled {
+  cursor: not-allowed;
+  pointer-events: all !important;
+}
+
 select {
   height: 40px;
   border-radius: 8px;
@@ -131,7 +136,9 @@ textarea {
   cursor: col-resize;
   display: flex;
   align-items: center;
-  margin-right: 12px;
+  border-radius: 0 !important;
+  width: 8px;
+  /* margin-right: 12px; */
   /* box-shadow: rgba(65, 65, 65, 0.089) 3.95px 1.95px 10.6px;
   border-radius: 0 var(--border-radius) var(--border-radius) 0; */
 }

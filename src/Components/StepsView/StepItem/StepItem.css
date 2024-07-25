@@ -36,11 +36,11 @@
 }
 
 .green {
-  background-color: var(--success-color) !important;
+  background-color: var(--success-color);
 }
 
 .red_background {
-  background-color: var(--danger-color) !important;
+  background-color: var(--danger-color);
 }
 
 .testcase_wrapper {
