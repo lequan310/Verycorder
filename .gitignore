@@ -97,3 +97,5 @@ python/detect
 python/*.pt
 python/*.onnx
 python/*.ipynb
+
+*.png
