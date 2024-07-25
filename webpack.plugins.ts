@@ -7,7 +7,7 @@ const CopyPlugin = require("copy-webpack-plugin");
 export const plugins = [
   new CopyPlugin({
     patterns: [
-        { from: 'python/best.onnx', to: 'model.onnx' },
+        { from: 'src/Models/best.onnx', to: 'model.onnx' },
     ]
   }),
   new ForkTsCheckerWebpackPlugin({

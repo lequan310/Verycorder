@@ -99,3 +99,5 @@ python/*.onnx
 python/*.ipynb
 
 *.png
+
+/src/models
