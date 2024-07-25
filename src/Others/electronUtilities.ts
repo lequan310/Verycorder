@@ -112,6 +112,7 @@ export const createWindow = (): void => {
   win.on("resize", () => updateViewBounds());
   // Handle window close
   win.on("closed", () => {
+    disableOverlay();
     win = null;
   });
 };
@@ -143,12 +144,14 @@ export function enableOverlay() {
     createOverlayWindow();
   }
   overlayWin?.show();
+  console.log("Overlay enabled");
 }
 
 export function disableOverlay() {
   if (overlayWin) {
-    overlayWin.close(); // This will terminate the window
-    overlayWin = null; // Ensure to nullify the reference to allow garbage collection and avoid memory leaks
+    overlayWin.close();
+    overlayWin = null;
+    console.log("Overlay disabled");
   }
 }
 
@@ -157,12 +160,6 @@ export function turnOffOverlay() {
   ipcMain.on(Channel.UPDATE_OVERLAY, () => {
     disableOverlay();
   });
-}
-
-function cleanupOnExit() {
-  if (currentMode === AppMode.replay) {
-    disableOverlay();
-  }
 }
 
 export function handleSwitchTab() {
@@ -181,11 +178,6 @@ export function handleSwitchTab() {
 
 function controlOverlay() {
   currentMode === AppMode.replay ? enableOverlay() : disableOverlay();
-}
-
-function handleAppTurnOff() {
-  app.on("before-quit", cleanupOnExit);
-  app.on("will-quit", cleanupOnExit);
 }
 
 export function getCurrentMode() {
@@ -396,7 +388,6 @@ export function handleViewEvents() {
   getCurrentIndex();
   turnOffOverlay();
   handleSwitchTab();
-  //handleAppTurnOff();
 }
 
 // ------------------- IPC EVENT FUNCTIONS -------------------
