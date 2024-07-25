@@ -30,3 +30,20 @@
   font-size: 12px;
   color: var(--arc-palette-subtitle);
 }
+
+.grey {
+  background-color: #c5c5c5 !important;
+}
+
+.green {
+  background-color: var(--success-color) !important;
+}
+
+.red_background {
+  background-color: var(--danger-color) !important;
+}
+
+.testcase_wrapper {
+  min-height: 12px;
+  padding: 12px;
+}

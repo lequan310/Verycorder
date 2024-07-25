@@ -1,4 +1,8 @@
 :root {
+  --success-color: #5cb85c;
+  --danger-color: #d9534f;
+  --title-bar-height: 40px;
+  --side-bar-height: 54px;
   --border-radius: 12px;
   --border-color: #e5e5e5;
   /* --arc-palette-cutoutColor: #6f00eeff;
@@ -23,7 +27,7 @@
   --arc-palette-cutoutColor: #4f5f00ff;
   --arc-palette-minContrastColor: #4f5f00ff;
   --arc-background-simple-color: #8fab00ff;
-  --arc-palette-background: #181c00ff;
+  --arc-palette-background: rgb(44, 44, 44);
   --arc-palette-hover: #7e8a407a;
   --arc-palette-foregroundPrimary: #d5ff03ff;
 }
@@ -34,6 +38,7 @@ html {
   right: 50%;
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
+  background-color: #fafafc;
 }
 
 body {
@@ -59,7 +64,6 @@ button {
   justify-content: center;
   border: 0;
   border-radius: var(--border-radius);
-  padding: 12px;
   background-color: transparent;
   cursor: pointer;
 }
@@ -98,12 +102,19 @@ textarea {
   background-color: var(--border-color);
   height: 1px;
 }
+.app__container {
+  display: flex;
+  flex-direction: row;
+  width: 100vw;
+}
 
 .main__wrapper {
   display: flex;
   flex-direction: row;
-  height: 100vh;
-  width: 100vw;
+  height: calc(100vh - var(--title-bar-height));
+  flex: 1 0 auto;
+  border-radius: var(--border-radius) 0 0 0;
+  background-color: white;
 }
 
 .main-content__wrapper {
@@ -114,14 +125,6 @@ textarea {
 
 .searchbar__wrapper {
   flex-grow: 1;
-}
-
-.header__wrapper {
-  /* background-color: aqua; */
-  display: flex;
-  justify-content: space-between;
-  padding: 0 16px;
-  margin-left: 12px;
 }
 
 .draggable_wrapper {
@@ -152,12 +155,8 @@ textarea {
   display: flex;
   flex-direction: column;
   height: 100%;
-  margin: 0 4px 12px 12px;
   /* border: 1px solid var(--border-color); */
   overflow: hidden;
-  box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px,
-    rgba(17, 17, 26, 0.05) 0px 8px 32px;
-  border-radius: var(--border-radius);
 }
 .commands__wrapper {
   flex: 1;
@@ -189,12 +188,6 @@ textarea {
   margin-top: 0;
 }
 
-.select_box__wrapper {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 4px;
-}
 .controllers__wrapper {
   overflow: hidden;
   -webkit-transition: max-height 0.3s;
