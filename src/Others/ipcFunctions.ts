@@ -58,17 +58,18 @@ export function handleProcessImage() {
   });
 
   // save image
-  const imgName = "image";
-  Jimp.read(imgName + ".png").then((image: Jimp) => {
-    image.getBufferAsync(Jimp.MIME_JPEG).then((buffer: Buffer) => {
-      processImage(buffer).then((processedImageBuffer: Jimp) => {
-        processedImageBuffer.writeAsync(imgName + "-processed.png").then(() => {
-          console.log("Image saved");
-        });
-      });
-    });
-  });
+  // const imgName = "image";
+  // Jimp.read(imgName + ".png").then((image: Jimp) => {
+  //   image.getBufferAsync(Jimp.MIME_JPEG).then((buffer: Buffer) => {
+  //     processImage(buffer).then((processedImageBuffer: Jimp) => {
+  //       processedImageBuffer.writeAsync(imgName + "-processed.png").then(() => {
+  //         console.log("Image saved");
+  //       });
+  //     });
+  //   });
+  // });
 }
+
 export function handleClickReplay() {
   ipcMain.handle(Channel.CLICK_REPLAY, async (event) => {
     toggleReplay();
