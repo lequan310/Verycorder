@@ -47,7 +47,6 @@
   "dependencies": {
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",
-    "canvas": "^2.11.2",
     "electron-squirrel-startup": "^1.0.1",
     "jimp": "^0.22.12",
     "onnxruntime-node": "^1.18.0",
