@@ -108,6 +108,8 @@ export const createWindow = (): void => {
   // Open the DevTools.
   win.webContents.openDevTools({ mode: "detach" });
 
+  // Update overlay window position when app window is moved
+  win.on("move", () => handleOverlayUpdate());
   // Handle resize app
   win.on("resize", () => updateViewBounds());
   // Handle window close
@@ -136,6 +138,13 @@ export function createOverlayWindow() {
       contextIsolation: true,
     },
   });
+  // UNCOMMENT THIS TO SEE THE OVERLAY WINDOW
+  // overlayWin.loadURL(
+  //   "data:text/html;charset=utf-8," +
+  //     encodeURI(
+  //       '<html><body style="margin:0; padding:0; height:100%; background-color: rgba(255, 0, 0, 0.1); opacity: .4;"></body></html>'
+  //     )
+  // );
   overlayWin.setIgnoreMouseEvents(false);
 }
 
@@ -294,18 +303,35 @@ async function changeUrlFinal(url: string) {
   return response;
 }
 
+function handleOverlayUpdate() {
+  if (overlayWin) {
+    const [winX, winY] = win.getPosition();
+    const viewBounds = view.getBounds();
+    overlayWin.setBounds({
+      x: winX + viewBounds.x,
+      y: winY + viewBounds.y,
+      width: viewBounds.width,
+      height: viewBounds.height,
+    });
+    //console.log("Overlay bounds updated");
+  }
+}
+
 // Update size and location of browser view
 export function updateViewBounds() {
   if (win) {
     const bounds = win.getContentBounds();
     if (view) {
       const { x, y, width, height } = bounds;
-      view.setBounds({
+      const newBounds = {
         x: leftPosition,
         y: 40,
         width: Math.floor(width - leftPosition),
         height: Math.floor(height - 40),
-      });
+      };
+      view.setBounds(newBounds);
+
+      handleOverlayUpdate();
     }
   }
 }
@@ -398,15 +424,18 @@ function handleEndResize() {
     if (win) {
       const bounds = win.getContentBounds();
       const view = win.getBrowserView();
+      const { x, y, width, height } = bounds;
       leftPosition = leftX + 78;
       if (view) {
-        const { x, y, width, height } = bounds;
-        view.setBounds({
+        const newBounds = {
           x: leftPosition,
           y: 40,
           width: Math.floor(width - leftPosition),
           height: Math.floor(height - 40),
-        });
+        };
+        view.setBounds(newBounds);
+
+        handleOverlayUpdate();
       }
     }
     // console.log("On Start Resize");
