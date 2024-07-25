@@ -416,6 +416,7 @@ export function handleViewEvents() {
   getCurrentIndex();
   turnOffOverlay();
   handleSwitchTab();
+  updateEventFromFrontend();
 }
 
 // ------------------- IPC EVENT FUNCTIONS -------------------
@@ -460,6 +461,12 @@ export function getCurrentIndex() {
     navigationCheck = replayCheck;
     console.log("Current Index updated: ", currentEventIndex);
     console.log("Navigation check: ", navigationCheck);
+  });
+}
+
+export function updateEventFromFrontend() {
+  ipcMain.on(Channel.UPDATE_EVENT, async (event, index, testEvent) => {
+    testCase.events[index] = testEvent;
   });
 }
 

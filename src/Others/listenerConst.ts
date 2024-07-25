@@ -11,6 +11,7 @@ export const Channel = {
   LOAD_URL: "load-url", // load URL in BrowserView
   UPDATE_REPLAY: "update-replay", // update replay status
   UPDATE_NAVIGATE: "begin-navigate", // begin navigation
+  UPDATE_EVENT: "update-event", // update event
 
   // Replay feature
   REPLAY_SCROLL: "replay-scroll",
