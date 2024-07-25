@@ -146,7 +146,10 @@ export function enableOverlay() {
 }
 
 export function disableOverlay() {
-  overlayWin?.hide();
+  if (overlayWin) {
+    overlayWin.close(); // This will terminate the window
+    overlayWin = null; // Ensure to nullify the reference to allow garbage collection and avoid memory leaks
+  }
 }
 
 // Turn off overlay when replay ends
