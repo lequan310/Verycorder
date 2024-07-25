@@ -1,36 +1,37 @@
-import React, { ChangeEvent, FormEvent, useState, useRef, useEffect } from "react";
+import React, {
+  ChangeEvent,
+  FormEvent,
+  useState,
+  useRef,
+  useEffect,
+} from "react";
 import { Channel } from "../../Others/listenerConst";
 import "./SearchBar.css";
 
 interface SearchBarProps {
   response: (response: { success: boolean; message: string }) => void;
+  disable: boolean;
 }
 
-const SearchBar = ({ response }: SearchBarProps) => {
+const SearchBar = ({ response, disable }: SearchBarProps) => {
   const [searchValue, setSearchValue] = useState("");
   const searchBarRef = useRef<HTMLInputElement>(null);
   const ipcRenderer = window.api;
 
   // Clean up stuff
   useEffect(() => {
+    //Handle case for invalid url, will only show user input instead of about:blank
     const updateUrl = (url: string) => {
       let checkUrl = url;
       if (url === "about:blank") {
         checkUrl = searchValue;
       }
       setSearchValue(checkUrl);
-    }
-
-    const toggleRecord = (recording: boolean) => {
-      searchBarRef.current.disabled = recording;
-    }
-
+    };
     const removeUpdateUrl = ipcRenderer.on(Channel.UPDATE_URL, updateUrl);
-    const removeToggleRecord = ipcRenderer.on(Channel.TOGGLE_RECORD, toggleRecord);
 
     return () => {
       removeUpdateUrl();
-      removeToggleRecord();
     };
   }, []);
 
@@ -66,9 +67,10 @@ const SearchBar = ({ response }: SearchBarProps) => {
         value={searchValue}
         ref={searchBarRef}
         onChange={onChangeHandler}
+        disabled={!disable}
       />
       <button type="submit" value="Submit" form="form" className="search_Btn">
-        <span className="material-symbols-rounded">search</span>
+        <span className="material-symbols-rounded">arrow_forward</span>
       </button>
     </form>
   );

@@ -10,17 +10,27 @@ export const Channel = {
   SEND_EVENT: "send-event", // send test case to replay.ts
   LOAD_URL: "load-url", // load URL in BrowserView
   UPDATE_REPLAY: "update-replay", // update replay status
+  UPDATE_NAVIGATE: "begin-navigate", // begin navigation
 
   // Replay feature
   REPLAY_SCROLL: "replay-scroll",
   REPLAY_CLICK: "replay-click",
   REPLAY_HOVER: "replay-hover",
   REPLAY_INPUT: "replay-input",
+  TEST_CASE_ENDED: "test-case-ended",
+  GET_INDEX: "get-index",
+  SET_INDEX: "set-index",
+  UPDATE_OVERLAY: "update-overlay",
+  // Replay UI register
+  NEXT_REPLAY: "next-replay",
+  UPDATE_STATE: "update-state",
+  EVENT_FAILED: "event-fail",
 
   // Handle UI events from React to Electron
   URL_CHANGE: "url-change",
   UPDATE_TEST_CASE: "update-test-case",
   CLICK_RECORD: "click-record",
+  CLICK_REPLAY: "click-replay",
 
   // Handle view events from BrowserView
   GET_MODE: "get-mode",
@@ -28,4 +38,6 @@ export const Channel = {
   // Handle resize
   BEGIN_RESIZE: "begin-resize",
   END_RESIZE: "end-resize",
+
+  PROCESS_IMAGE: "process-image",
 } as const;

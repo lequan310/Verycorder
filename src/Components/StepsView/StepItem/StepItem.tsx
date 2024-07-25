@@ -4,11 +4,25 @@ import { RecordedEvent } from "../../../Types/recordedEvent";
 import { TargetEnum } from "../../../Types/eventComponents";
 import { TargetContext } from "../../../Types/targetContext";
 
+import { LegacyRef } from "react";
+import { Channel } from "../../../Others/listenerConst";
+
 interface StepItemProps {
   data: RecordedEvent;
+  state: boolean;
+  current: boolean;
+  prevState: boolean;
+  // ref: LegacyRef<HTMLDivElement>;
 }
 
-const StepItem: React.FC<StepItemProps> = ({ data }) => {
+const StepItem: React.FC<StepItemProps> = ({
+  data,
+  state,
+  current,
+  prevState,
+  // ref,
+}) => {
+  const ipcRenderer = window.api;
   const value = () => {
     if (data.value instanceof Object) {
       // Add your statement here
@@ -29,7 +43,7 @@ const StepItem: React.FC<StepItemProps> = ({ data }) => {
   }
 
   const preferedTarget = () => {
-    switch (targetContext) {
+    switch (targetContext.target) {
       case TargetEnum.css:
         return <p>{data.target.css}</p>;
       case TargetEnum["x-path"]:
@@ -39,8 +53,21 @@ const StepItem: React.FC<StepItemProps> = ({ data }) => {
     }
   };
 
+  const handleCaseState = () => {
+    if (current && targetContext.replayState) {
+      return "grey";
+    } else if (prevState) {
+      return "green";
+    } else if (state == false) {
+      return "red_background";
+    } else return "";
+  };
+
   return (
-    <div className="stepitem__container">
+    <div
+      // ref={ref}
+      className={`stepitem__container ${handleCaseState()}`}
+    >
       <div className="oneline_spacebetween_flex">
         <h4>{data.type}</h4>
         {value()}

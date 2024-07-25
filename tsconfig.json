@@ -16,10 +16,11 @@
         "node_modules/*"
       ]
     },
-    "jsx": "react-jsx" // or "react" depending on your setup
+    "jsx": "react-jsx", // or "react" depending on your setup
+    "typeRoots": ["./node_modules/@types", "./src/Declarations"],
   },
   "include": [
     "src/**/*",
-    "src/Declarations/.d.ts"
-  ]
+    "src/Declarations/**/*.d.ts"
+  ],  
 }

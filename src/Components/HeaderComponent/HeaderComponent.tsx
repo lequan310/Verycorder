@@ -1,49 +1,42 @@
-import React, { useEffect, useRef, useState } from "react";
-import { Channel } from "../../Others/listenerConst"
+import React, { useContext } from "react";
+import { Channel } from "../../Others/listenerConst";
 import "./HeaderComponent.css";
+import { TargetContext } from "../../Types/targetContext";
 
-const HeaderComponent = ({ enableRecord }: { enableRecord?: boolean }) => {
+const HeaderComponent = () => {
   const ipcRenderer = window.api;
-  const [recordState, setRecordState] = useState(false);
-  const [playState, setPlayState] = useState(false);
-  const [disable, setDisable] = useState(true);
 
-  // Clean up stuff
-  useEffect(() => {
-    const updateUrl = (url: string) => {
-      if (url === "about:blank") {
-        setDisable(true);
-      } else {
-        setDisable(false);
-      }
-    }
+  //USECONTEXT FUNC HERE
+  const targetContext = useContext(TargetContext);
 
-    const removeToggleRecord = ipcRenderer.on(Channel.TOGGLE_RECORD, setRecordState);
-    const removeUpdateUrl = ipcRenderer.on(Channel.UPDATE_URL, updateUrl);
-
-    return () => {
-      removeToggleRecord();
-      removeUpdateUrl();
-    };
-  }, []);
-
+  //Onclick func to trigger to electron
   const recordHandler = async () => {
-    ipcRenderer.invoke(Channel.CLICK_RECORD)
-      .then((mode: string) => {
-        if (mode !== "replay") {
-          setRecordState(!recordState);
-        }
-      })
-  }
+    ipcRenderer.invoke(Channel.CLICK_RECORD);
+  };
+
+  const replayHandler = async () => {
+    ipcRenderer.invoke(Channel.CLICK_REPLAY);
+  };
 
   return (
     <div className="header__container">
-      <button>
-        <span className={`material-symbols-rounded `}>play_arrow</span>
-      </button>
-      <button disabled={disable || enableRecord}>
+      {/* Replay button */}
+      <button disabled={!targetContext.replayingButtonEnable}>
         <span
-          className={`material-symbols-rounded ${recordState ? "red" : ""}`}
+          className={`material-symbols-rounded ${
+            targetContext.replayState ? "play" : ""
+          }`}
+          onClick={replayHandler}
+        >
+          {!targetContext.replayState ? "play_arrow" : "pause"}
+        </span>
+      </button>
+      {/* Record button */}
+      <button disabled={!targetContext.recordingButtonEnable}>
+        <span
+          className={`material-symbols-rounded ${
+            targetContext.recordState ? "red" : ""
+          }`}
           onClick={recordHandler}
         >
           radio_button_checked

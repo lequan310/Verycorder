@@ -9,10 +9,10 @@ import {
   getCssSelector,
   getXPath,
   isVisualElement,
-} from "./utilities";
+} from "../Others/utilities";
 import { RecordedEvent } from "../Types/recordedEvent";
 import { ipcRenderer } from "electron";
-import { Channel } from "./listenerConst";
+import { Channel } from "../Others/listenerConst";
 
 // ------------------- GLOBAL VARIABLES -------------------
 // Variables for editing target element

@@ -1,6 +1,16 @@
-import { app, BrowserWindow, globalShortcut } from 'electron';
-import { handleRecordEvents, toggleRecord, toggleReplay, handleViewEvents, handleUIEvents, testLogEvents, gotourl, getView, getWin, createWindow, updateReplay } from './Others/electron_utilities';
-import { handleReplayEvents } from './Others/replay_functions';
+import { app, BrowserWindow, globalShortcut } from "electron";
+import {
+  handleRecordEvents,
+  toggleRecord,
+  handleViewEvents,
+  handleUIEvents,
+  getView,
+  getWin,
+  createWindow,
+  toggleReplay,
+} from "./Others/electronUtilities";
+import { handleReplayEvents } from "./Main/replay_functions";
+import { promises } from 'fs';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -12,8 +22,8 @@ if (require("electron-squirrel-startup")) {
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   createWindow();
-  let win = getWin();
-  let view = getView();
+  const win = getWin();
+  const view = getView();
 
   // May consider removing this feature in production
   globalShortcut.register("CommandOrControl+Shift+J", () => {
@@ -27,11 +37,7 @@ app.whenReady().then(() => {
 
   // Remember to add UI for playback later
   globalShortcut.register("CommandOrControl+P", () => {
-    //toggleReplay(win);
-    gotourl();
-    setTimeout(() => {
-      toggleReplay();
-    }, 2000);
+    toggleReplay();
   });
 
   // On OS X it's common to re-create a window in the app when the
@@ -53,20 +59,7 @@ app.whenReady().then(() => {
     "hover-event",
     "input-event",
   ]);
-
-  // Function to log data to terminal
-  testLogEvents();
-
-  // Handle replay events
   handleReplayEvents();
-
-  // Update replaying when necessary
-  updateReplay();
-
-
-  // Cai nay de test, chu scroll vs hover no detect nhieu qua
-  //handleRecordEvents(win, ["click-event", "input-event"]);
-  //handleRecordEvents(win, ["scroll-event", "hover-event"]);
 });
 
 app.on("will-quit", () => {
