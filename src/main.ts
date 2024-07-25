@@ -10,7 +10,6 @@ import {
   toggleReplay,
 } from "./Others/electronUtilities";
 import { handleReplayEvents } from "./Main/replay_functions";
-import { promises } from 'fs';
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {

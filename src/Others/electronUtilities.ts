@@ -107,7 +107,7 @@ export const createWindow = (): void => {
   win.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  win.webContents.openDevTools({ mode: "detach" });
+  //win.webContents.openDevTools({ mode: "detach" });
 
   // Update overlay window position when app window is moved
   win.on("move", () => handleOverlayUpdate());
