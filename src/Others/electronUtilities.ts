@@ -61,7 +61,7 @@ export function toggleEdit() {
 }
 
 function updateEvent() {
-  ipcMain.on(Channel.UPDATE_EVENT, async (event, eventTarget) => {
+  ipcMain.on(Channel.UPDATE_EVENT_TARGET, async (event, eventTarget) => {
     console.log("Event updated");
     editedTarget = eventTarget;
     console.log("CSS Selector: ", editedTarget.css);
@@ -533,6 +533,9 @@ export function handleNavigate(view: BrowserView) {
         view.webContents.send(Channel.TOGGLE_REPLAY, currentMode);
         //console.log("Replay mode toggled again");
       }
+    } else if (getCurrentMode() === AppMode.edit) {
+      console.log("Navigation finished during edit");
+      view.webContents.send(Channel.EDIT_EVENT, currentMode);
     }
   });
 }

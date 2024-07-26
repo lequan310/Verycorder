@@ -29,7 +29,7 @@ export const Channel = {
 
   // Edit feature
   EDIT_EVENT: "edit-event",
-  UPDATE_EVENT: "update-event",
+  UPDATE_EVENT_TARGET: "update-event-target",
   SEND_TARGET: "send-target",
 
   // Handle UI events from React to Electron

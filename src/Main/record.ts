@@ -277,7 +277,7 @@ function handleContextMenu(e: MouseEvent) {
     const css = getCssSelector(hoveredElement);
     const xpath = getXPath(hoveredElement);
     const eventTarget: Target = { css, xpath };
-    ipcRenderer.send(Channel.UPDATE_EVENT, eventTarget);
+    ipcRenderer.send(Channel.UPDATE_EVENT_TARGET, eventTarget);
   }
 }
 export function record() {
