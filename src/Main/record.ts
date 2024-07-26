@@ -255,16 +255,34 @@ function mouseTracker(event: MouseEvent) {
   mouseY = event.clientY;
 }
 
+function clearPreviousOutline() {
+  if (hoveredElement) {
+    hoveredElement.style.outline = previousOutlineStyle; // Re-assigned previous outline style
+    hoveredElement.removeEventListener("contextmenu", handleContextMenu);
+  }
+}
+
 // Hover to edit target element for event
 export function hoverEditHandler(event: MouseEvent) {
-  if (hoveredElement) hoveredElement.style.outline = previousOutlineStyle; // Re-assigned previous outline style
-
+  clearPreviousOutline();
   // Highlight currently hovered element
   hoveredElement = event.target as HTMLElement;
   previousOutlineStyle = hoveredElement.style.outline;
   hoveredElement.style.outline = "2px solid red";
+
+  // Add contextmenu event listener to capture right-click
+  hoveredElement.addEventListener("contextmenu", handleContextMenu);
 }
 
+function handleContextMenu(e: MouseEvent) {
+  e.preventDefault();
+  if (hoveredElement) {
+    const cssSelector = getCssSelector(hoveredElement);
+    const xpath = getXPath(hoveredElement);
+    const eventTarget = { cssSelector, xpath };
+    ipcRenderer.send(Channel.UPDATE_EVENT, eventTarget);
+  }
+}
 export function record() {
   observeMutation();
   document.body.addEventListener("mousemove", mouseTracker, true);
@@ -285,4 +303,15 @@ export function stopRecording() {
   document.body.removeEventListener("mouseenter", hoverHandler, true);
   document.body.removeEventListener("change", changeHandler, true);
   document.body.removeEventListener("focus", focusHandler, true);
+}
+
+export function startEdit() {
+  ipcRenderer.send(Channel.TEST_LOG, "Edit mode started");
+  document.body.addEventListener("mouseenter", hoverEditHandler, true);
+}
+
+export function stopEditing() {
+  ipcRenderer.send(Channel.TEST_LOG, "Edit mode stopped");
+  document.body.removeEventListener("mouseenter", hoverEditHandler, true);
+  clearPreviousOutline();
 }

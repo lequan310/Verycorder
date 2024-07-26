@@ -10,6 +10,7 @@ import {
 import {
   getCurrentMode,
   setMode,
+  toggleEdit,
   toggleRecord,
   toggleReplay,
   updateTestEventList,
@@ -54,7 +55,7 @@ export function handleProcessImage() {
   // handle to process img
   ipcMain.on(Channel.PROCESS_IMAGE, async (event, imageBuffer: Buffer) => {
     const processedImageBuffer = await processImage(imageBuffer);
-    event.sender.send('processed-image', processedImageBuffer);
+    event.sender.send("processed-image", processedImageBuffer);
   });
 
   // save image
@@ -68,6 +69,13 @@ export function handleProcessImage() {
   //     });
   //   });
   // });
+}
+
+export function handleClickEdit() {
+  ipcMain.handle(Channel.CLICK_EDIT, async (event) => {
+    toggleEdit();
+    return getCurrentMode();
+  });
 }
 
 export function handleClickReplay() {
