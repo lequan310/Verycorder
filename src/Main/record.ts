@@ -13,6 +13,7 @@ import {
 import { RecordedEvent } from "../Types/recordedEvent";
 import { ipcRenderer } from "electron";
 import { Channel } from "../Others/listenerConst";
+import { Target } from "../Types/eventComponents";
 
 // ------------------- GLOBAL VARIABLES -------------------
 // Variables for editing target element
@@ -258,7 +259,6 @@ function mouseTracker(event: MouseEvent) {
 function clearPreviousOutline() {
   if (hoveredElement) {
     hoveredElement.style.outline = previousOutlineStyle; // Re-assigned previous outline style
-    hoveredElement.removeEventListener("contextmenu", handleContextMenu);
   }
 }
 
@@ -269,17 +269,14 @@ export function hoverEditHandler(event: MouseEvent) {
   hoveredElement = event.target as HTMLElement;
   previousOutlineStyle = hoveredElement.style.outline;
   hoveredElement.style.outline = "2px solid red";
-
-  // Add contextmenu event listener to capture right-click
-  hoveredElement.addEventListener("contextmenu", handleContextMenu);
 }
 
 function handleContextMenu(e: MouseEvent) {
   e.preventDefault();
   if (hoveredElement) {
-    const cssSelector = getCssSelector(hoveredElement);
+    const css = getCssSelector(hoveredElement);
     const xpath = getXPath(hoveredElement);
-    const eventTarget = { cssSelector, xpath };
+    const eventTarget: Target = { css, xpath };
     ipcRenderer.send(Channel.UPDATE_EVENT, eventTarget);
   }
 }
@@ -308,10 +305,12 @@ export function stopRecording() {
 export function startEdit() {
   ipcRenderer.send(Channel.TEST_LOG, "Edit mode started");
   document.body.addEventListener("mouseenter", hoverEditHandler, true);
+  document.body.addEventListener("contextmenu", handleContextMenu, true);
 }
 
 export function stopEditing() {
   ipcRenderer.send(Channel.TEST_LOG, "Edit mode stopped");
   document.body.removeEventListener("mouseenter", hoverEditHandler, true);
+  document.body.removeEventListener("contextmenu", handleContextMenu, true);
   clearPreviousOutline();
 }

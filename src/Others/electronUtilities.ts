@@ -5,6 +5,7 @@ import { ChangeUrlResult } from "../Types/urlResult";
 import { BLANK_PAGE, Channel } from "./listenerConst";
 import { AppMode } from "../Types/appMode";
 import { RecordedEvent } from "../Types/recordedEvent";
+import { Target } from "../Types/eventComponents";
 import {
   handleClickRecord,
   handleClickReplay,
@@ -31,8 +32,8 @@ let abortController: AbortController;
 let leftPosition = 326;
 let currentEventIndex = 0;
 let navigationCheck = false;
-let editedTarget: { cssSelector: string; xpath: string } = {
-  cssSelector: "",
+let editedTarget: Target = {
+  css: "",
   xpath: "",
 };
 
@@ -63,7 +64,7 @@ function updateEvent() {
   ipcMain.on(Channel.UPDATE_EVENT, async (event, eventTarget) => {
     console.log("Event updated");
     editedTarget = eventTarget;
-    console.log("CSS Selector: ", editedTarget.cssSelector);
+    console.log("CSS Selector: ", editedTarget.css);
     console.log("xpath: ", editedTarget.xpath);
   });
 }
