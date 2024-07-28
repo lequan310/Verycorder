@@ -1,5 +1,6 @@
 import Jimp from "jimp";
 import { getImageBuffer, getBBoxes, createOnnxSession, releaseOnnxSession, processImage } from "./src/Others/inference";
+import { BoundingBox } from "./src/Types/bbox";
 
 // Command to run this file for testing: npx ts-node playground.ts
 createOnnxSession();
@@ -18,7 +19,7 @@ const imgName = "image";
 // });
 
 getImageBuffer(imagePath).then((buffer: Buffer) => {
-    getBBoxes(buffer).then((bboxes: number[][]) => {
+    getBBoxes(buffer).then((bboxes: BoundingBox[]) => {
         console.log(bboxes);
     });
 });

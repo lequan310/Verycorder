@@ -1,6 +1,7 @@
 const ort = require('onnxruntime-node');
 import * as Jimp from 'jimp';
 import sharp from 'sharp';
+import { BoundingBox } from '../Types/bbox';
 
 type Tensor = typeof ort.Tensor;
 type InferenceSession = typeof ort.InferenceSession;
@@ -138,7 +139,7 @@ export async function getBBoxes(imageBuffer: Buffer) {
     const results = await session.run(feeds);
     const output = results[session.outputNames[0]].data;
 
-    const bboxes = [];
+    const bboxes: BoundingBox[] = [];
     // Draw bounding boxes
     for (let i = 0; i < output.length; i += 6) {
         const x1 = output[i];
@@ -153,7 +154,7 @@ export async function getBBoxes(imageBuffer: Buffer) {
             const rescaledY1 = Math.floor(y1 / 640 * originalHeight);
             const rescaledX2 = Math.ceil(x2 / 640 * originalWidth);
             const rescaledY2 = Math.ceil(y2 / 640 * originalHeight);
-            const bbox = [rescaledX1, rescaledY1, rescaledX2, rescaledY2];
+            const bbox = new BoundingBox(rescaledX1, rescaledX2, rescaledY1, rescaledY2);
             bboxes.push(bbox);
         }
     }
