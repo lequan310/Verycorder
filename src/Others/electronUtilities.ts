@@ -66,13 +66,13 @@ function updateEvent() {
     editedTarget = eventTarget;
     console.log("CSS Selector: ", editedTarget.css);
     console.log("xpath: ", editedTarget.xpath);
+    view.webContents.send(Channel.SEND_TARGET, editedTarget);
   });
 }
 
 function handleDoneEdit() {
-  ipcMain.on(Channel.DONE_EDIT, async (event) => {
-    toggleEdit();
-    view.webContents.send(Channel.SEND_TARGET, editedTarget);
+  ipcMain.on(Channel.DONE_EDIT, async (event, newTestCase) => {
+    testCase = newTestCase;
   });
 }
 
