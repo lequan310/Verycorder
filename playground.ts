@@ -29,10 +29,7 @@ import { getLocator, getBoundingBoxes, drawBoxes, identifyElement } from "./src/
 
 async function main(){
 
-    const downloadButtonPath = "download.png";
     const imagePath = "image.png"
-    const downloadButton = await Jimp.read(downloadButtonPath)
-    
     const image = await Jimp.read(imagePath)
     const buffer = await image.getBufferAsync(Jimp.MIME_PNG)
     const boxes = await getBoundingBoxes(buffer, "./src/Models/best.onnx")
@@ -42,9 +39,13 @@ async function main(){
     const jimpImage = await Jimp.read(boxedImage)
     jimpImage.write("image-processed.png")
 
+    const downloadButtonPath = "download.png";
+    const downloadButton = await Jimp.read(downloadButtonPath)
     const locator = await getLocator(await downloadButton.getBufferAsync(Jimp.MIME_PNG))
 
     const element = await identifyElement(buffer, locator)
+
+    console.log(element)
 }
 
 main()
