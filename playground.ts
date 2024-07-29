@@ -1,14 +1,62 @@
+import 'dotenv/config'
+
 import Jimp from "jimp";
-import { processImage } from "./src/Others/inference";
+import { getLocator, getBoundingBoxes, drawBoxes, identifyElement } from "./src/Others/inference"
 
-const imgName = "image";
-Jimp.read(imgName + ".png").then((image: Jimp) => {
-    image.getBufferAsync(Jimp.MIME_PNG).then((buffer: Buffer) => {
-        processImage(buffer, "./src/Models/best.onnx").then((processedImageBuffer: Jimp) => {
-            processedImageBuffer.writeAsync(imgName + "-processed.png").then(() => {
-                console.log("Image saved");
-            });
-        });
-    });
-});
 
+// const imgName = "image";
+// Jimp.read(imgName + ".png").then((image: Jimp) => {
+//     image.getBufferAsync(Jimp.MIME_PNG).then((buffer: Buffer) => {
+//         let startTime = Date.now();
+
+        // processImage(buffer, "./src/Models/best.onnx").then((processedImageBuffer: Jimp) => {
+        //     processedImageBuffer.writeAsync(imgName + "-processed.png").then(() => {
+        //         console.log("Image saved");
+        //         console.log("Time taken: ", Date.now() - startTime, "ms");
+        //     });
+        // });
+
+
+        // getLocator(buffer).then((caption: string) => {
+        //     console.log(caption);
+        //     console.log("Time taken: ", Date.now() - startTime, "ms");
+        // });
+
+
+//     });
+// });
+
+
+async function main(){
+
+    const downloadButtonPath = "download.png";
+    const imagePath = "image.png"
+    const downloadButton = await Jimp.read(downloadButtonPath)
+    
+    const image = await Jimp.read(imagePath)
+    const buffer = await image.getBufferAsync(Jimp.MIME_PNG)
+    const boxes = await getBoundingBoxes(buffer, "./src/Models/best.onnx")
+
+    const boxedImage = await drawBoxes(buffer, boxes)
+
+    const jimpImage = await Jimp.read(boxedImage)
+    jimpImage.write("image-processed.png")
+
+    const locator = await getLocator(await downloadButton.getBufferAsync(Jimp.MIME_PNG))
+
+    const element = await identifyElement(buffer, locator)
+}
+
+main()
+
+// const imgName = "image";
+// Jimp.read(imgName + ".png").then((image: Jimp) => {
+//     image.getBufferAsync(Jimp.MIME_PNG).then((buffer: Buffer) => {
+//         let startTime = Date.now();
+//         getLocator(buffer).then((caption: string) => {
+//             console.log(caption);
+//             console.log("Time taken: ", Date.now() - startTime, "ms");
+//         });
+//     }
+//     );
+// });
