@@ -21,16 +21,24 @@ export const Channel = {
   GET_INDEX: "get-index",
   SET_INDEX: "set-index",
   UPDATE_OVERLAY: "update-overlay",
+
   // Replay UI register
   NEXT_REPLAY: "next-replay",
   UPDATE_STATE: "update-state",
   EVENT_FAILED: "event-fail",
+
+  // Edit feature
+  EDIT_EVENT: "edit-event",
+  UPDATE_EVENT_TARGET: "update-event-target",
+  SEND_TARGET: "send-target",
 
   // Handle UI events from React to Electron
   URL_CHANGE: "url-change",
   UPDATE_TEST_CASE: "update-test-case",
   CLICK_RECORD: "click-record",
   CLICK_REPLAY: "click-replay",
+  CLICK_EDIT: "click-edit",
+  DONE_EDIT: "done-edit",
 
   // Handle view events from BrowserView
   GET_MODE: "get-mode",
