@@ -1,11 +1,16 @@
-import React, { useContext } from "react";
+import React, { useContext, useState } from "react";
 import "./StepItem.css";
 import { RecordedEvent } from "../../../Types/recordedEvent";
-import { TargetEnum } from "../../../Types/eventComponents";
+import {
+  EventEnum,
+  getEnumValues,
+  TargetEnum,
+} from "../../../Types/eventComponents";
 import { TargetContext } from "../../../Types/targetContext";
 
 import { LegacyRef } from "react";
 import { Channel } from "../../../Others/listenerConst";
+import ControllerItem from "../../../Components/ControllerItem/ControllerItem";
 
 interface StepItemProps {
   data: RecordedEvent;
@@ -23,6 +28,15 @@ const StepItem: React.FC<StepItemProps> = ({
   // ref,
 }) => {
   const ipcRenderer = window.api;
+  const [editMode, setEditMode] = useState(false);
+  const eventOptions = getEnumValues(EventEnum);
+  const [selectedEvent, setSelectedEvent] = useState<string>(data.type); // Default selected option
+
+  const targetContext = useContext(TargetContext);
+  if (!targetContext) {
+    throw new Error("UserContext must be used within UserProvider");
+  }
+
   const value = () => {
     if (data.value instanceof Object) {
       // Add your statement here
@@ -36,20 +50,14 @@ const StepItem: React.FC<StepItemProps> = ({
     }
   };
 
-  const targetContext = useContext(TargetContext);
-
-  if (!targetContext) {
-    throw new Error("UserContext must be used within UserProvider");
-  }
-
   const preferedTarget = () => {
     switch (targetContext.target) {
       case TargetEnum.css:
-        return <p>{data.target.css}</p>;
+        return data.target.css;
       case TargetEnum["x-path"]:
-        return <p>{data.target.xpath}</p>;
+        return data.target.xpath;
       default:
-        return <p>{data.target.css}</p>;
+        return data.target.css;
     }
   };
 
@@ -63,19 +71,69 @@ const StepItem: React.FC<StepItemProps> = ({
     } else return "";
   };
 
-  return (
-    <div
-      // ref={ref}
-      className={`stepitem__container ${handleCaseState()}`}
-    >
-      <div className="oneline_spacebetween_flex">
-        <h4>{data.type}</h4>
-        {value()}
-      </div>
-      {preferedTarget()}
-      <div className="divider"></div>
-    </div>
-  );
+  const handleEditMode = () => {
+    if (editMode) {
+      return (
+        <div
+          // ref={ref}
+          className={` stepitem__wrapper grey`}
+        >
+          <div className={`stepitem__container`}>
+            <h5>Event type</h5>
+            <select
+              value={selectedEvent}
+              onChange={(e) => setSelectedEvent(e.target.value)}
+            >
+              {eventOptions.map((event: string, index) => (
+                <option key={index} value={event}>
+                  {event}
+                </option>
+              ))}
+            </select>
+            <h5>Location</h5>
+            <div contentEditable className="stepitem_target_location">
+              {" "}
+              <p>{preferedTarget()}</p>{" "}
+            </div>
+          </div>
+
+          <div className="stepitem_flex_col">
+            <button onClick={() => setEditMode(!editMode)}>
+              <span className="material-symbols-rounded">close</span>
+            </button>
+            <button>
+              <span className="material-symbols-rounded">save</span>
+            </button>
+          </div>
+
+          <div className="divider fixed_bottom"></div>
+        </div>
+      );
+    } else {
+      return (
+        <div
+          // ref={ref}
+          className={` stepitem__wrapper ${handleCaseState()}`}
+        >
+          <div className={`stepitem__container`}>
+            <div className="oneline_spacebetween_flex">
+              <h4>{data.type}</h4>
+              {value()}
+            </div>
+            <p>{preferedTarget()}</p>
+          </div>
+
+          <button onClick={() => setEditMode(!editMode)}>
+            <span className="material-symbols-rounded">edit</span>
+          </button>
+
+          <div className="divider fixed_bottom"></div>
+        </div>
+      );
+    }
+  };
+
+  return handleEditMode();
 };
 
 export default StepItem;

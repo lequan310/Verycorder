@@ -13,6 +13,7 @@ import {
 import { RecordedEvent } from "../Types/recordedEvent";
 import { ipcRenderer } from "electron";
 import { Channel } from "../Others/listenerConst";
+import { EventEnum } from "../Types/eventComponents";
 
 // ------------------- GLOBAL VARIABLES -------------------
 // Variables for editing target element
@@ -48,7 +49,7 @@ const mutationObserver = new MutationObserver((mutations) => {
       change = false;
 
       const eventObject: RecordedEvent = {
-        type: "click",
+        type: EventEnum.click,
         target: { css: getCssSelector(target), xpath: getXPath(target) },
         value: null,
         mousePosition: { x: mouseEvent.clientX, y: mouseEvent.clientY },
@@ -97,7 +98,7 @@ function clickHandler(event: MouseEvent) {
     const target = event.target as HTMLElement;
     ipcRenderer.send(Channel.TEST_LOG, target.outerHTML);
     const eventObject: RecordedEvent = {
-      type: "click",
+      type: EventEnum.click,
       target: { css: getCssSelector(target), xpath: getXPath(target) },
       value: null,
       mousePosition: { x: event.clientX, y: event.clientY },
@@ -130,7 +131,7 @@ function windowScrollHandler(event: Event) {
   // Set a timeout to detect scroll end
   scrollTimer = setTimeout(() => {
     const eventObject: RecordedEvent = {
-      type: "scroll",
+      type: EventEnum.scroll,
       target: { css: "window", xpath: "window" },
       value: { x: window.scrollX, y: window.scrollY },
       mousePosition: { x: mouseX, y: mouseY },
@@ -149,7 +150,7 @@ function scrollHandler(event: Event) {
   scrollTimer = setTimeout(() => {
     const target = event.target as HTMLElement;
     const eventObject: RecordedEvent = {
-      type: "scroll",
+      type: EventEnum.scroll,
       target: { css: getCssSelector(target), xpath: getXPath(target) },
       value: { x: target.scrollLeft, y: target.scrollTop },
       mousePosition: { x: mouseX, y: mouseY },
@@ -165,7 +166,7 @@ function hoverHandler(event: MouseEvent) {
   if (target === document.body) return;
 
   const eventObject: RecordedEvent = {
-    type: "hover",
+    type: EventEnum.hover,
     target: { css: getCssSelector(target), xpath: getXPath(target) },
     value: null,
     mousePosition: { x: mouseX, y: mouseY },
@@ -219,7 +220,7 @@ function changeHandler(event: Event) {
   if (target === focusElement) {
     if (hasValueProperty(target)) {
       const eventObject: RecordedEvent = {
-        type: "input",
+        type: EventEnum.input,
         target: { css: getCssSelector(target), xpath: getXPath(target) },
         value: target.value,
       };
@@ -232,7 +233,7 @@ function changeHandler(event: Event) {
       }
     } else if (hasEditableContent(target)) {
       const eventObject: RecordedEvent = {
-        type: "input",
+        type: EventEnum.input,
         target: { css: getCssSelector(target), xpath: getXPath(target) },
         value: target.textContent,
       };

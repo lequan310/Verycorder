@@ -1,13 +1,23 @@
+.stepitem__wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  position: relative;
+  justify-content: space-between;
+  padding-right: 2px;
+}
+
 .stepitem__container {
   position: relative;
   display: flex;
   flex-direction: column;
   gap: 4px;
   padding: 16px 12px;
+  flex: 1 0;
   /* border-radius: var(--border-radius); */
 }
 
-.stepitem__container:hover {
+.stepitem__wrapper:hover {
   transition: all 0.3s;
   /* box-shadow: rgba(14, 63, 126, 0.06) 0px 0px 0px 1px,
     rgba(42, 51, 70, 0.03) 0px 1px 1px -0.5px,
@@ -46,4 +56,24 @@
 .testcase_wrapper {
   min-height: 12px;
   padding: 12px;
+}
+
+.fixed_bottom {
+  position: absolute;
+  bottom: 0;
+  left: 8px;
+  right: 0;
+}
+
+.stepitem_target_location {
+  padding: 8px 12px;
+  background-color: white;
+  border: none;
+  border-radius: 6px;
+}
+
+.stepitem_flex_col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }

@@ -3,6 +3,7 @@ import { Channel } from "../Others/listenerConst";
 import { TestCase } from "../Types/testCase";
 import { RecordedEvent } from "../Types/recordedEvent";
 import { delay } from "../Others/utilities";
+import { EventEnum } from "../Types/eventComponents";
 
 let testCase: TestCase;
 let isReplaying = true; // Flag to control the replay
@@ -151,16 +152,16 @@ function controlEventType(element: Element, event: RecordedEvent) {
   const rect = element.getBoundingClientRect();
 
   switch (event.type) {
-    case "click":
+    case EventEnum.click:
       runClickEvent(event, rect);
       break;
-    case "input":
+    case EventEnum.input:
       runInputEvent(event, rect);
       break;
-    case "hover":
+    case EventEnum.hover:
       runHoverEvent(event, rect);
       break;
-    case "scroll":
+    case EventEnum.scroll:
       runScrollEvent(event, element);
       break;
     // Add cases for other event types if needed
@@ -270,7 +271,7 @@ function runClickEvent(event: RecordedEvent, rect: DOMRect) {
 }
 
 function runScrollEvent(event: RecordedEvent, element?: Element) {
-  if (event.type == "scroll") {
+  if (event.type == EventEnum.scroll) {
     // Get current position of the cursor
     const currentX = event.mousePosition.x;
     const currentY = event.mousePosition.y;

@@ -27,3 +27,14 @@ export type MousePosition = {
   x: number;
   y: number;
 };
+
+export enum EventEnum {
+  "click" = "Click",
+  "hover" = "Hover",
+  "scroll" = "Scroll",
+  "input" = "Input",
+}
+
+export const getEnumValues = (enumObj: any) => {
+  return Object.values(enumObj);
+};
