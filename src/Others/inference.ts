@@ -8,14 +8,17 @@ type InferenceSession = typeof ort.InferenceSession;
 
 const MODEL_PATH = "./src/Models/best.onnx";
 
-let session: InferenceSession;
+let session: InferenceSession | null = null;
 
 export async function createOnnxSession() {
-    session = await ort.InferenceSession.create(MODEL_PATH);
+    if (!session) session = await ort.InferenceSession.create(MODEL_PATH);
+    console.log("Session created");
 }
 
-export function releaseOnnxSession() {
-    session?.release();
+export async function releaseOnnxSession() {
+    await session?.release();
+    session = null;
+    console.log("Session released");
 }
 
 function imageBufferToTensor(imageBufferData: Buffer, dims: number[]): Tensor {

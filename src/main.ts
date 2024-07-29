@@ -9,6 +9,7 @@ import {
   createWindow,
   toggleReplay,
   toggleEdit,
+  toggleRecordCanvas,
 } from "./Others/electronUtilities";
 import { handleReplayEvents } from "./Main/replay_functions";
 
@@ -30,14 +31,18 @@ app.whenReady().then(() => {
     view.webContents.toggleDevTools();
   });
 
-  // Remove this after Phy finish his recording button :skull:
-  globalShortcut.register("CommandOrControl+R", () => {
-    toggleRecord();
-  });
+  // // Remove this after Phy finish his recording button :skull:
+  // globalShortcut.register("CommandOrControl+R", () => {
+  //   toggleRecord();
+  // });
 
-  // Remember to add UI for playback later
-  globalShortcut.register("CommandOrControl+P", () => {
-    toggleReplay();
+  // // Remember to add UI for playback later
+  // globalShortcut.register("CommandOrControl+P", () => {
+  //   toggleReplay();
+  // });
+
+  globalShortcut.register("CommandOrControl+R", () => {
+    toggleRecordCanvas();
   });
 
   // On OS X it's common to re-create a window in the app when the

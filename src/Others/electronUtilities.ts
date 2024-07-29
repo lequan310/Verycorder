@@ -5,6 +5,7 @@ import { ChangeUrlResult } from "../Types/urlResult";
 import { BLANK_PAGE, Channel } from "./listenerConst";
 import { AppMode } from "../Types/appMode";
 import { RecordedEvent } from "../Types/recordedEvent";
+import { createOnnxSession, getBBoxes, releaseOnnxSession } from "./inference";
 import { Target } from "../Types/eventComponents";
 import {
   handleClickRecord,
@@ -439,6 +440,31 @@ export async function toggleReplay() {
   controlOverlay();
   win.webContents.send(Channel.win.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
   view.webContents.send(Channel.view.replay.TOGGLE_REPLAY, currentMode);
+}
+
+export async function toggleRecordCanvas() {
+  if (currentMode === AppMode.replay || currentMode === AppMode.disabled)
+    return;
+
+  if (
+    view.webContents.getURL() === "" ||
+    view.webContents.getURL() === BLANK_PAGE
+  )
+    return;
+
+  toggleMode(AppMode.record);
+
+  if (currentMode === AppMode.record) {
+    await createOnnxSession();
+    let image = (await view.webContents.capturePage()).toPNG();
+    let bboxes = await getBBoxes(image);
+    console.log(bboxes);
+  }
+  else {
+    await releaseOnnxSession();
+  }
+
+  view.webContents.send("toggle-record-canvas", currentMode);
 }
 
 // ------------------- HANDLING GROUP FUNCTIONS -------------------
