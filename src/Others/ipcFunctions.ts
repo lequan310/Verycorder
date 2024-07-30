@@ -72,9 +72,8 @@ export function handleProcessImage() {
 }
 
 export function handleClickEdit() {
-  ipcMain.handle(Channel.CLICK_EDIT, async (event) => {
+  ipcMain.on(Channel.CLICK_EDIT, async (event) => {
     toggleEdit();
-    return getCurrentMode();
   });
 }
 
