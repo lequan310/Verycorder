@@ -172,7 +172,7 @@ function controlEventType(element: Element, event: RecordedEvent) {
 
 function controlReplayLogic(event: RecordedEvent) {
   if (event.target.css && event.target.css !== "window") {
-    let element: Element | null = findElement(event);
+    const element: Element | null = findElement(event);
 
     if (!(element && controlEventType(element, event))) return false;
   } else if (event.target.css == "window") {

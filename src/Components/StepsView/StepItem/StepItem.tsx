@@ -1,4 +1,4 @@
-import React, { useContext, useState } from "react";
+import React, { useContext, useEffect, useState } from "react";
 import "./StepItem.css";
 import { RecordedEvent } from "../../../Types/recordedEvent";
 import {
@@ -61,6 +61,8 @@ const StepItem: React.FC<StepItemProps> = ({
     }
   };
 
+  const [target, setTarget] = useState(preferedTarget());
+
   const handleCaseState = () => {
     if (current && targetContext.replayState) {
       return "grey";
@@ -70,6 +72,18 @@ const StepItem: React.FC<StepItemProps> = ({
       return "red_background";
     } else return "";
   };
+
+  useEffect(() => {
+    const handleUpdateTarget = (data: any) => {
+      setTarget(data);
+      ipcRenderer.on(Channel.TEST_LOG, data);
+    };
+    const updateTarget = ipcRenderer.on(Channel.SEND_EVENT, handleUpdateTarget);
+
+    return () => {
+      updateTarget();
+    };
+  });
 
   const handleEditMode = () => {
     if (editMode) {
@@ -92,8 +106,7 @@ const StepItem: React.FC<StepItemProps> = ({
             </select>
             <h5>Location</h5>
             <div contentEditable className="stepitem_target_location">
-              {" "}
-              <p>{preferedTarget()}</p>{" "}
+              <p>{target}</p>
             </div>
           </div>
 
@@ -123,7 +136,12 @@ const StepItem: React.FC<StepItemProps> = ({
             <p>{preferedTarget()}</p>
           </div>
 
-          <button onClick={() => setEditMode(!editMode)}>
+          <button
+            onClick={() => {
+              ipcRenderer.send(Channel.CLICK_EDIT);
+              setEditMode(!editMode);
+            }}
+          >
             <span className="material-symbols-rounded">edit</span>
           </button>
 
