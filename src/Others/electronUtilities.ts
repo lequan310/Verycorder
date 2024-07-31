@@ -49,6 +49,8 @@ export function toggleEdit() {
   )
     return;
 
+  if (!testCase || !testCase.events || testCase.events.length === 0) return;
+
   if (
     view.webContents.getURL() === "" ||
     view.webContents.getURL() === BLANK_PAGE

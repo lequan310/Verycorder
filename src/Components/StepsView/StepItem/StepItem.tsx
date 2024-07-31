@@ -78,7 +78,10 @@ const StepItem: React.FC<StepItemProps> = ({
       setTarget(data);
       ipcRenderer.on(Channel.TEST_LOG, data);
     };
-    const updateTarget = ipcRenderer.on(Channel.SEND_EVENT, handleUpdateTarget);
+    const updateTarget = ipcRenderer.on(
+      Channel.SEND_TARGET,
+      handleUpdateTarget
+    );
 
     return () => {
       updateTarget();
