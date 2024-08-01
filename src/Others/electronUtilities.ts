@@ -58,7 +58,7 @@ export function toggleEdit() {
     return;
 
   toggleMode(AppMode.edit);
-
+  win.webContents.send(Channel.UPDATE_STATE, currentMode);
   view.webContents.send(Channel.EDIT_EVENT, currentMode);
 }
 
@@ -68,13 +68,7 @@ function updateEvent() {
     editedTarget = eventTarget;
     console.log("CSS Selector: ", editedTarget.css);
     console.log("xpath: ", editedTarget.xpath);
-    view.webContents.send(Channel.SEND_TARGET, editedTarget);
-  });
-}
-
-function handleDoneEdit() {
-  ipcMain.on(Channel.DONE_EDIT, async (event, newTestCase) => {
-    testCase = newTestCase;
+    win.webContents.send(Channel.SEND_TARGET, editedTarget);
   });
 }
 
@@ -471,7 +465,6 @@ export function handleViewEvents() {
   turnOffOverlay();
   handleSwitchTab();
   updateEvent();
-  handleDoneEdit();
   // updateEventFromFrontend();
 }
 

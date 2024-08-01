@@ -38,7 +38,6 @@ export const Channel = {
   CLICK_RECORD: "click-record",
   CLICK_REPLAY: "click-replay",
   CLICK_EDIT: "click-edit",
-  DONE_EDIT: "done-edit",
 
   // Handle view events from BrowserView
   GET_MODE: "get-mode",
