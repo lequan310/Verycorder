@@ -13,18 +13,22 @@ import { LegacyRef } from "react";
 import { Channel } from "../../../Others/listenerConst";
 
 interface StepItemProps {
+  itemKey: number;
   data: RecordedEvent;
   state: boolean;
   current: boolean;
   prevState: boolean;
+  selectedIndex: (index: number) => void;
   // ref: LegacyRef<HTMLDivElement>;
 }
 
 const StepItem: React.FC<StepItemProps> = ({
+  itemKey,
   data,
   state,
   current,
   prevState,
+  selectedIndex,
   // ref,
 }) => {
   const ipcRenderer = window.api;
@@ -75,6 +79,13 @@ const StepItem: React.FC<StepItemProps> = ({
   const handleToggleEditMode = () => {
     ipcRenderer.send(Channel.CLICK_EDIT);
     setEditMode(!editMode);
+    if (!editMode) {
+      selectedIndex(itemKey);
+      ipcRenderer.send(Channel.TEST_LOG, "----------------// item" + itemKey);
+    } else {
+      selectedIndex(-1);
+      ipcRenderer.send(Channel.TEST_LOG, -1);
+    }
   };
 
   const handleEditMode = () => {
@@ -103,10 +114,10 @@ const StepItem: React.FC<StepItemProps> = ({
           </div>
 
           <div className="stepitem_flex_col">
-            <button onClick={() => handleToggleEditMode()}>
+            {/* <button onClick={() => handleToggleEditMode()}>
               <span className="material-symbols-rounded">close</span>
-            </button>
-            <button>
+            </button> */}
+            <button onClick={() => handleToggleEditMode()}>
               <span className="material-symbols-rounded">save</span>
             </button>
           </div>

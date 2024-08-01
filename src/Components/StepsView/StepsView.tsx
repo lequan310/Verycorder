@@ -8,6 +8,7 @@ import {
   TargetDispatchContext,
 } from "../../../src/Types/targetContext";
 import { AppMode } from "../../Types/appMode";
+import { Target } from "../../Types/eventComponents";
 
 const StepsView = () => {
   const initState: { index: number; state: boolean } = {
@@ -17,7 +18,10 @@ const StepsView = () => {
   const ipcRenderer = window.api;
   const [eventList, setEventList] = useState<RecordedEvent[]>([]);
   const [currentReplayIndex, setCurrentReplayIndex] = useState(initState);
+  const [editEventIndex, setEditEventIndex] = useState(-1);
+  const editEventIndexRef = useRef(editEventIndex);
   // const [failedTestCase, setFailedTestCase] = useState(-1);
+  // const editEventIndex = -1;
 
   const listRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -112,25 +116,49 @@ const StepsView = () => {
     );
 
     // Handle edit event
-    // const handleUpdateTarget = (value: Target) => {
-    //   data.target.css = value.css;
-    //   data.target.xpath = value.xpath;
-    //   preferedTarget();
-    //   ipcRenderer.on(Channel.TEST_LOG, data);
-    // };
-    // const updateTarget = ipcRenderer.on(
-    //   Channel.SEND_TARGET,
-    //   handleUpdateTarget
-    // );
+    const handleUpdateTarget = (value: Target) => {
+      ipcRenderer.send(
+        Channel.TEST_LOG,
+        "---------------------------------------// view " +
+          editEventIndexRef.current
+      );
+      if (
+        editEventIndexRef.current >= 0 &&
+        editEventIndexRef.current < eventList.length
+      ) {
+        const updatedEventList = [...eventList];
+        updatedEventList[editEventIndex] = {
+          ...updatedEventList[editEventIndex],
+          target: {
+            css: value.css,
+            xpath: value.xpath,
+          },
+        };
+        setEventList(updatedEventList);
+        ipcRenderer.send(
+          Channel.TEST_LOG,
+          updatedEventList[editEventIndex].target.css
+        );
+      }
+    };
+
+    const updateTarget = ipcRenderer.on(
+      Channel.SEND_TARGET,
+      handleUpdateTarget
+    );
 
     return () => {
       removeAddEvent();
       handleCurrentReplay();
       updateState();
       // handleFailedTestCase();
-      // updateTarget();
+      updateTarget();
     };
   }, [eventList]);
+
+  useEffect(() => {
+    editEventIndexRef.current = editEventIndex;
+  }, [editEventIndex]);
 
   return (
     <div ref={listRef} className="__container">
@@ -138,6 +166,7 @@ const StepsView = () => {
         return (
           <StepItem
             key={index}
+            itemKey={index}
             data={event}
             // ref={(el) => (stepRefs.current[index] = el)}
             state={
@@ -147,6 +176,7 @@ const StepsView = () => {
             }
             current={currentReplayIndex.index == index ? true : false}
             prevState={currentReplayIndex.index > index ? true : false}
+            selectedIndex={setEditEventIndex}
           />
         );
       })}
