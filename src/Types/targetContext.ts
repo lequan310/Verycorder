@@ -7,6 +7,7 @@ export interface TargetContext {
   recordState: boolean;
   replayingButtonEnable: boolean;
   recordingButtonEnable: boolean;
+  editState: boolean;
   testCaseSize: number;
 }
 
@@ -16,6 +17,7 @@ export const TargetContext = React.createContext<TargetContext>({
   recordState: false,
   replayingButtonEnable: false,
   recordingButtonEnable: false,
+  editState: false,  // for edit functionality in case of x-path target
   testCaseSize: 0,
 });
 
@@ -25,7 +27,8 @@ type Action =
   | { type: "SET_RECORD_STATE"; payload: boolean }
   | { type: "SET_TEST_CASE_SIZE"; payload: number }
   | { type: "SET_REPLAYING_BUTTON_ENABLE"; payload: boolean }
-  | { type: "SET_RECORDING_BUTTON_ENABLE"; payload: boolean };
+  | { type: "SET_RECORDING_BUTTON_ENABLE"; payload: boolean }
+  | { type: "SET_EDIT_STATE"; payload: boolean }
 
 export const reducer = (
   state: TargetContext,
@@ -44,6 +47,8 @@ export const reducer = (
       return { ...state, replayingButtonEnable: action.payload };
     case "SET_RECORDING_BUTTON_ENABLE":
       return { ...state, recordingButtonEnable: action.payload };
+    case "SET_EDIT_STATE":
+        return {...state, editState: action.payload };
     default:
       return state;
   }

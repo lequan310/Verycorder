@@ -4,13 +4,13 @@ import { RecordedEvent } from "../../../Types/recordedEvent";
 import {
   EventEnum,
   getEnumValues,
+  Target,
   TargetEnum,
 } from "../../../Types/eventComponents";
 import { TargetContext } from "../../../Types/targetContext";
 
 import { LegacyRef } from "react";
 import { Channel } from "../../../Others/listenerConst";
-import ControllerItem from "../../../Components/ControllerItem/ControllerItem";
 
 interface StepItemProps {
   data: RecordedEvent;
@@ -31,6 +31,7 @@ const StepItem: React.FC<StepItemProps> = ({
   const [editMode, setEditMode] = useState(false);
   const eventOptions = getEnumValues(EventEnum);
   const [selectedEvent, setSelectedEvent] = useState<string>(data.type); // Default selected option
+  // const [target, setTarget] = useState("");
 
   const targetContext = useContext(TargetContext);
   if (!targetContext) {
@@ -61,8 +62,6 @@ const StepItem: React.FC<StepItemProps> = ({
     }
   };
 
-  const [target, setTarget] = useState(preferedTarget());
-
   const handleCaseState = () => {
     if (current && targetContext.replayState) {
       return "grey";
@@ -73,20 +72,10 @@ const StepItem: React.FC<StepItemProps> = ({
     } else return "";
   };
 
-  useEffect(() => {
-    const handleUpdateTarget = (data: any) => {
-      setTarget(data);
-      ipcRenderer.on(Channel.TEST_LOG, data);
-    };
-    const updateTarget = ipcRenderer.on(
-      Channel.SEND_TARGET,
-      handleUpdateTarget
-    );
-
-    return () => {
-      updateTarget();
-    };
-  });
+  const handleToggleEditMode = () => {
+    ipcRenderer.send(Channel.CLICK_EDIT);
+    setEditMode(!editMode);
+  };
 
   const handleEditMode = () => {
     if (editMode) {
@@ -109,12 +98,12 @@ const StepItem: React.FC<StepItemProps> = ({
             </select>
             <h5>Location</h5>
             <div contentEditable className="stepitem_target_location">
-              <p>{target}</p>
+              <p>{preferedTarget()}</p>
             </div>
           </div>
 
           <div className="stepitem_flex_col">
-            <button onClick={() => setEditMode(!editMode)}>
+            <button onClick={() => handleToggleEditMode()}>
               <span className="material-symbols-rounded">close</span>
             </button>
             <button>
@@ -140,10 +129,8 @@ const StepItem: React.FC<StepItemProps> = ({
           </div>
 
           <button
-            onClick={() => {
-              ipcRenderer.send(Channel.CLICK_EDIT);
-              setEditMode(!editMode);
-            }}
+            disabled={!targetContext.editState}
+            onClick={() => handleToggleEditMode()}
           >
             <span className="material-symbols-rounded">edit</span>
           </button>

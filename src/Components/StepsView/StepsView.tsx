@@ -111,11 +111,24 @@ const StepsView = () => {
       updateStateHandler
     );
 
+    // Handle edit event
+    // const handleUpdateTarget = (value: Target) => {
+    //   data.target.css = value.css;
+    //   data.target.xpath = value.xpath;
+    //   preferedTarget();
+    //   ipcRenderer.on(Channel.TEST_LOG, data);
+    // };
+    // const updateTarget = ipcRenderer.on(
+    //   Channel.SEND_TARGET,
+    //   handleUpdateTarget
+    // );
+
     return () => {
       removeAddEvent();
       handleCurrentReplay();
       updateState();
       // handleFailedTestCase();
+      // updateTarget();
     };
   }, [eventList]);
 

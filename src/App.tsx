@@ -51,6 +51,7 @@ const App = () => {
     recordState: false,
     replayingButtonEnable: false,
     recordingButtonEnable: false,
+    editState: false,
     testCaseSize: 0,
   };
 
@@ -89,10 +90,15 @@ const App = () => {
     }
   };
 
+  const setEditState = (newEditState: boolean) => {
+    if (dispatch) {
+      dispatch({ type: "SET_EDIT_STATE", payload: newEditState });
+    }
+  };
+
   useEffect(() => {
     //handle state change --------------
     const updateStateHandler = (mode: AppMode) => {
-      ipcRenderer.send(Channel.TEST_LOG, mode);
       switch (mode) {
         case AppMode.normal:
           setRecordingButtonEnable(!targetContext.recordingButtonEnable);
@@ -101,18 +107,29 @@ const App = () => {
           setReplayState(false);
           setEnableSeachBar(true);
           setEnableResize(true);
+          setEditState(true);
           break;
         case AppMode.record:
           setRecordState(!targetContext.recordState);
           setReplayingButtonEnable(false);
           setEnableSeachBar(false);
           setEnableResize(false);
+          setEditState(false);
           break;
         case AppMode.replay:
           setReplayState(!targetContext.replayState);
           setRecordingButtonEnable(false);
           setEnableSeachBar(false);
           setEnableResize(false);
+          setEditState(false);
+          break;
+        case AppMode.edit:
+          ipcRenderer.send(
+            Channel.TEST_LOG,
+            "----------------------- edit mode"
+          );
+          setEditState(false);
+          setReplayingButtonEnable(false);
           break;
         default:
           setRecordState(false);

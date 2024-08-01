@@ -72,6 +72,12 @@ function updateEvent() {
   });
 }
 
+// function handleDoneEdit() {
+//   ipcMain.on(Channel.DONE_EDIT, async (event, newTestCase) => {
+//     testCase = newTestCase;
+//   });
+// }
+
 // Getter for win
 export function getWin(): BrowserWindow {
   return win;
@@ -144,7 +150,7 @@ export const createWindow = (): void => {
   win.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  //win.webContents.openDevTools({ mode: "detach" });
+  win.webContents.openDevTools({ mode: "detach" });
 
   // Update overlay window position when app window is moved
   win.on("move", () => handleOverlayUpdate());
