@@ -9,6 +9,7 @@ import {
 import { startEdit, stopEditing } from "./Main/edit";
 import { Channel } from "./Others/listenerConst";
 import { AppMode } from "./Types/appMode";
+import { record_canvas, stopRecord_canvas } from "./Main/record_canvas";
 
 function onload(load: boolean) {
   ipcRenderer.invoke(Channel.view.all.GET_MODE).then((mode: AppMode) => {
@@ -51,3 +52,7 @@ ipcRenderer.on(Channel.view.replay.SET_INDEX, (event, index) => {
 ipcRenderer.on(Channel.view.edit.TOGGLE_EDIT, (event, currentMode) => {
   currentMode === AppMode.edit ? startEdit() : stopEditing();
 });
+
+ipcRenderer.on("toggle-record-canvas", (event, currentMode, bboxes) => {
+  currentMode === AppMode.record ? record_canvas(bboxes) : stopRecord_canvas(bboxes);
+})
