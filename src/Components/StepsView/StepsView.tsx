@@ -51,7 +51,9 @@ const StepsView = () => {
     if (bottomRef.current) {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
     }
-  }, [eventList]); // This hook runs whenever eventList changes
+
+    editEventIndexRef.current = editEventIndex;
+  }, [eventList, editEventIndex]); // This hook runs whenever eventList changes
 
   // Clean up stuff
   useEffect(() => {
@@ -127,8 +129,8 @@ const StepsView = () => {
         editEventIndexRef.current < eventList.length
       ) {
         const updatedEventList = [...eventList];
-        updatedEventList[editEventIndex] = {
-          ...updatedEventList[editEventIndex],
+        updatedEventList[editEventIndexRef.current] = {
+          ...updatedEventList[editEventIndexRef.current],
           target: {
             css: value.css,
             xpath: value.xpath,
@@ -137,7 +139,7 @@ const StepsView = () => {
         setEventList(updatedEventList);
         ipcRenderer.send(
           Channel.TEST_LOG,
-          updatedEventList[editEventIndex].target.css
+          updatedEventList[editEventIndexRef.current].target.css
         );
       }
     };
@@ -155,10 +157,6 @@ const StepsView = () => {
       updateTarget();
     };
   }, [eventList]);
-
-  useEffect(() => {
-    editEventIndexRef.current = editEventIndex;
-  }, [editEventIndex]);
 
   return (
     <div ref={listRef} className="__container">
