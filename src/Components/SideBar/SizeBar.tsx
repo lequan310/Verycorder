@@ -11,7 +11,7 @@ const SideBar = () => {
           <span className="material-symbols-rounded">add</span>
         </button>
         <button
-          className={folderState && "hover"}
+          className={folderState ? "hover" : ""}
           onClick={() => {
             setFolderState(!folderState);
           }}
@@ -23,7 +23,7 @@ const SideBar = () => {
       <div className="top_sizeBar_wrapper">
         {settingState && <PopupSettings popupState={setSettingState} />}
         <button
-          className={settingState && "hover"}
+          className={settingState ? "hover" : ""}
           onClick={() => {
             setSettingState(!settingState);
           }}
