@@ -20,8 +20,6 @@ const StepsView = () => {
   const [currentReplayIndex, setCurrentReplayIndex] = useState(initState);
   const [editEventIndex, setEditEventIndex] = useState(-1);
   const editEventIndexRef = useRef(editEventIndex);
-  // const [failedTestCase, setFailedTestCase] = useState(-1);
-  // const editEventIndex = -1;
 
   const listRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -119,11 +117,6 @@ const StepsView = () => {
 
     // Handle edit event
     const handleUpdateTarget = (value: Target) => {
-      ipcRenderer.send(
-        Channel.TEST_LOG,
-        "---------------------------------------// view " +
-          editEventIndexRef.current
-      );
       if (
         editEventIndexRef.current >= 0 &&
         editEventIndexRef.current < eventList.length
@@ -137,10 +130,6 @@ const StepsView = () => {
           },
         };
         setEventList(updatedEventList);
-        ipcRenderer.send(
-          Channel.TEST_LOG,
-          updatedEventList[editEventIndexRef.current].target.css
-        );
       }
     };
 
@@ -153,7 +142,6 @@ const StepsView = () => {
       removeAddEvent();
       handleCurrentReplay();
       updateState();
-      // handleFailedTestCase();
       updateTarget();
     };
   }, [eventList]);
