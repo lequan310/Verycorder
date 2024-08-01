@@ -23,7 +23,7 @@ const StepsView = () => {
 
   const listRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
-  // const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
 
   //Check if is not record and the event list have items----------
   const dispatch = useContext(TargetDispatchContext);
@@ -46,7 +46,7 @@ const StepsView = () => {
 
   //This handle scroll when adding new test case
   useEffect(() => {
-    if (bottomRef.current) {
+    if (bottomRef.current && targetContext.recordState) {
       bottomRef.current.scrollIntoView({ behavior: "smooth" });
     }
 
@@ -64,12 +64,13 @@ const StepsView = () => {
         state: data.state,
       });
 
-      ipcRenderer.send(Channel.TEST_LOG, "------------------------");
-      ipcRenderer.send(Channel.TEST_LOG, data);
-      // stepRefs.current[currentReplayIndex.index]?.scrollIntoView({
-      //   behavior: "smooth",
-      //   block: "center",
-      // });
+      // Scroll to the item with gray background
+      if (targetContext.replayState && stepRefs.current[data.index]) {
+        stepRefs.current[data.index]?.scrollIntoView({
+          behavior: "smooth",
+          block: "center",
+        });
+      }
     };
     //replay func handle the gray background
     const handleCurrentReplay = ipcRenderer.on(
@@ -146,6 +147,10 @@ const StepsView = () => {
     };
   }, [eventList]);
 
+  const sentEditedEvents = () => {
+    ipcRenderer.send(Channel.UPDATE_TEST_CASE, eventList);
+  };
+
   return (
     <div ref={listRef} className="__container">
       {eventList.map((event, index) => {
@@ -154,7 +159,7 @@ const StepsView = () => {
             key={index}
             itemKey={index}
             data={event}
-            // ref={(el) => (stepRefs.current[index] = el)}
+            ref={(el) => (stepRefs.current[currentReplayIndex.index] = el)}
             state={
               currentReplayIndex.index == index && !currentReplayIndex.state
                 ? false
@@ -163,6 +168,7 @@ const StepsView = () => {
             current={currentReplayIndex.index == index ? true : false}
             prevState={currentReplayIndex.index > index ? true : false}
             selectedIndex={setEditEventIndex}
+            doneEditing={sentEditedEvents}
           />
         );
       })}
