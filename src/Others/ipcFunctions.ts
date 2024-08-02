@@ -21,31 +21,31 @@ import Jimp from "jimp";
 // ------------------- IPC EVENT export functionS -------------------
 // export function to test log events
 export function testLogEvents() {
-  ipcMain.on(Channel.TEST_LOG, (event, data) => {
+  ipcMain.on(Channel.all.TEST_LOG, (event, data) => {
     console.log(data);
   });
 }
 
 export function ipcGetMode() {
-  ipcMain.handle(Channel.GET_MODE, async (event) => {
+  ipcMain.handle(Channel.view.all.GET_MODE, async (event) => {
     return getCurrentMode();
   });
 }
 
 export function updateTestSteps(win: BrowserWindow) {
-  ipcMain.on(Channel.NEXT_REPLAY, async (event, data) => {
-    win.webContents.send(Channel.NEXT_REPLAY, data);
+  ipcMain.on(Channel.win.NEXT_REPLAY, async (event, data) => {
+    win.webContents.send(Channel.win.NEXT_REPLAY, data);
   });
 }
 
 export function handleUpdateTestCase() {
-  ipcMain.on(Channel.UPDATE_TEST_CASE, (event, updatedEventList) => {
+  ipcMain.on(Channel.win.UPDATE_TEST_CASE, (event, updatedEventList) => {
     updateTestEventList(updatedEventList);
   });
 }
 
 export function handleClickRecord() {
-  ipcMain.handle(Channel.CLICK_RECORD, async (event) => {
+  ipcMain.handle(Channel.win.CLICK_RECORD, async (event) => {
     toggleRecord();
     return getCurrentMode();
   });
@@ -53,7 +53,7 @@ export function handleClickRecord() {
 
 export function handleProcessImage() {
   // handle to process img
-  ipcMain.on(Channel.PROCESS_IMAGE, async (event, imageBuffer: Buffer) => {
+  ipcMain.on(Channel.all.PROCESS_IMAGE, async (event, imageBuffer: Buffer) => {
     const processedImageBuffer = await processImage(imageBuffer);
     event.sender.send("processed-image", processedImageBuffer);
   });
@@ -72,13 +72,13 @@ export function handleProcessImage() {
 }
 
 export function handleClickEdit() {
-  ipcMain.on(Channel.CLICK_EDIT, async (event) => {
+  ipcMain.on(Channel.win.CLICK_EDIT, async (event) => {
     toggleEdit();
   });
 }
 
 export function handleClickReplay() {
-  ipcMain.handle(Channel.CLICK_REPLAY, async (event) => {
+  ipcMain.handle(Channel.win.CLICK_REPLAY, async (event) => {
     toggleReplay();
     return getCurrentMode();
   });
@@ -87,17 +87,15 @@ export function handleClickReplay() {
 export function handleNavigateInPage(view: BrowserView) {
   view.webContents.on("did-navigate-in-page", () => {
     if (getCurrentMode() === AppMode.replay) {
-      const status = true;
       console.log("Navigation started during replay");
-      view.webContents.send(Channel.UPDATE_NAVIGATE, status);
     }
   });
 }
 
 export function handleTestCaseEnded(win: BrowserWindow) {
-  ipcMain.on(Channel.TEST_CASE_ENDED, (event) => {
+  ipcMain.on(Channel.view.replay.TEST_CASE_ENDED, (event) => {
     setMode(AppMode.normal);
     console.log("ENEDED-------------");
-    win.webContents.send(Channel.UPDATE_STATE, getCurrentMode());
+    win.webContents.send(Channel.win.UPDATE_STATE, getCurrentMode());
   });
 }

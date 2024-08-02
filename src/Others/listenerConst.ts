@@ -1,50 +1,75 @@
 export const BLANK_PAGE = "about:blank";
 
 export const Channel = {
-  // Events from BrowserWindow and BrowserView
-  UPDATE_URL: "update-url",
-  TOGGLE_RECORD: "toggle-record",
-  TOGGLE_REPLAY: "toggle-replay",
-  ADD_EVENT: "add-event",
-  TEST_LOG: "test-log", // test logs for replay testing
-  SEND_EVENT: "send-event", // send test case to replay.ts
-  LOAD_URL: "load-url", // load URL in BrowserView
-  UPDATE_REPLAY: "update-replay", // update replay status
-  UPDATE_NAVIGATE: "begin-navigate", // begin navigation
+  win: {
+    // Update URL in search bar
+    UPDATE_URL: "win-update-url",
+    // Add event to the event list on the left of the screen
+    ADD_EVENT: "win-add-event",
+    // Update the status of the event while replaying
+    NEXT_REPLAY: "win-next-replay",
+    // Update the state of the app
+    UPDATE_STATE: "win-update-state",
+    // Handle URL update from React
+    URL_CHANGE: "win-url-change",
+    // Update test case
+    UPDATE_TEST_CASE: "win-update-test-case",
+    // Handle when record button is clicked
+    CLICK_RECORD: "win-click-record",
+    // Handle when replay button is clicked
+    CLICK_REPLAY: "win-click-replay",
+    // Handle when edit button is clicked
+    CLICK_EDIT: "win-click-edit",
+    // Handle app resize
+    END_RESIZE: "win-end-resize",
+    // Send updated target from main to win for edit mode
+    SEND_TARGET: "win-send-target",
+  },
+  view: {
+    replay: {
+      // Toggle replay feature on/off
+      TOGGLE_REPLAY: "view-replay-toggle-replay",
+      // Send event list from main to view
+      SEND_EVENTS: "view-replay-send-event",
+      // Handle scroll event in replay
+      REPLAY_SCROLL: "view-replay-replay-scroll",
+      // Handle click event in replay
+      REPLAY_CLICK: "view-replay-replay-click",
+      // Handle hover event in replay
+      REPLAY_HOVER: "view-replay-replay-hover",
+      // Handle input event in replay
+      REPLAY_INPUT: "view-replay-replay-input",
+      // Handle when test case ends
+      TEST_CASE_ENDED: "view-replay-test-case-ended",
+      // Get index of the current event being replayed
+      GET_INDEX: "view-replay-get-index",
+      // Set index to the current event being replayed
+      SET_INDEX: "view-replay-set-index",
+      // Update overlay on the screen
+      UPDATE_OVERLAY: "view-replay-update-overlay",
+    },
 
-  // Replay feature
-  REPLAY_SCROLL: "replay-scroll",
-  REPLAY_CLICK: "replay-click",
-  REPLAY_HOVER: "replay-hover",
-  REPLAY_INPUT: "replay-input",
-  TEST_CASE_ENDED: "test-case-ended",
-  GET_INDEX: "get-index",
-  SET_INDEX: "set-index",
-  UPDATE_OVERLAY: "update-overlay",
+    record: {
+      // Toggle record feature on/off
+      TOGGLE_RECORD: "view-record-toggle-record",
+    },
 
-  // Replay UI register
-  NEXT_REPLAY: "next-replay",
-  UPDATE_STATE: "update-state",
-  EVENT_FAILED: "event-fail",
+    edit: {
+      // Toggle edit feature on/off
+      TOGGLE_EDIT: "view-edit-toggle-edit",
+      // Obtain the target of the selected element in edit mode
+      UPDATE_EVENT_TARGET: "view-edit-update-event-target",
+    },
 
-  // Edit feature
-  EDIT_EVENT: "edit-event",
-  UPDATE_EVENT_TARGET: "update-event-target",
-  SEND_TARGET: "send-target",
-
-  // Handle UI events from React to Electron
-  URL_CHANGE: "url-change",
-  UPDATE_TEST_CASE: "update-test-case",
-  CLICK_RECORD: "click-record",
-  CLICK_REPLAY: "click-replay",
-  CLICK_EDIT: "click-edit",
-
-  // Handle view events from BrowserView
-  GET_MODE: "get-mode",
-
-  // Handle resize
-  BEGIN_RESIZE: "begin-resize",
-  END_RESIZE: "end-resize",
-
-  PROCESS_IMAGE: "process-image",
+    all: {
+      // Get current mode of the app
+      GET_MODE: "view-all-get-mode",
+    },
+  },
+  all: {
+    // Console log for testing
+    TEST_LOG: "all-test-log",
+    // Request to process image from main
+    PROCESS_IMAGE: "all-process-image",
+  },
 } as const;

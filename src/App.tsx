@@ -125,7 +125,7 @@ const App = () => {
           break;
         case AppMode.edit:
           ipcRenderer.send(
-            Channel.TEST_LOG,
+            Channel.all.TEST_LOG,
             "----------------------- edit mode"
           );
           setEditState(false);
@@ -142,7 +142,7 @@ const App = () => {
       }
     };
     const updateState = ipcRenderer.on(
-      Channel.UPDATE_STATE,
+      Channel.win.UPDATE_STATE,
       updateStateHandler
     );
 
@@ -176,7 +176,7 @@ const App = () => {
         containerRect.width - 200
       );
       setLeftWidth(finalLeftWidth);
-      ipcRenderer.send(Channel.END_RESIZE, finalLeftWidth); // Limit the width between 100px and container width - 100px
+      ipcRenderer.send(Channel.win.END_RESIZE, finalLeftWidth); // Limit the width between 100px and container width - 100px
     }
   };
 

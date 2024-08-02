@@ -23,7 +23,7 @@ const PopupSettings = ({
     const newTarget = event.target.checked
       ? TargetEnum["x-path"]
       : TargetEnum.css;
-    ipcRenderer.send(Channel.TEST_LOG, newTarget);
+    ipcRenderer.send(Channel.all.TEST_LOG, newTarget);
     dispatch({ type: "SET_TARGET", payload: newTarget });
   };
 

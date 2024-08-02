@@ -16,7 +16,7 @@ import { Channel } from "./Others/listenerConst";
 import { AppMode } from "./Types/appMode";
 
 function onload(load: boolean) {
-  ipcRenderer.invoke(Channel.GET_MODE).then((mode: AppMode) => {
+  ipcRenderer.invoke(Channel.view.all.GET_MODE).then((mode: AppMode) => {
     if (mode === AppMode.record) {
       load ? record() : stopRecording();
     }
@@ -34,24 +34,27 @@ window.addEventListener("beforeunload", () => {
 });
 
 // Handle when toggle record notification is received
-ipcRenderer.on(Channel.TOGGLE_RECORD, (event, currentMode) => {
+ipcRenderer.on(Channel.view.record.TOGGLE_RECORD, (event, currentMode) => {
   currentMode === AppMode.record ? record() : stopRecording();
 });
 
 // Handle when toggle replay notification is received
-ipcRenderer.on(Channel.TOGGLE_REPLAY, async (event, currentMode) => {
-  currentMode === AppMode.replay ? replay() : stopReplaying();
-});
+ipcRenderer.on(
+  Channel.view.replay.TOGGLE_REPLAY,
+  async (event, currentMode) => {
+    currentMode === AppMode.replay ? replay() : stopReplaying();
+  }
+);
 
 // Handle when test case is sent
-ipcRenderer.on(Channel.SEND_EVENT, (event, testCase) => {
+ipcRenderer.on(Channel.view.replay.SEND_EVENTS, (event, testCase) => {
   getTestCase(testCase);
 });
 
-ipcRenderer.on(Channel.SET_INDEX, (event, index) => {
+ipcRenderer.on(Channel.view.replay.SET_INDEX, (event, index) => {
   setCurrentIndex(index);
 });
 
-ipcRenderer.on(Channel.EDIT_EVENT, (event, currentMode) => {
+ipcRenderer.on(Channel.view.edit.TOGGLE_EDIT, (event, currentMode) => {
   currentMode === AppMode.edit ? startEdit() : stopEditing();
 });

@@ -23,7 +23,7 @@ function hoverEvent(x: number, y: number) {
 
 // ------------------- IPC EVENT FUNCTIONS -------------------
 function replayInputEvent() {
-  ipcMain.on(Channel.REPLAY_INPUT, async (event, data) => {
+  ipcMain.on(Channel.view.replay.REPLAY_INPUT, async (event, data) => {
     const view = getView();
     // Simulate key press for each character in data.value
     for (const char of data.value) {
@@ -34,14 +34,14 @@ function replayInputEvent() {
 }
 
 function replayHoverEvent() {
-  ipcMain.on(Channel.REPLAY_HOVER, async (event, data) => {
+  ipcMain.on(Channel.view.replay.REPLAY_HOVER, async (event, data) => {
     hoverEvent(data.x, data.y);
     console.log("Hovered at " + data.x + " " + data.y);
   });
 }
 
 function replayClickEvent() {
-  ipcMain.on(Channel.REPLAY_CLICK, async (event, data) => {
+  ipcMain.on(Channel.view.replay.REPLAY_CLICK, async (event, data) => {
     const view = getView();
 
     //Hover over the element first
@@ -67,7 +67,7 @@ function replayClickEvent() {
 }
 
 function replayScrollEvent() {
-  ipcMain.on(Channel.REPLAY_SCROLL, async (event, data) => {
+  ipcMain.on(Channel.view.replay.REPLAY_SCROLL, async (event, data) => {
     const view = getView();
     // Send the mouseWheel event with the calculated deltaY to scroll
     if (data.type === "vertical") {

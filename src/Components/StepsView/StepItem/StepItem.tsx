@@ -74,7 +74,7 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
     };
 
     const handleToggleEditMode = () => {
-      ipcRenderer.send(Channel.CLICK_EDIT);
+      ipcRenderer.send(Channel.win.CLICK_EDIT);
       setEditMode(!editMode);
       if (!editMode) {
         selectedIndex(itemKey);

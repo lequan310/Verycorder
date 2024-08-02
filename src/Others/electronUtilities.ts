@@ -58,18 +58,21 @@ export function toggleEdit() {
     return;
 
   toggleMode(AppMode.edit);
-  win.webContents.send(Channel.UPDATE_STATE, currentMode);
-  view.webContents.send(Channel.EDIT_EVENT, currentMode);
+  win.webContents.send(Channel.win.UPDATE_STATE, currentMode);
+  view.webContents.send(Channel.view.edit.TOGGLE_EDIT, currentMode);
 }
 
 function updateEvent() {
-  ipcMain.on(Channel.UPDATE_EVENT_TARGET, async (event, eventTarget) => {
-    console.log("Event updated");
-    editedTarget = eventTarget;
-    console.log("CSS Selector: ", editedTarget.css);
-    console.log("xpath: ", editedTarget.xpath);
-    win.webContents.send(Channel.SEND_TARGET, editedTarget);
-  });
+  ipcMain.on(
+    Channel.view.edit.UPDATE_EVENT_TARGET,
+    async (event, eventTarget) => {
+      console.log("Event updated");
+      editedTarget = eventTarget;
+      console.log("CSS Selector: ", editedTarget.css);
+      console.log("xpath: ", editedTarget.xpath);
+      win.webContents.send(Channel.win.SEND_TARGET, editedTarget);
+    }
+  );
 }
 
 // function handleDoneEdit() {
@@ -102,11 +105,11 @@ export function createBrowserView() {
 
   view.webContents.on("did-navigate", async (event, url) => {
     if (url === BLANK_PAGE) return;
-    win.webContents.send(Channel.UPDATE_URL, url); // Update URL in search bar
+    win.webContents.send(Channel.win.UPDATE_URL, url); // Update URL in search bar
   });
 
   view.webContents.on("did-navigate-in-page", async (event, url) => {
-    win.webContents.send(Channel.UPDATE_URL, url); // Update URL in search bar
+    win.webContents.send(Channel.win.UPDATE_URL, url); // Update URL in search bar
   });
 }
 
@@ -210,7 +213,7 @@ export function disableOverlay() {
 
 // Turn off overlay when replay ends
 export function turnOffOverlay() {
-  ipcMain.on(Channel.UPDATE_OVERLAY, () => {
+  ipcMain.on(Channel.view.replay.UPDATE_OVERLAY, () => {
     disableOverlay();
   });
 }
@@ -274,8 +277,8 @@ export function toggleRecord() {
     return;
 
   toggleMode(AppMode.record);
-  view.webContents.send(Channel.TOGGLE_RECORD, currentMode); // Send message to attach event listeners
-  win.webContents.send(Channel.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
+  view.webContents.send(Channel.view.record.TOGGLE_RECORD, currentMode); // Send message to attach event listeners
+  win.webContents.send(Channel.win.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
   console.log("Current mode: ", currentMode);
 
   if (currentMode === AppMode.record) {
@@ -298,7 +301,7 @@ function changeUrlWithAbort(
     // If the URL is invalid
     view.webContents.loadURL(BLANK_PAGE);
     currentMode = AppMode.disabled;
-    win.webContents.send(Channel.UPDATE_STATE, currentMode);
+    win.webContents.send(Channel.win.UPDATE_STATE, currentMode);
     return Promise.resolve({ success: false, message: "Invalid URL" });
   }
 
@@ -306,7 +309,7 @@ function changeUrlWithAbort(
     // If there is no browser view available
     view.webContents.loadURL(BLANK_PAGE);
     currentMode = AppMode.disabled;
-    win.webContents.send(Channel.UPDATE_STATE, currentMode);
+    win.webContents.send(Channel.win.UPDATE_STATE, currentMode);
     return Promise.resolve({ success: false, message: "Browser view error" });
   }
 
@@ -329,14 +332,14 @@ function changeUrlWithAbort(
         resolve({ success: true, message: "Success" });
         if (currentMode === AppMode.disabled) {
           currentMode = AppMode.normal;
-          win.webContents.send(Channel.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
+          win.webContents.send(Channel.win.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
         }
       })
       .catch((error) => {
         signal.removeEventListener("abort", handleAbort);
         resolve({ success: false, message: "Cannot connect to URL" });
         currentMode = AppMode.disabled;
-        win.webContents.send(Channel.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
+        win.webContents.send(Channel.win.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
       });
   });
 }
@@ -413,7 +416,7 @@ export async function toggleReplay() {
 
   // Return if there are no test steps or no test cases, since cannot replay
   toggleMode(AppMode.replay);
-  win.webContents.send(Channel.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
+  win.webContents.send(Channel.win.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
   console.log("Current mode: ", currentMode);
 
   await goToUrlReplay();
@@ -426,7 +429,7 @@ export async function toggleReplay() {
     testCase.events.length > 0
   ) {
     // Send test case to process for replay.
-    view.webContents.send(Channel.SEND_EVENT, testCase);
+    view.webContents.send(Channel.view.replay.SEND_EVENTS, testCase);
     console.log("Test case sent");
   } else if (currentMode === AppMode.replay) {
     // If test case is empty or not available
@@ -435,8 +438,8 @@ export async function toggleReplay() {
   }
 
   controlOverlay();
-  win.webContents.send(Channel.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
-  view.webContents.send(Channel.TOGGLE_REPLAY, currentMode);
+  win.webContents.send(Channel.win.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
+  view.webContents.send(Channel.view.replay.TOGGLE_REPLAY, currentMode);
 }
 
 // ------------------- HANDLING GROUP FUNCTIONS -------------------
@@ -456,7 +459,7 @@ export function handleUIEvents() {
 export function handleRecordEvents(eventNames: string[]) {
   for (const eventName of eventNames) {
     ipcMain.on(eventName, (event, data) => {
-      win.webContents.send(Channel.ADD_EVENT, data);
+      win.webContents.send(Channel.win.ADD_EVENT, data);
     });
   }
 }
@@ -477,7 +480,7 @@ export function handleViewEvents() {
 // ------------------- IPC EVENT FUNCTIONS -------------------
 function handleEndResize() {
   //on ipcMain, hide browserview
-  ipcMain.on(Channel.END_RESIZE, (event, leftX) => {
+  ipcMain.on(Channel.win.END_RESIZE, (event, leftX) => {
     // console.log(leftPosition);
     if (win) {
       const bounds = win.getContentBounds();
@@ -501,7 +504,7 @@ function handleEndResize() {
 }
 
 function handleUrlChange() {
-  ipcMain.handle(Channel.URL_CHANGE, async (event, url) => {
+  ipcMain.handle(Channel.win.URL_CHANGE, async (event, url) => {
     // Abort controller stuff
     url = handleUrl(url); // Assume this function properly formats the URL
     const response = await changeUrlFinal(url);
@@ -511,12 +514,15 @@ function handleUrlChange() {
 
 // Get the current index of the test case during replay
 export function getCurrentIndex() {
-  ipcMain.on(Channel.GET_INDEX, async (event, index, replayCheck) => {
-    currentEventIndex = index;
-    navigationCheck = replayCheck;
-    console.log("Current Index updated: ", currentEventIndex);
-    console.log("Navigation check: ", navigationCheck);
-  });
+  ipcMain.on(
+    Channel.view.replay.GET_INDEX,
+    async (event, index, replayCheck) => {
+      currentEventIndex = index;
+      navigationCheck = replayCheck;
+      console.log("Current Index updated: ", currentEventIndex);
+      console.log("Navigation check: ", navigationCheck);
+    }
+  );
 }
 
 export function handleNavigate(view: BrowserView) {
@@ -527,16 +533,19 @@ export function handleNavigate(view: BrowserView) {
       console.log("Navigation check (replay event started): ", navigationCheck);
       // Start replay again whenever the page is loaded during replay
       if (currentEventIndex >= 0 && navigationCheck) {
-        view.webContents.send(Channel.SEND_EVENT, testCase);
+        view.webContents.send(Channel.view.replay.SEND_EVENTS, testCase);
         //console.log("Test case sent again");
-        view.webContents.send(Channel.SET_INDEX, currentEventIndex + 1);
+        view.webContents.send(
+          Channel.view.replay.SET_INDEX,
+          currentEventIndex + 1
+        );
         //console.log("Current Index sent: ", currentEventIndex + 1);
-        view.webContents.send(Channel.TOGGLE_REPLAY, currentMode);
+        view.webContents.send(Channel.view.replay.TOGGLE_REPLAY, currentMode);
         //console.log("Replay mode toggled again");
       }
     } else if (getCurrentMode() === AppMode.edit) {
       console.log("Navigation finished during edit");
-      view.webContents.send(Channel.EDIT_EVENT, currentMode);
+      view.webContents.send(Channel.view.edit.TOGGLE_EDIT, currentMode);
     }
   });
 }

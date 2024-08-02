@@ -28,7 +28,7 @@ const SearchBar = ({ response, disable }: SearchBarProps) => {
       }
       setSearchValue(checkUrl);
     };
-    const removeUpdateUrl = ipcRenderer.on(Channel.UPDATE_URL, updateUrl);
+    const removeUpdateUrl = ipcRenderer.on(Channel.win.UPDATE_URL, updateUrl);
 
     return () => {
       removeUpdateUrl();
@@ -43,7 +43,7 @@ const SearchBar = ({ response, disable }: SearchBarProps) => {
     // Invoke url-change event if url is not empty
     if (url !== "") {
       ipcRenderer
-        .invoke(Channel.URL_CHANGE, url) // Response = object { success, message}
+        .invoke(Channel.win.URL_CHANGE, url) // Response = object { success, message}
         .then((responseObject: { success: boolean; message: string }) => {
           response(responseObject);
         })

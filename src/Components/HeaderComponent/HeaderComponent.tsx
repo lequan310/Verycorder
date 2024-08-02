@@ -11,11 +11,11 @@ const HeaderComponent = () => {
 
   //Onclick func to trigger to electron
   const recordHandler = async () => {
-    ipcRenderer.invoke(Channel.CLICK_RECORD);
+    ipcRenderer.invoke(Channel.win.CLICK_RECORD);
   };
 
   const replayHandler = async () => {
-    ipcRenderer.invoke(Channel.CLICK_REPLAY);
+    ipcRenderer.invoke(Channel.win.CLICK_REPLAY);
   };
 
   return (

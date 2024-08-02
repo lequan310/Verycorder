@@ -97,7 +97,7 @@ function clickHandler(event: MouseEvent) {
   if (event.isTrusted) {
     currentEvent = event;
     const target = event.target as HTMLElement;
-    ipcRenderer.send(Channel.TEST_LOG, target.outerHTML);
+    ipcRenderer.send(Channel.all.TEST_LOG, target.outerHTML);
     const eventObject: RecordedEvent = {
       type: EventEnum.click,
       target: { css: getCssSelector(target), xpath: getXPath(target) },
@@ -278,7 +278,7 @@ function handleContextMenu(e: MouseEvent) {
     const css = getCssSelector(hoveredElement);
     const xpath = getXPath(hoveredElement);
     const eventTarget: Target = { css, xpath };
-    ipcRenderer.send(Channel.UPDATE_EVENT_TARGET, eventTarget);
+    ipcRenderer.send(Channel.view.edit.UPDATE_EVENT_TARGET, eventTarget);
   }
 }
 export function record() {
@@ -304,13 +304,13 @@ export function stopRecording() {
 }
 
 export function startEdit() {
-  ipcRenderer.send(Channel.TEST_LOG, "Edit mode started");
+  ipcRenderer.send(Channel.all.TEST_LOG, "Edit mode started");
   document.body.addEventListener("mouseenter", hoverEditHandler, true);
   document.body.addEventListener("contextmenu", handleContextMenu, true);
 }
 
 export function stopEditing() {
-  ipcRenderer.send(Channel.TEST_LOG, "Edit mode stopped");
+  ipcRenderer.send(Channel.all.TEST_LOG, "Edit mode stopped");
   document.body.removeEventListener("mouseenter", hoverEditHandler, true);
   document.body.removeEventListener("contextmenu", handleContextMenu, true);
   clearPreviousOutline();

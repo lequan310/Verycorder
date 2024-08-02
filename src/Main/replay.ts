@@ -25,7 +25,7 @@ export function setCurrentIndex(index: number) {
 // Reset index in both replay.ts and electron Utils to 0
 function resetIndex() {
   currentEventIndex = 0;
-  ipcRenderer.send(Channel.GET_INDEX, currentEventIndex, false);
+  ipcRenderer.send(Channel.view.replay.GET_INDEX, currentEventIndex, false);
 }
 
 async function delayWithAbort(ms: number, signal: AbortSignal) {
@@ -44,7 +44,7 @@ function checkElementVisibility(element: Element): boolean {
 
   // Check for display: none
   if (computedStyle.display === "none") {
-    ipcRenderer.send(Channel.TEST_LOG, "Element is display: none");
+    ipcRenderer.send(Channel.all.TEST_LOG, "Element is display: none");
     return false;
   }
 
@@ -54,7 +54,7 @@ function checkElementVisibility(element: Element): boolean {
     computedStyle.visibility === "collapse"
   ) {
     ipcRenderer.send(
-      Channel.TEST_LOG,
+      Channel.all.TEST_LOG,
       "Element is visibility: hidden or collapse"
     );
     return false;
@@ -62,14 +62,14 @@ function checkElementVisibility(element: Element): boolean {
 
   // Check for opacity: 0
   if (computedStyle.opacity === "0") {
-    ipcRenderer.send(Channel.TEST_LOG, "Element has opacity: 0");
+    ipcRenderer.send(Channel.all.TEST_LOG, "Element has opacity: 0");
     return false;
   }
 
   // Check for zero dimensions
   const rect = element.getBoundingClientRect();
   if (rect.width === 0 || rect.height === 0) {
-    ipcRenderer.send(Channel.TEST_LOG, "Element has zero dimensions");
+    ipcRenderer.send(Channel.all.TEST_LOG, "Element has zero dimensions");
     return false;
   }
 
@@ -80,7 +80,7 @@ function checkElementVisibility(element: Element): boolean {
     rect.left < (window.innerWidth || document.documentElement.clientWidth) &&
     rect.top < (window.innerHeight || document.documentElement.clientHeight);
   if (!inViewport) {
-    ipcRenderer.send(Channel.TEST_LOG, "Element is not in the viewport");
+    ipcRenderer.send(Channel.all.TEST_LOG, "Element is not in the viewport");
     return false;
   }
 
@@ -97,7 +97,7 @@ function checkElementVisibility(element: Element): boolean {
       parentStyle.opacity === "0"
     ) {
       ipcRenderer.send(
-        Channel.TEST_LOG,
+        Channel.all.TEST_LOG,
         `Parent element (${parent.tagName}) is not visible`
       );
       return false;
@@ -137,7 +137,7 @@ function findElement(event: RecordedEvent) {
     element = findElementByCss(event.target.css);
     if (!element) element = findElementByXPath(event.target.xpath);
   } catch (error) {
-    ipcRenderer.send(Channel.TEST_LOG, error.message);
+    ipcRenderer.send(Channel.all.TEST_LOG, error.message);
   }
 
   return element;
@@ -196,18 +196,18 @@ async function manageReplay() {
     if (signal.aborted || !isReplaying) return; // Stop if the abort signal is triggered or isReplaying is false
 
     // Save for when navigate to another page
-    ipcRenderer.send(Channel.GET_INDEX, currentEventIndex, true);
+    ipcRenderer.send(Channel.view.replay.GET_INDEX, currentEventIndex, true);
 
     const event = testCase.events[currentEventIndex];
     const result = controlReplayLogic(event);
 
     if (!result) {
-      ipcRenderer.send(Channel.NEXT_REPLAY, {
+      ipcRenderer.send(Channel.win.NEXT_REPLAY, {
         index: currentEventIndex,
         state: false,
       });
       ipcRenderer.send(
-        Channel.TEST_LOG,
+        Channel.all.TEST_LOG,
         `Event ${currentEventIndex} failed to replay`
       );
       resetIndex();
@@ -215,7 +215,7 @@ async function manageReplay() {
       return;
     }
 
-    ipcRenderer.send(Channel.NEXT_REPLAY, {
+    ipcRenderer.send(Channel.win.NEXT_REPLAY, {
       index: currentEventIndex + 1,
       state: true,
     });
@@ -232,14 +232,14 @@ async function manageReplay() {
     try {
       await delayWithAbort(2000, signal);
     } catch (error) {
-      ipcRenderer.send(Channel.TEST_LOG, error.message);
+      ipcRenderer.send(Channel.all.TEST_LOG, error.message);
       return;
     }
   }
 }
 
 function turnOffOverlay() {
-  ipcRenderer.send(Channel.UPDATE_OVERLAY);
+  ipcRenderer.send(Channel.view.replay.UPDATE_OVERLAY);
 }
 
 function runInputEvent(event: RecordedEvent, rect: DOMRect) {
@@ -247,7 +247,7 @@ function runInputEvent(event: RecordedEvent, rect: DOMRect) {
   const inputX = box.x + box.width / 2;
   const inputY = box.y + box.height / 2;
 
-  ipcRenderer.send(Channel.REPLAY_INPUT, {
+  ipcRenderer.send(Channel.view.replay.REPLAY_INPUT, {
     x: inputX,
     y: inputY,
     value: event.value,
@@ -259,7 +259,7 @@ function runHoverEvent(event: RecordedEvent, rect: DOMRect) {
   const hoverX = box.x + box.width / 2;
   const hoverY = box.y + box.height / 2;
 
-  ipcRenderer.send(Channel.REPLAY_HOVER, { x: hoverX, y: hoverY });
+  ipcRenderer.send(Channel.view.replay.REPLAY_HOVER, { x: hoverX, y: hoverY });
 }
 
 function runClickEvent(event: RecordedEvent, rect: DOMRect) {
@@ -267,7 +267,7 @@ function runClickEvent(event: RecordedEvent, rect: DOMRect) {
   const clickX = box.x + box.width / 2;
   const clickY = box.y + box.height / 2;
 
-  ipcRenderer.send(Channel.REPLAY_CLICK, { x: clickX, y: clickY });
+  ipcRenderer.send(Channel.view.replay.REPLAY_CLICK, { x: clickX, y: clickY });
 }
 
 function runScrollEvent(event: RecordedEvent, element?: Element) {
@@ -304,7 +304,7 @@ function runScrollEvent(event: RecordedEvent, element?: Element) {
     // Check for vertical scroll
     if (deltaY !== 0) {
       //ipcRenderer.send(Channel.TEST_LOG, `Scrolling vertically from ${currentScrollY} to ${scrollY}`);
-      ipcRenderer.send(Channel.REPLAY_SCROLL, {
+      ipcRenderer.send(Channel.view.replay.REPLAY_SCROLL, {
         type: "vertical",
         deltaY,
         currentX,
@@ -315,10 +315,10 @@ function runScrollEvent(event: RecordedEvent, element?: Element) {
     // Check for horizontal scroll
     if (deltaX !== 0) {
       ipcRenderer.send(
-        Channel.TEST_LOG,
+        Channel.all.TEST_LOG,
         `Scrolling horizontally from ${currentScrollX} to ${scrollX}`
       );
-      ipcRenderer.send(Channel.REPLAY_SCROLL, {
+      ipcRenderer.send(Channel.view.replay.REPLAY_SCROLL, {
         type: "horizontal",
         deltaX,
         currentX,
@@ -336,7 +336,7 @@ export async function replay() {
   // If not aborted
   if (isReplaying) {
     isReplaying = false;
-    ipcRenderer.send(Channel.TEST_CASE_ENDED);
+    ipcRenderer.send(Channel.view.replay.TEST_CASE_ENDED);
   }
 }
 

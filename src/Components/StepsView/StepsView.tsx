@@ -55,7 +55,7 @@ const StepsView = () => {
 
   // Clean up stuff
   useEffect(() => {
-    const removeAddEvent = ipcRenderer.on(Channel.ADD_EVENT, addEvent);
+    const removeAddEvent = ipcRenderer.on(Channel.win.ADD_EVENT, addEvent);
 
     //Get data from IPC with contains the index as well as state for fail or succeed
     const handleReplay = (data: { index: number; state: boolean }) => {
@@ -74,18 +74,18 @@ const StepsView = () => {
     };
     //replay func handle the gray background
     const handleCurrentReplay = ipcRenderer.on(
-      Channel.NEXT_REPLAY,
+      Channel.win.NEXT_REPLAY,
       handleReplay
     );
 
     //handle state change --------------
     const updateStateHandler = (mode: AppMode) => {
-      ipcRenderer.send(Channel.TEST_LOG, mode);
+      ipcRenderer.send(Channel.all.TEST_LOG, mode);
       switch (mode) {
         case AppMode.normal:
           //This is where we handle if replay button is shown or not
           if (eventList.length > 0) {
-            ipcRenderer.send(Channel.UPDATE_TEST_CASE, eventList); // Send recordedevents to main process when finish recording
+            ipcRenderer.send(Channel.win.UPDATE_TEST_CASE, eventList); // Send recordedevents to main process when finish recording
             setGlobalReplayingButtonEnable(true);
           } else {
             setGlobalReplayingButtonEnable(false);
@@ -112,7 +112,7 @@ const StepsView = () => {
       }
     };
     const updateState = ipcRenderer.on(
-      Channel.UPDATE_STATE,
+      Channel.win.UPDATE_STATE,
       updateStateHandler
     );
 
@@ -135,7 +135,7 @@ const StepsView = () => {
     };
 
     const updateTarget = ipcRenderer.on(
-      Channel.SEND_TARGET,
+      Channel.win.SEND_TARGET,
       handleUpdateTarget
     );
 
@@ -148,7 +148,7 @@ const StepsView = () => {
   }, [eventList]);
 
   const sentEditedEvents = () => {
-    ipcRenderer.send(Channel.UPDATE_TEST_CASE, eventList);
+    ipcRenderer.send(Channel.win.UPDATE_TEST_CASE, eventList);
   };
 
   return (
