@@ -19,7 +19,7 @@ interface StepItemProps {
   current: boolean;
   prevState: boolean;
   selectedIndex: (index: number) => void;
-  doneEditing: () => void;
+  doneEditing: (type: EventEnum, index: number, value: Target) => void;
   ref: LegacyRef<HTMLDivElement>;
 }
 
@@ -73,6 +73,22 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
       } else return "";
     };
 
+    useEffect(() => {
+      const handleUpdateTarget = (value: Target) => {
+        data.target.css = value.css;
+        data.target.xpath = value.xpath;
+      };
+
+      const updateTarget = ipcRenderer.on(
+        Channel.win.SEND_TARGET,
+        handleUpdateTarget
+      );
+
+      return () => {
+        updateTarget();
+      };
+    }, []);
+
     const handleToggleEditMode = () => {
       ipcRenderer.send(Channel.win.CLICK_EDIT);
       setEditMode(!editMode);
@@ -91,10 +107,12 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
               <h5>Event type</h5>
               <select
                 value={selectedEvent}
-                onChange={(e) => setSelectedEvent(e.target.value)}
+                onChange={(e) => {
+                  setSelectedEvent(e.target.value);
+                }}
               >
                 {eventOptions.map((event: string, index) =>
-                  event === "Scroll" ? null : (
+                  event === "Scroll" || event === "Input" ? null : (
                     <option key={index} value={event}>
                       {event}
                     </option>
@@ -115,7 +133,13 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
               <button
                 onClick={() => {
                   handleToggleEditMode();
-                  doneEditing();
+                  doneEditing(
+                    EventEnum[
+                      selectedEvent.toLowerCase() as keyof typeof EventEnum
+                    ],
+                    itemKey,
+                    data.target
+                  );
                 }}
               >
                 <span className="material-symbols-rounded">save</span>

@@ -8,7 +8,7 @@ import {
   TargetDispatchContext,
 } from "../../../src/Types/targetContext";
 import { AppMode } from "../../Types/appMode";
-import { Target } from "../../Types/eventComponents";
+import { EventEnum, Target } from "../../Types/eventComponents";
 
 const StepsView = () => {
   const initState: { index: number; state: boolean } = {
@@ -151,12 +151,70 @@ const StepsView = () => {
     };
   }, [eventList]);
 
-  const sentEditedEvents = () => {
-    ipcRenderer
-      .invoke(Channel.win.UPDATE_TEST_CASE, eventList)
-      .then((data: RecordedEvent[]) => {
-        setEventList(data);
-      });
+  const sentEditedEvents = (type: EventEnum, index: number, value: Target) => {
+    if (index >= 0 && index < eventList.length) {
+      const updatedEventList = [...eventList];
+
+      const updatedEvent = {
+        ...updatedEventList[editEventIndexRef.current],
+        type: type,
+        target: {
+          css: value.css,
+          xpath: value.xpath,
+        },
+      };
+      // Ensure the event properties match the specific event type
+      switch (type) {
+        case EventEnum.click:
+          updatedEventList[editEventIndexRef.current] = {
+            ...updatedEventList[editEventIndexRef.current],
+            type: EventEnum.click,
+            target: updatedEvent.target,
+            value: null,
+            mousePosition: null,
+          };
+          break;
+        case EventEnum.scroll:
+          updatedEventList[editEventIndexRef.current] = {
+            ...updatedEventList[editEventIndexRef.current],
+            type: EventEnum.scroll,
+            target: {
+              css: value.css,
+              xpath: value.xpath,
+            },
+            value: null,
+            mousePosition: null,
+          };
+          break;
+        case EventEnum.input:
+          updatedEventList[editEventIndexRef.current] = {
+            ...updatedEventList[editEventIndexRef.current],
+            type: EventEnum.input,
+            target: updatedEvent.target,
+            value: null,
+          };
+          break;
+        case EventEnum.hover:
+          updatedEventList[editEventIndexRef.current] = {
+            ...updatedEventList[editEventIndexRef.current],
+            type: EventEnum.hover,
+            target: updatedEvent.target,
+            value: null,
+            mousePosition: null,
+          };
+          break;
+        default:
+          throw new Error(`Unknown event type: ${type}`);
+      }
+
+      setEventList(updatedEventList);
+
+      ipcRenderer
+        .invoke(Channel.win.UPDATE_TEST_CASE, updatedEventList)
+        .then((data: RecordedEvent[]) => {
+          setEventList(data);
+        });
+    }
   };
 
   return (
