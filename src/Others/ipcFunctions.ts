@@ -41,7 +41,7 @@ export function updateTestSteps(win: BrowserWindow) {
 export function handleUpdateTestCase() {
   ipcMain.handle(Channel.win.UPDATE_TEST_CASE, (event, updatedEventList) => {
     updateTestEventList(updatedEventList);
-    return updateTestEventList;
+    return updatedEventList;
   });
 }
 
