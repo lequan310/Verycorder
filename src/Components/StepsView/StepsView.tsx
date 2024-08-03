@@ -85,7 +85,11 @@ const StepsView = () => {
         case AppMode.normal:
           //This is where we handle if replay button is shown or not
           if (eventList.length > 0) {
-            ipcRenderer.send(Channel.win.UPDATE_TEST_CASE, eventList); // Send recordedevents to main process when finish recording
+            ipcRenderer
+              .invoke(Channel.win.UPDATE_TEST_CASE, eventList)
+              .then((data: RecordedEvent[]) => {
+                setEventList(data);
+              });
             setGlobalReplayingButtonEnable(true);
           } else {
             setGlobalReplayingButtonEnable(false);
@@ -148,7 +152,11 @@ const StepsView = () => {
   }, [eventList]);
 
   const sentEditedEvents = () => {
-    ipcRenderer.send(Channel.win.UPDATE_TEST_CASE, eventList);
+    ipcRenderer
+      .invoke(Channel.win.UPDATE_TEST_CASE, eventList)
+      .then((data: RecordedEvent[]) => {
+        setEventList(data);
+      });
   };
 
   return (

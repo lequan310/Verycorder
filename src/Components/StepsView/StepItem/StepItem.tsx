@@ -93,11 +93,13 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
                 value={selectedEvent}
                 onChange={(e) => setSelectedEvent(e.target.value)}
               >
-                {eventOptions.map((event: string, index) => (
-                  <option key={index} value={event}>
-                    {event}
-                  </option>
-                ))}
+                {eventOptions.map((event: string, index) =>
+                  event === "Scroll" ? null : (
+                    <option key={index} value={event}>
+                      {event}
+                    </option>
+                  )
+                )}
               </select>
               <h5>Location</h5>
               <div contentEditable className="stepitem_target_location">
@@ -109,6 +111,7 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
               {/* <button onClick={() => handleToggleEditMode()}>
               <span className="material-symbols-rounded">close</span>
             </button> */}
+
               <button
                 onClick={() => {
                   handleToggleEditMode();
@@ -133,13 +136,14 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
               <p>{preferedTarget()}</p>
             </div>
 
-            <button
-              disabled={!targetContext.editState}
-              onClick={() => handleToggleEditMode()}
-            >
-              <span className="material-symbols-rounded">edit</span>
-            </button>
-
+            {data.type !== EventEnum.scroll ? (
+              <button
+                disabled={!targetContext.editState}
+                onClick={() => handleToggleEditMode()}
+              >
+                <span className="material-symbols-rounded">edit</span>
+              </button>
+            ) : null}
             <div className="divider fixed_bottom"></div>
           </div>
         );

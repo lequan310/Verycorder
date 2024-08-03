@@ -35,6 +35,6 @@ export enum EventEnum {
   "input" = "Input",
 }
 
-export const getEnumValues = (enumObj: any) => {
+export const getEnumValues = <T>(enumObj: T) => {
   return Object.values(enumObj);
 };
