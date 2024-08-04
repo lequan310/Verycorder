@@ -19,7 +19,12 @@ interface StepItemProps {
   current: boolean;
   prevState: boolean;
   selectedIndex: (index: number) => void;
-  doneEditing: (type: EventEnum, index: number, value: Target) => void;
+  doneEditing: (
+    type: EventEnum,
+    index: number,
+    target: Target | null,
+    value: number | null
+  ) => void;
   ref: LegacyRef<HTMLDivElement>;
 }
 
@@ -32,7 +37,6 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
     const [editMode, setEditMode] = useState(false);
     const eventOptions = getEnumValues(EventEnum);
     const [selectedEvent, setSelectedEvent] = useState<string>(data.type); // Default selected option
-    // const [target, setTarget] = useState("");
 
     const targetContext = useContext(TargetContext);
     if (!targetContext) {
@@ -75,22 +79,6 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
       } else return "";
     };
 
-    useEffect(() => {
-      const handleUpdateTarget = (value: Target) => {
-        data.target.css = value.css;
-        data.target.xpath = value.xpath;
-      };
-
-      const updateTarget = ipcRenderer.on(
-        Channel.win.SEND_TARGET,
-        handleUpdateTarget
-      );
-
-      return () => {
-        updateTarget();
-      };
-    }, []);
-
     const handleToggleEditMode = () => {
       ipcRenderer.send(Channel.win.CLICK_EDIT);
       setEditMode(!editMode);
@@ -101,9 +89,63 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
       }
     };
 
-    const handleEditMode = () => {
-      if (editMode) {
-        return (
+    const handleEventEditType = () => {
+      ipcRenderer.send(Channel.all.TEST_LOG, selectedEvent + "------------1");
+      switch (selectedEvent) {
+        case EventEnum.click:
+        case EventEnum.hover:
+          return (
+            <div ref={ref} className={` stepitem__wrapper grey`}>
+              <div className={`stepitem__container`}>
+                <h5>Event type</h5>
+                <select
+                  value={selectedEvent}
+                  onChange={(e) => {
+                    setSelectedEvent(e.target.value);
+                  }}
+                >
+                  {eventOptions.map((event: string, index) => (
+                    <option key={index} value={event}>
+                      {event}
+                    </option>
+                  ))}
+                </select>
+                <h5>Target</h5>
+                <div
+                  contentEditable
+                  suppressContentEditableWarning={true}
+                  className="stepitem_target_location"
+                >
+                  <p>{preferedTarget()}</p>
+                </div>
+              </div>
+
+              <div className="stepitem_flex_col">
+                {/* <button onClick={() => handleToggleEditMode()}>
+                <span className="material-symbols-rounded">close</span>
+              </button> */}
+
+                <button
+                  onClick={() => {
+                    handleToggleEditMode();
+                    doneEditing(
+                      EventEnum[
+                        selectedEvent.toLowerCase() as keyof typeof EventEnum
+                      ],
+                      itemKey,
+                      data.target,
+                      null
+                    );
+                  }}
+                >
+                  <span className="material-symbols-rounded">save</span>
+                </button>
+              </div>
+
+              <div className="divider fixed_bottom"></div>
+            </div>
+          );
+        case EventEnum.scroll:
           <div ref={ref} className={` stepitem__wrapper grey`}>
             <div className={`stepitem__container`}>
               <h5>Event type</h5>
@@ -113,24 +155,26 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
                   setSelectedEvent(e.target.value);
                 }}
               >
-                {eventOptions.map((event: string, index) =>
-                  event === "Scroll" || event === "Input" ? null : (
-                    <option key={index} value={event}>
-                      {event}
-                    </option>
-                  )
-                )}
+                {eventOptions.map((event: string, index) => (
+                  <option key={index} value={event}>
+                    {event}
+                  </option>
+                ))}
               </select>
-              <h5>Location</h5>
-              <div contentEditable className="stepitem_target_location">
-                <p>{preferedTarget()}</p>
+              <h5>Target</h5>
+              <div
+                contentEditable
+                suppressContentEditableWarning={true}
+                className="stepitem_target_location"
+              >
+                <p>{data.value}</p>
               </div>
             </div>
 
             <div className="stepitem_flex_col">
               {/* <button onClick={() => handleToggleEditMode()}>
-              <span className="material-symbols-rounded">close</span>
-            </button> */}
+                <span className="material-symbols-rounded">close</span>
+              </button> */}
 
               <button
                 onClick={() => {
@@ -140,7 +184,10 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
                       selectedEvent.toLowerCase() as keyof typeof EventEnum
                     ],
                     itemKey,
-                    data.target
+                    data.target,
+                    null
+                    //TODO
+                    // data.value
                   );
                 }}
               >
@@ -149,8 +196,13 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
             </div>
 
             <div className="divider fixed_bottom"></div>
-          </div>
-        );
+          </div>;
+      }
+    };
+
+    const handleEditMode = () => {
+      if (editMode) {
+        return handleEventEditType();
       } else {
         return (
           <div ref={ref} className={` stepitem__wrapper ${handleCaseState()}`}>

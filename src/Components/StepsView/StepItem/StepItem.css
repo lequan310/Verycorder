@@ -70,6 +70,12 @@
   background-color: white;
   border: none;
   border-radius: 6px;
+  resize: vertical;
+  max-width: 100%;
+  min-width: 100%;
+  width: 100%;
+  box-sizing: border-box;
+  overflow: auto;
 }
 
 .stepitem_flex_col {
