@@ -15,15 +15,13 @@ export class BoundingBox {
         this.area = (x2 - x1) * (y2 - y1);
         this.centerX = (x1 + x2) / 2;
         this.centerY = (y1 + y2) / 2;
-        this.contains = this.contains.bind(this);
-        this.entered = this.entered.bind(this);
     }
 
-    public contains(mouseX: number, mouseY: number): boolean {
+    contains(mouseX: number, mouseY: number): boolean {
         return mouseX >= this.x1 && mouseX <= this.x2 && mouseY >= this.y1 && mouseY <= this.y2;
     }
 
-    public entered(prevMouseX: number, prevMouseY: number, mouseX: number, mouseY: number): boolean {
+    entered(prevMouseX: number, prevMouseY: number, mouseX: number, mouseY: number): boolean {
         return !this.contains(prevMouseX, prevMouseY) && this.contains(mouseX, mouseY);
     }
 }

@@ -7,6 +7,7 @@ import {
 } from "electron";
 import {
   getCurrentMode,
+  initBBox,
   setMode,
   toggleEdit,
   toggleRecord,
@@ -74,5 +75,11 @@ export function handleTestCaseEnded(win: BrowserWindow) {
     setMode(AppMode.normal);
     console.log("ENEDED-------------");
     win.webContents.send(Channel.win.UPDATE_STATE, getCurrentMode());
+  });
+}
+
+export function handleGetBBoxes() {
+  ipcMain.handle("get-bbox", async (event) => {
+    return await initBBox();
   });
 }

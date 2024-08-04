@@ -17,6 +17,7 @@ import {
   testLogEvents,
   handleTestCaseEnded,
   handleClickEdit,
+  handleGetBBoxes,
 } from "./ipcFunctions";
 import { BoundingBox } from "../Types/bbox";
 
@@ -253,6 +254,9 @@ function toggleMode(mode: AppMode) {
   } else if (mode === AppMode.replay) {
     currentMode =
       currentMode === AppMode.replay ? AppMode.normal : AppMode.replay;
+  } else if (mode === AppMode.canvas_record) {
+    currentMode =
+      currentMode === AppMode.canvas_record ? AppMode.normal : AppMode.canvas_record;
   } else if (mode === AppMode.edit) {
     currentMode = currentMode === AppMode.edit ? AppMode.normal : AppMode.edit;
   }
@@ -290,6 +294,35 @@ export function toggleRecord() {
       size: { width, height },
     };
   }
+}
+
+export async function toggleRecordCanvas() {
+  let bboxes: BoundingBox[] = [];
+  if (currentMode === AppMode.replay || currentMode === AppMode.disabled)
+    return;
+
+  if (
+    view.webContents.getURL() === "" ||
+    view.webContents.getURL() === BLANK_PAGE
+  )
+    return;
+
+  toggleMode(AppMode.canvas_record);
+  win.webContents.send(Channel.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
+
+  if (currentMode === AppMode.canvas_record) {
+    bboxes = await initBBox();
+  } else {
+    await releaseOnnxSession();
+  }
+
+  view.webContents.send(Channel.TOGGLE_CANVAS_RECORD, currentMode, bboxes);
+}
+
+export async function initBBox() {
+  await createOnnxSession();
+  let image = (await view.webContents.capturePage()).toPNG();
+  return await getBBoxes(image);
 }
 
 // Handle URL change via search bar with abort controller
@@ -443,31 +476,6 @@ export async function toggleReplay() {
   view.webContents.send(Channel.view.replay.TOGGLE_REPLAY, currentMode);
 }
 
-export async function toggleRecordCanvas() {
-  let bboxes: BoundingBox[] = [];
-  if (currentMode === AppMode.replay || currentMode === AppMode.disabled)
-    return;
-
-  if (
-    view.webContents.getURL() === "" ||
-    view.webContents.getURL() === BLANK_PAGE
-  )
-    return;
-
-  toggleMode(AppMode.record);
-
-  if (currentMode === AppMode.record) {
-    await createOnnxSession();
-    let image = (await view.webContents.capturePage()).toPNG();
-    bboxes = await getBBoxes(image);
-  }
-  else {
-    await releaseOnnxSession();
-  }
-
-  view.webContents.send("toggle-record-canvas", currentMode, bboxes);
-}
-
 // ------------------- HANDLING GROUP FUNCTIONS -------------------
 // Handle UI events from React to Electron
 export function handleUIEvents() {
@@ -500,6 +508,7 @@ export function handleViewEvents() {
   handleSwitchTab();
   updateEvent();
   // updateEventFromFrontend();
+  handleGetBBoxes();
 }
 
 // ------------------- IPC EVENT FUNCTIONS -------------------
