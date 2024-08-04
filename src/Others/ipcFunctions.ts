@@ -79,7 +79,7 @@ export function handleTestCaseEnded(win: BrowserWindow) {
 }
 
 export function handleGetBBoxes() {
-  ipcMain.handle("get-bbox", async (event) => {
+  ipcMain.handle(Channel.GET_BBOX, async (event) => {
     return await initBBox();
   });
 }

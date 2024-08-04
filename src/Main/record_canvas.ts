@@ -13,6 +13,7 @@ let clickTimer: ReturnType<typeof setTimeout>;
 const CLICK_TIMEOUT = 250;
 
 export function setBBoxes(boundingBoxes: BoundingBox[]) {
+    bboxes = [];
     boundingBoxes.forEach( (bbox) => {
         let tempBox = new BoundingBox(bbox.x1, bbox.x2, bbox.y1, bbox.y2);
         bboxes.push(tempBox);
@@ -49,7 +50,7 @@ function clickHandler(event: MouseEvent) {
             }
         };
 
-        retake_bbox();
+        retakeBbox();
     }, CLICK_TIMEOUT);
 }
 
@@ -61,19 +62,19 @@ function hoverHandler(event: MouseEvent) {
     };
 }
 
-function retake_bbox() {
-    ipcRenderer.invoke("get-bbox").then((boundingBoxes: BoundingBox[]) => {
+function retakeBbox() {
+    ipcRenderer.invoke(Channel.GET_BBOX).then((boundingBoxes: BoundingBox[]) => {
         setBBoxes(boundingBoxes);
     })
 }
 
-export function record_canvas(boundingBoxes: BoundingBox[]) {
+export function recordCanvas(boundingBoxes: BoundingBox[]) {
     setBBoxes(boundingBoxes);
     document.body.addEventListener("mousemove", mouseTracker, true);
     document.body.addEventListener("click", clickHandler, true);
 }
 
-export function stopRecord_canvas() {
+export function stopRecordCanvas() {
     bboxes = [];
     document.body.removeEventListener("mousemove", mouseTracker, true);
     document.body.removeEventListener("click", clickHandler, true);

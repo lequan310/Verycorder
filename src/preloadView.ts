@@ -9,7 +9,7 @@ import {
 import { startEdit, stopEditing } from "./Main/edit";
 import { Channel } from "./Others/listenerConst";
 import { AppMode } from "./Types/appMode";
-import { record_canvas, stopRecord_canvas } from "./Main/record_canvas";
+import { recordCanvas, stopRecordCanvas } from "./Main/record_canvas";
 import { BoundingBox } from "./Types/bbox";
 
 function onload(load: boolean) {
@@ -20,11 +20,11 @@ function onload(load: boolean) {
     
     if (mode === AppMode.canvas_record) {
       if (load) {
-        ipcRenderer.invoke("get-bbox").then((bboxes: BoundingBox[]) => {
-          record_canvas(bboxes);
+        ipcRenderer.invoke(Channel.GET_BBOX).then((bboxes: BoundingBox[]) => {
+          recordCanvas(bboxes);
         })
       } else {
-        stopRecord_canvas();
+        stopRecordCanvas();
       }
     }
   });
@@ -65,5 +65,5 @@ ipcRenderer.on(Channel.view.edit.TOGGLE_EDIT, (event, currentMode) => {
 });
 
 ipcRenderer.on(Channel.TOGGLE_CANVAS_RECORD, (event, currentMode, bboxes) => {
-  currentMode === AppMode.canvas_record ? record_canvas(bboxes) : stopRecord_canvas();
+  currentMode === AppMode.canvas_record ? recordCanvas(bboxes) : stopRecordCanvas();
 })

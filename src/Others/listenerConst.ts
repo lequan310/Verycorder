@@ -65,6 +65,7 @@ export const Channel = {
     all: {
       // Get current mode of the app
       GET_MODE: "view-all-get-mode",
+      GET_BBOX: "get-bbox",
     },
   },
   all: {
