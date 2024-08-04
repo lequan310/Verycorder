@@ -247,10 +247,17 @@ function runInputEvent(event: RecordedEvent, rect: DOMRect) {
   const inputX = box.x + box.width / 2;
   const inputY = box.y + box.height / 2;
 
+  const inputField = document.querySelector(
+    event.target.css
+  ) as HTMLInputElement;
+  const existingText = inputField ? inputField.value : "";
+  const existingLength = existingText.length;
+
   ipcRenderer.send(Channel.view.replay.REPLAY_INPUT, {
     x: inputX,
     y: inputY,
     value: event.value,
+    prevLength: existingLength,
   });
 }
 
