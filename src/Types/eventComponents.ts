@@ -29,10 +29,10 @@ export type MousePosition = {
 };
 
 export enum EventEnum {
-  "click" = "Click",
-  "hover" = "Hover",
-  "scroll" = "Scroll",
-  "input" = "Input",
+  click = "Click",
+  hover = "Hover",
+  scroll = "Scroll",
+  input = "Input",
 }
 
 export const getEnumValues = <T>(enumObj: T) => {

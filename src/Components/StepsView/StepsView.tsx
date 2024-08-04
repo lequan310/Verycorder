@@ -1,7 +1,13 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
 import StepItem from "./StepItem/StepItem";
 import "./StepsView.css";
-import { RecordedEvent } from "../../Types/recordedEvent";
+import {
+  ClickEvent,
+  HoverEvent,
+  InputEvent,
+  RecordedEvent,
+  ScrollEvent,
+} from "../../Types/recordedEvent";
 import { Channel } from "../../Others/listenerConst";
 import {
   TargetContext,
@@ -151,71 +157,50 @@ const StepsView = () => {
     };
   }, [eventList]);
 
-  const sentEditedEvents = (type: EventEnum, index: number, value: Target) => {
+  const sentEditedEvents = (
+    type: EventEnum,
+    index: number,
+    value: Target,
+    scrollValue?: number
+  ) => {
+    ipcRenderer.send(Channel.all.TEST_LOG, type + "----------------1");
+
     if (index >= 0 && index < eventList.length) {
       const updatedEventList = [...eventList];
-
-      const updatedEvent = {
-        ...updatedEventList[editEventIndexRef.current],
-        type: type,
-        target: {
-          css: value.css,
-          xpath: value.xpath,
-        },
-      };
-      // Ensure the event properties match the specific event type
       const currentEvent = updatedEventList[editEventIndexRef.current];
+      let updatedEvent: RecordedEvent;
+
+      // Handle specific properties for each event type
       switch (type) {
-        case EventEnum.click:
-          if (currentEvent.type === EventEnum.click) {
-            updatedEventList[editEventIndexRef.current] = {
-              ...currentEvent,
-              type: EventEnum.click,
-              target: updatedEvent.target,
-              value: currentEvent.value,
-              mousePosition: currentEvent.mousePosition,
-            };
-          }
-          break;
         case EventEnum.scroll:
-          if (currentEvent.type === EventEnum.scroll) {
-            updatedEventList[editEventIndexRef.current] = {
-              ...currentEvent,
-              type: EventEnum.scroll,
-              target: {
-                css: value.css,
-                xpath: value.xpath,
-              },
-              value: currentEvent.value,
-              scrollValue: currentEvent.scrollValue,
-              mousePosition: currentEvent.mousePosition,
-            };
-          }
+          updatedEvent = {
+            ...currentEvent,
+            scrollValue: (currentEvent as ScrollEvent).scrollValue,
+          } as ScrollEvent;
+          break;
+        case EventEnum.click:
+        case EventEnum.hover:
+          updatedEvent = {
+            ...currentEvent,
+            type: type,
+            target: {
+              css: value.css,
+              xpath: value.xpath,
+            },
+          } as ClickEvent | HoverEvent;
           break;
         case EventEnum.input:
-          if (currentEvent.type === EventEnum.input) {
-            updatedEventList[editEventIndexRef.current] = {
-              ...currentEvent,
-              type: EventEnum.input,
-              target: updatedEvent.target,
-              value: currentEvent.value,
-            };
-          }
-          break;
-        case EventEnum.hover:
-          if (currentEvent.type === EventEnum.hover) {
-            updatedEventList[editEventIndexRef.current] = {
-              ...currentEvent,
-              type: EventEnum.hover,
-              target: updatedEvent.target,
-              value: currentEvent.value,
-              mousePosition: currentEvent.mousePosition,
-            };
-          }
+          updatedEvent = {
+            ...currentEvent,
+            type: type,
+            value: currentEvent.value,
+          } as InputEvent;
           break;
         default:
           throw new Error(`Unknown event type: ${type}`);
       }
+
+      updatedEventList[editEventIndexRef.current] = updatedEvent;
 
       setEventList(updatedEventList);
 
@@ -225,6 +210,7 @@ const StepsView = () => {
           setEventList(data);
         });
     }
+    // }
   };
 
   return (
