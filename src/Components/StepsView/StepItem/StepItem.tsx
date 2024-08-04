@@ -40,11 +40,13 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
     }
 
     const value = () => {
-      if (data.value instanceof Object) {
-        // Add your statement here
+      if (
+        data.type === EventEnum.scroll &&
+        data.scrollValue instanceof Object
+      ) {
         return (
           <p className="sub_content">
-            x = {data.value.x} y = {data.value.y}
+            x = {data.scrollValue.x} y = {data.scrollValue.y}
           </p>
         );
       } else {

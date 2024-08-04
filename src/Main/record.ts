@@ -154,8 +154,8 @@ function scrollHandler(event: Event) {
     const eventObject: RecordedEvent = {
       type: EventEnum.scroll,
       target: { css: getCssSelector(target), xpath: getXPath(target) },
-      value: `${window.scrollX} ${window.scrollY}`,
-      scrollValue: { x: window.scrollX, y: window.scrollY },
+      value: `${target.scrollLeft} ${target.scrollTop}`,
+      scrollValue: { x: target.scrollLeft, y: target.scrollTop },
       mousePosition: { x: mouseX, y: mouseY },
     };
 

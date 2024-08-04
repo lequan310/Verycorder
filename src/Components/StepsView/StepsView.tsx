@@ -164,44 +164,54 @@ const StepsView = () => {
         },
       };
       // Ensure the event properties match the specific event type
+      const currentEvent = updatedEventList[editEventIndexRef.current];
       switch (type) {
         case EventEnum.click:
-          updatedEventList[editEventIndexRef.current] = {
-            ...updatedEventList[editEventIndexRef.current],
-            type: EventEnum.click,
-            target: updatedEvent.target,
-            value: null,
-            mousePosition: null,
-          };
+          if (currentEvent.type === EventEnum.click) {
+            updatedEventList[editEventIndexRef.current] = {
+              ...currentEvent,
+              type: EventEnum.click,
+              target: updatedEvent.target,
+              value: currentEvent.value,
+              mousePosition: currentEvent.mousePosition,
+            };
+          }
           break;
         case EventEnum.scroll:
-          updatedEventList[editEventIndexRef.current] = {
-            ...updatedEventList[editEventIndexRef.current],
-            type: EventEnum.scroll,
-            target: {
-              css: value.css,
-              xpath: value.xpath,
-            },
-            value: null,
-            mousePosition: null,
-          };
+          if (currentEvent.type === EventEnum.scroll) {
+            updatedEventList[editEventIndexRef.current] = {
+              ...currentEvent,
+              type: EventEnum.scroll,
+              target: {
+                css: value.css,
+                xpath: value.xpath,
+              },
+              value: currentEvent.value,
+              scrollValue: currentEvent.scrollValue,
+              mousePosition: currentEvent.mousePosition,
+            };
+          }
           break;
         case EventEnum.input:
-          updatedEventList[editEventIndexRef.current] = {
-            ...updatedEventList[editEventIndexRef.current],
-            type: EventEnum.input,
-            target: updatedEvent.target,
-            value: null,
-          };
+          if (currentEvent.type === EventEnum.input) {
+            updatedEventList[editEventIndexRef.current] = {
+              ...currentEvent,
+              type: EventEnum.input,
+              target: updatedEvent.target,
+              value: currentEvent.value,
+            };
+          }
           break;
         case EventEnum.hover:
-          updatedEventList[editEventIndexRef.current] = {
-            ...updatedEventList[editEventIndexRef.current],
-            type: EventEnum.hover,
-            target: updatedEvent.target,
-            value: null,
-            mousePosition: null,
-          };
+          if (currentEvent.type === EventEnum.hover) {
+            updatedEventList[editEventIndexRef.current] = {
+              ...currentEvent,
+              type: EventEnum.hover,
+              target: updatedEvent.target,
+              value: currentEvent.value,
+              mousePosition: currentEvent.mousePosition,
+            };
+          }
           break;
         default:
           throw new Error(`Unknown event type: ${type}`);
