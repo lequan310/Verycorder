@@ -314,6 +314,7 @@ export async function toggleRecordCanvas() {
   win.webContents.send(Channel.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
 
   if (currentMode === AppMode.canvas_record) {
+    await createOnnxSession();
     bboxes = await initBBox();
   } else {
     await releaseOnnxSession();
@@ -323,7 +324,6 @@ export async function toggleRecordCanvas() {
 }
 
 export async function initBBox() {
-  await createOnnxSession();
   let image = (await view.webContents.capturePage()).toPNG();
   return await getBBoxes(image);
 }

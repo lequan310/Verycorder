@@ -6,7 +6,7 @@ import { delay } from "../Others/utilities";
 let bboxes: BoundingBox[] = [];
 let mouseX: number = 0;
 let mouseY: number = 0;
-let isHovering: boolean = false; 
+let isHovering: boolean = false;
 const TIMEOUT = 250;
 
 let hoverTimer: ReturnType<typeof setTimeout>;
@@ -15,7 +15,7 @@ let scrollTimer: ReturnType<typeof setTimeout>;
 
 function setBBoxes(boundingBoxes: BoundingBox[]) {
     bboxes = [];
-    boundingBoxes.forEach( (bbox) => {
+    boundingBoxes.forEach((bbox) => {
         let tempBox = new BoundingBox(bbox.x1, bbox.x2, bbox.y1, bbox.y2);
         bboxes.push(tempBox);
     });
@@ -27,7 +27,7 @@ function clickHandler(event: MouseEvent) {
     // Check if the event is made by user
     clickTimer = setTimeout(() => {
         if (event.isTrusted) {
-            if( isMouseInBoxes(event) ) {
+            if (isMouseInBoxes(event)) {
                 ipcRenderer.send(Channel.TEST_LOG, "Clicked");
             }
 
@@ -47,27 +47,13 @@ function hoverHandler(event: MouseEvent) {
     }
 }
 
-function windowScrollHandler(event: Event) {
-    // Clear any existing timeout
+function wheelHandler(event: WheelEvent) {
     clearTimeout(scrollTimer);
 
-    // Set a timeout to detect scroll end
     scrollTimer = setTimeout(() => {
-        ipcRenderer.send(Channel.TEST_LOG, `Window Scrolled X:${window.scrollX} Y:${window.scrollY}\nMouse position X: ${mouseX} Y: ${mouseY}`);
+        ipcRenderer.send(Channel.TEST_LOG, "Scrolled X: " + event.deltaX + " Y: " + event.deltaY);
         retakeBbox();
     }, TIMEOUT);
-}
-
-// Small element scroll (div, textarea)
-function scrollHandler(event: Event) {
-    // Clear any existing timeout
-    clearTimeout(scrollTimer);
-  
-    // Set a timeout to detect scroll end
-    scrollTimer = setTimeout(() => {
-        const target = event.target as HTMLElement;
-        ipcRenderer.send(Channel.TEST_LOG, `Scrolled X:${target.scrollLeft} Y:${target.scrollTop}\nMouse position X: ${mouseX} Y: ${mouseY}`);
-    }, TIMEOUT); // Adjust the delay as needed
 }
 
 function mouseTracker(event: MouseEvent) {
@@ -86,7 +72,7 @@ function mouseTracker(event: MouseEvent) {
 }
 
 function isMouseInBoxes(event: MouseEvent) {
-    for(let i = 0; i < bboxes.length; i++) {
+    for (let i = 0; i < bboxes.length; i++) {
         if (bboxes[i].contains(event.clientX, event.clientY)) {
             captureElementScreenshot(bboxes[i]);
             return true;
@@ -101,9 +87,9 @@ function isMouseInAnyBox(event: MouseEvent) {
 function handleAfterClick() {
     document.body.removeEventListener("mousemove", mouseTracker, true);
     delay(1000).then(() =>
-      document.body.addEventListener("mousemove", mouseTracker, true)
+        document.body.addEventListener("mousemove", mouseTracker, true)
     );
-  }  
+}
 
 function retakeBbox() {
     ipcRenderer.invoke(Channel.GET_BBOX).then((boundingBoxes: BoundingBox[]) => {
@@ -114,22 +100,20 @@ function retakeBbox() {
 function captureElementScreenshot(boundingBox: BoundingBox) {
     let width = boundingBox.x2 - boundingBox.x1;
     let height = boundingBox.y2 - boundingBox.y1;
-    
-    ipcRenderer.send(Channel.ELEMENT_SCREENSHOT, boundingBox.x1, boundingBox.y1, width, height); 
+
+    ipcRenderer.send(Channel.ELEMENT_SCREENSHOT, boundingBox.x1, boundingBox.y1, width, height);
 }
 
 export function recordCanvas(boundingBoxes: BoundingBox[]) {
     setBBoxes(boundingBoxes);
     document.body.addEventListener("mousemove", mouseTracker, true);
     document.body.addEventListener("click", clickHandler, true);
-    window.addEventListener("scroll", windowScrollHandler, true);
-    document.body.addEventListener("scroll", scrollHandler, true);
+    window.addEventListener("wheel", wheelHandler, true);
 }
 
 export function stopRecordCanvas() {
     bboxes = [];
     document.body.removeEventListener("mousemove", mouseTracker, true);
     document.body.removeEventListener("click", clickHandler, true);
-    window.removeEventListener("scroll", windowScrollHandler, true);
-    document.body.removeEventListener("scroll", scrollHandler, true);
+    window.removeEventListener("wheel", wheelHandler, true);
 }
