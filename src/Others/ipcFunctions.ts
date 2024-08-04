@@ -6,6 +6,7 @@ import {
   ipcMain,
 } from "electron";
 import {
+  elementScreenshot,
   getCurrentMode,
   initBBox,
   setMode,
@@ -81,5 +82,11 @@ export function handleTestCaseEnded(win: BrowserWindow) {
 export function handleGetBBoxes() {
   ipcMain.handle(Channel.GET_BBOX, async (event) => {
     return await initBBox();
+  });
+}
+
+export function handleCaptureElementScreenshot() {
+  ipcMain.on(Channel.ELEMENT_SCREENSHOT, (event, x, y, width, height) => {
+      elementScreenshot(x,y,width,height);
   });
 }

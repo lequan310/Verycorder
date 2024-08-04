@@ -52,7 +52,8 @@ export const Channel = {
     record: {
       // Toggle record feature on/off
       TOGGLE_RECORD: "view-record-toggle-record",
-      TOGGLE_CANVAS_RECORD: "toggle-canvas-record"
+      TOGGLE_CANVAS_RECORD: "toggle-canvas-record",
+      ELEMENT_SCREENSHOT: "element-screenshot"
     },
 
     edit: {
