@@ -277,8 +277,8 @@ function runScrollEvent(event: RecordedEvent, element?: Element) {
     const currentY = event.mousePosition.y;
 
     // Get the destination scroll cooridnate
-    const scrollY = event.value.y;
-    const scrollX = event.value.x;
+    const scrollY = event.scrollValue.y;
+    const scrollX = event.scrollValue.x;
 
     // Get the current scroll coordinate
     // Initialize both to 0

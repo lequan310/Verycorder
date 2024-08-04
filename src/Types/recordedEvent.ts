@@ -10,7 +10,8 @@ interface ClickEvent {
 interface ScrollEvent {
   type: EventEnum.scroll;
   target: Target;
-  value: Value;
+  value: string | null;
+  scrollValue: Value;
   mousePosition: MousePosition | null;
 }
 

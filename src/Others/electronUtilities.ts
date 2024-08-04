@@ -15,7 +15,6 @@ import {
   ipcGetMode,
   testLogEvents,
   handleTestCaseEnded,
-  handleProcessImage,
   handleClickEdit,
 } from "./ipcFunctions";
 
@@ -452,7 +451,6 @@ export function handleUIEvents() {
   handleClickEdit();
   updateTestSteps(win);
   handleEndResize();
-  handleProcessImage();
 }
 
 // Function to register events (click, input, etc.) into left panel

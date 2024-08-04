@@ -134,7 +134,8 @@ function windowScrollHandler(event: Event) {
     const eventObject: RecordedEvent = {
       type: EventEnum.scroll,
       target: { css: "window", xpath: "window" },
-      value: { x: window.scrollX, y: window.scrollY },
+      value: `${window.scrollX} ${window.scrollY}`,
+      scrollValue: { x: window.scrollX, y: window.scrollY },
       mousePosition: { x: mouseX, y: mouseY },
     };
 
@@ -153,7 +154,8 @@ function scrollHandler(event: Event) {
     const eventObject: RecordedEvent = {
       type: EventEnum.scroll,
       target: { css: getCssSelector(target), xpath: getXPath(target) },
-      value: { x: target.scrollLeft, y: target.scrollTop },
+      value: `${window.scrollX} ${window.scrollY}`,
+      scrollValue: { x: window.scrollX, y: window.scrollY },
       mousePosition: { x: mouseX, y: mouseY },
     };
 
