@@ -39,6 +39,7 @@
 .sub_content {
   font-size: 12px;
   color: var(--arc-palette-subtitle);
+  word-break: break-all;
 }
 
 .grey {

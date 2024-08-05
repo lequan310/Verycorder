@@ -160,8 +160,9 @@ const StepsView = () => {
   const sentEditedEvents = (
     type: EventEnum,
     index: number,
-    value: Target,
-    scrollValue?: Value
+    target: Target,
+    scrollValue?: Value,
+    inputValue?: string
   ) => {
     ipcRenderer.send(Channel.all.TEST_LOG, type + "----------------1");
 
@@ -175,7 +176,12 @@ const StepsView = () => {
         case EventEnum.scroll:
           updatedEvent = {
             ...currentEvent,
+            type: type,
             scrollValue: scrollValue,
+            target: {
+              css: "window",
+              xpath: "window",
+            },
           } as ScrollEvent;
           break;
         case EventEnum.click:
@@ -184,8 +190,8 @@ const StepsView = () => {
             ...currentEvent,
             type: type,
             target: {
-              css: value.css,
-              xpath: value.xpath,
+              css: target.css,
+              xpath: target.xpath,
             },
           } as ClickEvent | HoverEvent;
           break;
@@ -193,7 +199,7 @@ const StepsView = () => {
           updatedEvent = {
             ...currentEvent,
             type: type,
-            value: currentEvent.value,
+            value: inputValue,
           } as InputEvent;
           break;
         default:

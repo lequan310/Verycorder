@@ -97,6 +97,7 @@ textarea {
 .oneline_spacebetween_flex {
   display: flex;
   justify-content: space-between;
+  gap: 8px;
 }
 
 .baseline {
