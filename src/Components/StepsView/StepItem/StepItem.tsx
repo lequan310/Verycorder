@@ -246,6 +246,13 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
                   ))}
                 </select>
                 <h5>Target</h5>
+                <div
+                  suppressContentEditableWarning={true}
+                  className="stepitem_target_location"
+                >
+                  <p>{preferedTarget()}</p>
+                </div>
+                <h5>Input Data</h5>
                 <input
                   className="stepitem_target_location"
                   value={editedInputValue}
