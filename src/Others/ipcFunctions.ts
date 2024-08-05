@@ -87,6 +87,6 @@ export function handleGetBBoxes() {
 
 export function handleCaptureElementScreenshot() {
   ipcMain.handle(Channel.ELEMENT_SCREENSHOT, async (event, boundingBox) => {
-      return await elementScreenshot(boundingBox);
+    return await elementScreenshot(boundingBox);
   });
 }

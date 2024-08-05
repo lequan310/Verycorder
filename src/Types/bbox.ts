@@ -6,7 +6,7 @@ export class BoundingBox {
     public area: number;
     public centerX: number;
     public centerY: number;
-    
+
     public static createNewBBox(x1: number, x2: number, y1: number, y2: number): BoundingBox {
         const bbox = new BoundingBox();
         bbox.x = x1;
@@ -32,7 +32,7 @@ export class BoundingBox {
     }
 
     contains(mouseX: number, mouseY: number): boolean {
-        return mouseX >= this.x && mouseX <= this.x + this.width && mouseY >= this.y && mouseY <= this.y + this.height;
+        return (mouseX >= this.x) && (mouseX <= this.x + this.width) && (mouseY >= this.y) && (mouseY <= this.y + this.height);
     }
 
     entered(prevMouseX: number, prevMouseY: number, mouseX: number, mouseY: number): boolean {
