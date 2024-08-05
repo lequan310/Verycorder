@@ -91,6 +91,7 @@ textarea {
 .flex {
   display: flex;
   flex-direction: row;
+  gap: 4px;
 }
 
 .oneline_spacebetween_flex {

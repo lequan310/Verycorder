@@ -6,6 +6,7 @@ import {
   getEnumValues,
   Target,
   TargetEnum,
+  Value,
 } from "../../../Types/eventComponents";
 import { TargetContext } from "../../../Types/targetContext";
 
@@ -23,7 +24,7 @@ interface StepItemProps {
     type: EventEnum,
     index: number,
     target: Target | null,
-    value: number | null
+    value: Value | null
   ) => void;
   ref: LegacyRef<HTMLDivElement>;
 }
@@ -36,7 +37,12 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
     const ipcRenderer = window.api;
     const [editMode, setEditMode] = useState(false);
     const eventOptions = getEnumValues(EventEnum);
+
+    //Edit data
     const [selectedEvent, setSelectedEvent] = useState<string>(data.type); // Default selected option
+    const [editedScrollValue, setEditedScrollValue] = useState(
+      data.type === EventEnum.scroll ? data.scrollValue : null
+    ); // Default edited target
 
     const targetContext = useContext(TargetContext);
     if (!targetContext) {
@@ -90,7 +96,6 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
     };
 
     const handleEventEditType = () => {
-      ipcRenderer.send(Channel.all.TEST_LOG, selectedEvent + "------------1");
       switch (selectedEvent) {
         case EventEnum.click:
         case EventEnum.hover:
@@ -112,7 +117,6 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
                 </select>
                 <h5>Target</h5>
                 <div
-                  contentEditable
                   suppressContentEditableWarning={true}
                   className="stepitem_target_location"
                 >
@@ -146,57 +150,86 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
             </div>
           );
         case EventEnum.scroll:
-          <div ref={ref} className={` stepitem__wrapper grey`}>
-            <div className={`stepitem__container`}>
-              <h5>Event type</h5>
-              <select
-                value={selectedEvent}
-                onChange={(e) => {
-                  setSelectedEvent(e.target.value);
-                }}
-              >
-                {eventOptions.map((event: string, index) => (
-                  <option key={index} value={event}>
-                    {event}
-                  </option>
-                ))}
-              </select>
-              <h5>Target</h5>
-              <div
-                contentEditable
-                suppressContentEditableWarning={true}
-                className="stepitem_target_location"
-              >
-                <p>{data.value}</p>
+          return (
+            <div ref={ref} className={` stepitem__wrapper grey`}>
+              <div className={`stepitem__container`}>
+                <h5>Event type</h5>
+                <select
+                  value={selectedEvent}
+                  onChange={(e) => {
+                    setSelectedEvent(e.target.value);
+                  }}
+                >
+                  {eventOptions.map((event: string, index) => (
+                    <option key={index} value={event}>
+                      {event}
+                    </option>
+                  ))}
+                </select>
+                <h5>Target</h5>
+                <div className="flex">
+                  <p className="stepitem_target_title">x</p>
+                  <p className="stepitem_target_title">y</p>
+                </div>
+                <div className="flex">
+                  <input
+                    className="stepitem_target_location"
+                    type="number"
+                    value={
+                      data.type === EventEnum.scroll
+                        ? editedScrollValue.x
+                        : null
+                    }
+                    onChange={(e) =>
+                      setEditedScrollValue({
+                        x: parseInt(e.target.value),
+                        y: editedScrollValue.y,
+                      })
+                    }
+                  ></input>
+                  <input
+                    className="stepitem_target_location"
+                    type="number"
+                    value={
+                      data.type === EventEnum.scroll
+                        ? editedScrollValue.y
+                        : null
+                    }
+                    onChange={(e) =>
+                      setEditedScrollValue({
+                        y: parseInt(e.target.value),
+                        x: editedScrollValue.x,
+                      })
+                    }
+                  ></input>
+                </div>
               </div>
-            </div>
 
-            <div className="stepitem_flex_col">
-              {/* <button onClick={() => handleToggleEditMode()}>
+              <div className="stepitem_flex_col">
+                {/* <button onClick={() => handleToggleEditMode()}>
                 <span className="material-symbols-rounded">close</span>
               </button> */}
 
-              <button
-                onClick={() => {
-                  handleToggleEditMode();
-                  doneEditing(
-                    EventEnum[
-                      selectedEvent.toLowerCase() as keyof typeof EventEnum
-                    ],
-                    itemKey,
-                    data.target,
-                    null
-                    //TODO
-                    // data.value
-                  );
-                }}
-              >
-                <span className="material-symbols-rounded">save</span>
-              </button>
-            </div>
+                <button
+                  onClick={() => {
+                    handleToggleEditMode();
+                    doneEditing(
+                      EventEnum[
+                        selectedEvent.toLowerCase() as keyof typeof EventEnum
+                      ],
+                      itemKey,
+                      data.target,
+                      editedScrollValue
+                    );
+                  }}
+                >
+                  <span className="material-symbols-rounded">save</span>
+                </button>
+              </div>
 
-            <div className="divider fixed_bottom"></div>
-          </div>;
+              <div className="divider fixed_bottom"></div>
+            </div>
+          );
       }
     };
 
@@ -214,14 +247,14 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
               <p>{preferedTarget()}</p>
             </div>
 
-            {data.type !== EventEnum.scroll ? (
+            {
               <button
                 disabled={!targetContext.editState}
                 onClick={() => handleToggleEditMode()}
               >
                 <span className="material-symbols-rounded">edit</span>
               </button>
-            ) : null}
+            }
             <div className="divider fixed_bottom"></div>
           </div>
         );

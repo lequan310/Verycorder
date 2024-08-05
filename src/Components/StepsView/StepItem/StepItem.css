@@ -71,11 +71,14 @@
   border: none;
   border-radius: 6px;
   resize: vertical;
-  max-width: 100%;
-  min-width: 100%;
   width: 100%;
   box-sizing: border-box;
   overflow: auto;
+}
+
+.stepitem_target_title {
+  padding: 2px 8px;
+  width: 100%;
 }
 
 .stepitem_flex_col {

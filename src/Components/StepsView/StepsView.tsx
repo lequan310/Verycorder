@@ -14,7 +14,7 @@ import {
   TargetDispatchContext,
 } from "../../../src/Types/targetContext";
 import { AppMode } from "../../Types/appMode";
-import { EventEnum, Target } from "../../Types/eventComponents";
+import { EventEnum, Target, Value } from "../../Types/eventComponents";
 
 const StepsView = () => {
   const initState: { index: number; state: boolean } = {
@@ -161,7 +161,7 @@ const StepsView = () => {
     type: EventEnum,
     index: number,
     value: Target,
-    scrollValue?: number
+    scrollValue?: Value
   ) => {
     ipcRenderer.send(Channel.all.TEST_LOG, type + "----------------1");
 
@@ -175,7 +175,7 @@ const StepsView = () => {
         case EventEnum.scroll:
           updatedEvent = {
             ...currentEvent,
-            scrollValue: (currentEvent as ScrollEvent).scrollValue,
+            scrollValue: scrollValue,
           } as ScrollEvent;
           break;
         case EventEnum.click:
