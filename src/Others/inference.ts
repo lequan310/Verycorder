@@ -157,7 +157,7 @@ export async function getBBoxes(imageBuffer: Buffer) {
             const rescaledY1 = Math.floor(y1 / 640 * originalHeight);
             const rescaledX2 = Math.ceil(x2 / 640 * originalWidth);
             const rescaledY2 = Math.ceil(y2 / 640 * originalHeight);
-            const bbox = new BoundingBox(rescaledX1, rescaledX2, rescaledY1, rescaledY2);
+            const bbox = BoundingBox.createNewBBox(rescaledX1, rescaledX2, rescaledY1, rescaledY2);
             bboxes.push(bbox);
         }
     }

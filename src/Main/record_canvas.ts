@@ -6,29 +6,35 @@ import { delay } from "../Others/utilities";
 let bboxes: BoundingBox[] = [];
 let mouseX: number = 0;
 let mouseY: number = 0;
-let isHovering: boolean = false;
+let prevMouseX: number = 0;
+let prevMouseY: number = 0;
 const TIMEOUT = 250;
+const MOUSE_UPDATE_TIMEOUT = 1000;
 
 let hoverTimer: ReturnType<typeof setTimeout>;
 let clickTimer: ReturnType<typeof setTimeout>;
 let scrollTimer: ReturnType<typeof setTimeout>;
 
+let intervalId: NodeJS.Timeout;
+
 function setBBoxes(boundingBoxes: BoundingBox[]) {
     bboxes = [];
     boundingBoxes.forEach((bbox) => {
-        let tempBox = new BoundingBox(bbox.x1, bbox.x2, bbox.y1, bbox.y2);
+        let tempBox = BoundingBox.replicateBBox(bbox);
         bboxes.push(tempBox);
     });
 }
 
-function clickHandler(event: MouseEvent) {
+async function clickHandler(event: MouseEvent) {
     clearTimeout(clickTimer);
 
     // Check if the event is made by user
-    clickTimer = setTimeout(() => {
+    clickTimer = setTimeout(async () => {
         if (event.isTrusted) {
-            if (isMouseInBoxes(event)) {
-                ipcRenderer.send(Channel.TEST_LOG, "Clicked");
+            let clickedBbox = await isMouseInBoxes();
+
+            if (clickedBbox) {
+                ipcRenderer.send(Channel.TEST_LOG, `Clicked object: ${clickedBbox}`);
             }
 
             handleAfterClick();
@@ -38,11 +44,12 @@ function clickHandler(event: MouseEvent) {
     }, TIMEOUT);
 }
 
-function hoverHandler(event: MouseEvent) {
+async function hoverHandler(event: MouseEvent) {
     if (event.isTrusted) {
-        if (!isHovering && isMouseInBoxes(event)) {
-            ipcRenderer.send(Channel.TEST_LOG, "Hovered");
-            isHovering = true;  // Set hover state to true when hover is triggered
+        let enteredBbox = await isMouseEnterBoxes();
+
+        if (enteredBbox) {
+            ipcRenderer.send(Channel.TEST_LOG, `Entered object: ${enteredBbox}`);
         }
     }
 }
@@ -65,23 +72,33 @@ function mouseTracker(event: MouseEvent) {
     hoverTimer = setTimeout(() => {
         hoverHandler(event);
     }, TIMEOUT);
-
-    if (!isMouseInAnyBox(event)) {
-        isHovering = false;
-    }
 }
 
-function isMouseInBoxes(event: MouseEvent) {
+function updateMousePosition() {
+    prevMouseX = mouseX;
+    prevMouseY = mouseY;
+}
+
+async function isMouseInBoxes() {
     for (let i = 0; i < bboxes.length; i++) {
-        if (bboxes[i].contains(event.clientX, event.clientY)) {
-            captureElementScreenshot(bboxes[i]);
-            return true;
+        if (bboxes[i].contains(mouseX, mouseY)) {
+            let base64image = await captureElementScreenshot(bboxes[i]);
+            ipcRenderer.send(Channel.TEST_LOG, `image as base69: ${base64image}`);
+            return bboxes[i];
         }
     }
+    return null;
 }
 
-function isMouseInAnyBox(event: MouseEvent) {
-    return bboxes.some(bbox => bbox.contains(event.clientX, event.clientY));
+async function isMouseEnterBoxes() {
+    for (let i = 0; i < bboxes.length; i++) {
+        if (bboxes[i].entered(prevMouseX, prevMouseY, mouseX, mouseY)) {
+            let base64image = await captureElementScreenshot(bboxes[i]);
+            ipcRenderer.send(Channel.TEST_LOG, `image as base69: ${base64image}`);
+            return bboxes[i];
+        }
+    }
+    return null;
 }
 
 function handleAfterClick() {
@@ -97,11 +114,9 @@ function retakeBbox() {
     })
 }
 
-function captureElementScreenshot(boundingBox: BoundingBox) {
-    let width = boundingBox.x2 - boundingBox.x1;
-    let height = boundingBox.y2 - boundingBox.y1;
-
-    ipcRenderer.send(Channel.ELEMENT_SCREENSHOT, boundingBox.x1, boundingBox.y1, width, height);
+async function captureElementScreenshot(boundingBox: BoundingBox) {
+    const base64image = await ipcRenderer.invoke(Channel.ELEMENT_SCREENSHOT, boundingBox);
+    return base64image;
 }
 
 export function recordCanvas(boundingBoxes: BoundingBox[]) {
@@ -109,6 +124,7 @@ export function recordCanvas(boundingBoxes: BoundingBox[]) {
     document.body.addEventListener("mousemove", mouseTracker, true);
     document.body.addEventListener("click", clickHandler, true);
     window.addEventListener("wheel", wheelHandler, true);
+    intervalId = setInterval(updateMousePosition, MOUSE_UPDATE_TIMEOUT);
 }
 
 export function stopRecordCanvas() {
@@ -116,4 +132,5 @@ export function stopRecordCanvas() {
     document.body.removeEventListener("mousemove", mouseTracker, true);
     document.body.removeEventListener("click", clickHandler, true);
     window.removeEventListener("wheel", wheelHandler, true);
+    clearInterval(intervalId);
 }

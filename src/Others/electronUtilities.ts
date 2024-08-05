@@ -328,14 +328,12 @@ export async function initBBox() {
   return await getBBoxes(image);
 }
 
-export function elementScreenshot(x: number, y: number, width: number, height: number) {
-  const rect = { x: x, y: y, width: width, height: height };
+export async function elementScreenshot(boundingBox: BoundingBox): Promise<String> {
+  const rect = { x: boundingBox.x, y: boundingBox.y, width: boundingBox.width, height: boundingBox.height };
 
-  view.webContents.capturePage(rect).then((image) => {
-    // Save the screenshot to a file
-    fs.writeFileSync(path.join(__dirname, 'screenshot.png'), image.toPNG());
-    console.log('Screenshot saved to screenshot.png');
-  })
+  const image = await view.webContents.capturePage(rect);
+  const base64image = image.toPNG().toString('base64');
+  return base64image;
 }
 
 // Handle URL change via search bar with abort controller
