@@ -194,8 +194,8 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
                     value={editedScrollValue.y}
                     onChange={(e) =>
                       setEditedScrollValue({
-                        y: parseInt(e.target.value),
                         x: editedScrollValue.x,
+                        y: parseInt(e.target.value),
                       })
                     }
                   ></input>

@@ -179,8 +179,8 @@ const StepsView = () => {
             type: type,
             scrollValue: scrollValue,
             target: {
-              css: "window",
-              xpath: "window",
+              css: target.css,
+              xpath: target.xpath,
             },
           } as ScrollEvent;
           break;
