@@ -32,11 +32,11 @@ function clickHandler(event: MouseEvent) {
             let clickedBbox = isMouseInBoxes();
 
             if (clickedBbox) {
-                ipcRenderer.send(Channel.TEST_LOG, `Clicked object: ${clickedBbox}`);
+                ipcRenderer.send(Channel.all.TEST_LOG, `Clicked object: ${clickedBbox}`);
 
                 // This should be for receiving caption from OpenAI, printing here is just for debug
                 let base64image = captureElementScreenshot(clickedBbox).then((base64image) => {
-                    ipcRenderer.send(Channel.TEST_LOG, `Sent image to OpenAI`);
+                    ipcRenderer.send(Channel.all.TEST_LOG, `Sent image to OpenAI`);
                 });
             }
 
@@ -53,7 +53,7 @@ function wheelHandler(event: WheelEvent) {
     clearTimeout(scrollTimer);
 
     scrollTimer = setTimeout(() => {
-        ipcRenderer.send(Channel.TEST_LOG, "Scrolled X: " + deltaScrollX + " Y: " + deltaScrollY);
+        ipcRenderer.send(Channel.all.TEST_LOG, "Scrolled X: " + deltaScrollX + " Y: " + deltaScrollY);
         deltaScrollX = 0;
         deltaScrollY = 0;
         retakeBbox();
@@ -74,11 +74,11 @@ function mouseTracker(event: MouseEvent) {
             clearTimeout(hoverTimer);
 
             hoverTimer = setTimeout(() => {
-                ipcRenderer.send(Channel.TEST_LOG, `Entered object: ${enteredBbox}`);
+                ipcRenderer.send(Channel.all.TEST_LOG, `Entered object: ${enteredBbox}`);
 
                 // This should be for receiving caption from OpenAI, printing here is just for debug
                 let base64image = captureElementScreenshot(enteredBbox).then((base64image) => {
-                    ipcRenderer.send(Channel.TEST_LOG, `Sent image to OpenAI`);
+                    ipcRenderer.send(Channel.all.TEST_LOG, `Sent image to OpenAI`);
                 });
                 retakeBbox();
             }, TIMEOUT);
@@ -112,13 +112,13 @@ function handleAfterClick() {
 
 function retakeBbox() {
     bboxes = [];
-    ipcRenderer.invoke(Channel.GET_BBOX).then((boundingBoxes: BoundingBox[]) => {
+    ipcRenderer.invoke(Channel.view.all.GET_BBOX).then((boundingBoxes: BoundingBox[]) => {
         setBBoxes(boundingBoxes);
     })
 }
 
 async function captureElementScreenshot(boundingBox: BoundingBox) {
-    const base64image = await ipcRenderer.invoke(Channel.ELEMENT_SCREENSHOT, boundingBox);
+    const base64image = await ipcRenderer.invoke(Channel.view.record.ELEMENT_SCREENSHOT, boundingBox);
     return base64image;
 }
 

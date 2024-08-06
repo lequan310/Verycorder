@@ -311,7 +311,7 @@ export async function toggleRecordCanvas() {
     return;
 
   toggleMode(AppMode.canvas_record);
-  win.webContents.send(Channel.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
+  win.webContents.send(Channel.win.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
 
   if (currentMode === AppMode.canvas_record) {
     await createOnnxSession();
@@ -320,7 +320,7 @@ export async function toggleRecordCanvas() {
     await releaseOnnxSession();
   }
 
-  view.webContents.send(Channel.TOGGLE_CANVAS_RECORD, currentMode, bboxes);
+  view.webContents.send(Channel.view.record.TOGGLE_CANVAS_RECORD, currentMode, bboxes);
 }
 
 export async function initBBox() {

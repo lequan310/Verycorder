@@ -20,7 +20,7 @@ function onload(load: boolean) {
     
     if (mode === AppMode.canvas_record) {
       if (load) {
-        ipcRenderer.invoke(Channel.GET_BBOX).then((bboxes: BoundingBox[]) => {
+        ipcRenderer.invoke(Channel.view.all.GET_BBOX).then((bboxes: BoundingBox[]) => {
           recordCanvas(bboxes);
         })
       } else {
@@ -64,6 +64,6 @@ ipcRenderer.on(Channel.view.edit.TOGGLE_EDIT, (event, currentMode) => {
   currentMode === AppMode.edit ? startEdit() : stopEditing();
 });
 
-ipcRenderer.on(Channel.TOGGLE_CANVAS_RECORD, (event, currentMode, bboxes) => {
+ipcRenderer.on(Channel.view.record.TOGGLE_CANVAS_RECORD, (event, currentMode, bboxes) => {
   currentMode === AppMode.canvas_record ? recordCanvas(bboxes) : stopRecordCanvas();
 })
