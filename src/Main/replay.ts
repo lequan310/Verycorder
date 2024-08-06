@@ -247,11 +247,23 @@ function runInputEvent(event: RecordedEvent, rect: DOMRect) {
   const inputX = box.x + box.width / 2;
   const inputY = box.y + box.height / 2;
 
-  const inputField = document.querySelector(
-    event.target.css
-  ) as HTMLInputElement;
-  const existingText = inputField ? inputField.value : "";
-  const existingLength = existingText.length;
+  const inputElement = document.querySelector(event.target.css) as HTMLElement;
+  let existingText = "";
+  let existingLength = 0;
+
+  if (inputElement) {
+    if (
+      inputElement instanceof HTMLInputElement ||
+      inputElement instanceof HTMLTextAreaElement
+    ) {
+      existingText = inputElement.value;
+    } else if (inputElement instanceof HTMLSelectElement) {
+      existingText = inputElement.options[inputElement.selectedIndex].text;
+    } else if (inputElement.isContentEditable) {
+      existingText = inputElement.textContent || "";
+    }
+    existingLength = existingText.length;
+  }
 
   ipcRenderer.send(Channel.view.replay.REPLAY_INPUT, {
     x: inputX,
