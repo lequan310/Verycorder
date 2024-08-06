@@ -111,19 +111,30 @@ export function handleRecordCanvasClick(win: BrowserWindow) {
     // Create event object here
     let clickEvent = { type: EventEnum.click, target: "caption" };
 
-    win.webContents.send(Channel.win.ADD_EVENT, clickEvent);
+    win.webContents.send(Channel.win.ADD_EVENT_CANVAS, clickEvent);
   });
 }
 
 export function handleRecordCanvasScroll(win: BrowserWindow) {
   ipcMain.on(Channel.view.record.CANVAS_SCROLL, (event, data) => {
+    // Get base64 image here
 
+    // Get caption here
+
+    // Create event object here
   });
 }
 
 export function handleRecordCanvasHover(win: BrowserWindow) {
   ipcMain.on(Channel.view.record.CANVAS_HOVER, (event, data) => {
+    // Get base64 image here
 
+    // Get caption here
+
+    // Create event object here
+    let hoverEvent = { type: EventEnum.click, target: "caption" };
+
+    win.webContents.send(Channel.win.ADD_EVENT_CANVAS, hoverEvent);
   });
 }
 

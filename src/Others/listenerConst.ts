@@ -6,6 +6,8 @@ export const Channel = {
     UPDATE_URL: "win-update-url",
     // Add event to the event list on the left of the screen
     ADD_EVENT: "win-add-event",
+    // Add canvas event to the event list on the left of the screen
+    ADD_EVENT_CANVAS: "win-add-event-canvas",
     // Update the status of the event while replaying
     NEXT_REPLAY: "win-next-replay",
     // Update the state of the app

@@ -156,7 +156,7 @@ function scrollHandler(event: Event) {
     };
 
     ipcRenderer.send("scroll-event", eventObject);
-  }, TIMEOUT); // Adjust the delay as needed
+  }, TIMEOUT * 2); // Adjust the delay as needed
 }
 
 function hoverHandler(event: MouseEvent) {
