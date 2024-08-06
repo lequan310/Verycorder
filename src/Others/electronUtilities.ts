@@ -19,8 +19,10 @@ import {
   handleClickEdit,
   handleGetBBoxes,
   handleCaptureElementScreenshot,
+  ipcGetDetectMode,
 } from "./ipcFunctions";
 import { BoundingBox } from "../Types/bbox";
+import { DetectMode } from "../Types/detectMode";
 const fs = require('fs');
 const path = require('path');
 
@@ -32,6 +34,7 @@ declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 declare const BROWSER_VIEW_PRELOAD_WEBPACK_ENTRY: string;
 
 let currentMode = AppMode.disabled;
+let detectMode = DetectMode.AI;
 let testCase: TestCase;
 let abortController: AbortController;
 let leftPosition = 326;
@@ -158,7 +161,7 @@ export const createWindow = (): void => {
   win.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  win.webContents.openDevTools({ mode: "detach" });
+  // win.webContents.openDevTools({ mode: "detach" });
 
   // Update overlay window position when app window is moved
   win.on("move", () => handleOverlayUpdate());
@@ -245,6 +248,10 @@ export function getCurrentMode() {
   return currentMode;
 }
 
+export function getDetectMode() {
+  return detectMode;
+}
+
 export function setMode(mode: AppMode) {
   currentMode = mode;
 }
@@ -257,9 +264,6 @@ function toggleMode(mode: AppMode) {
   } else if (mode === AppMode.replay) {
     currentMode =
       currentMode === AppMode.replay ? AppMode.normal : AppMode.replay;
-  } else if (mode === AppMode.canvas_record) {
-    currentMode =
-      currentMode === AppMode.canvas_record ? AppMode.normal : AppMode.canvas_record;
   } else if (mode === AppMode.edit) {
     currentMode = currentMode === AppMode.edit ? AppMode.normal : AppMode.edit;
   }
@@ -270,7 +274,7 @@ export function updateTestEventList(eventList: RecordedEvent[]) {
 }
 
 // Export for Ctrl + R to toggle record
-export function toggleRecord() {
+export async function toggleRecord() {
   if (
     currentMode === AppMode.replay ||
     currentMode === AppMode.disabled ||
@@ -285,42 +289,29 @@ export function toggleRecord() {
     return;
 
   toggleMode(AppMode.record);
-  view.webContents.send(Channel.view.record.TOGGLE_RECORD, currentMode); // Send message to attach event listeners
-  win.webContents.send(Channel.win.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
+  win.webContents.send(Channel.win.UPDATE_STATE, currentMode, detectMode); // Send message to change UI (disable search bar)
   console.log("Current mode: ", currentMode);
 
-  if (currentMode === AppMode.record) {
-    const { x, y, width, height } = view.getBounds();
-    testCase = {
-      url: view.webContents.getURL(),
-      events: [],
-      size: { width, height },
-    };
-  }
-}
-
-export async function toggleRecordCanvas() {
-  let bboxes: BoundingBox[] = [];
-  if (currentMode === AppMode.replay || currentMode === AppMode.disabled)
-    return;
-
-  if (
-    view.webContents.getURL() === "" ||
-    view.webContents.getURL() === BLANK_PAGE
-  )
-    return;
-
-  toggleMode(AppMode.canvas_record);
-  win.webContents.send(Channel.win.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
-
-  if (currentMode === AppMode.canvas_record) {
-    await createOnnxSession();
-    bboxes = await initBBox();
+  if (detectMode === DetectMode.DOM) {
+    if (currentMode === AppMode.record) {
+      const { x, y, width, height } = view.getBounds();
+      testCase = {
+        url: view.webContents.getURL(),
+        events: [],
+        size: { width, height },
+      };
+    }
   } else {
-    await releaseOnnxSession();
+    let bboxes: BoundingBox[] = [];
+
+    if (currentMode === AppMode.record) {
+      await createOnnxSession();
+    } else {
+      await releaseOnnxSession();
+    }
   }
 
-  view.webContents.send(Channel.view.record.TOGGLE_CANVAS_RECORD, currentMode, bboxes);
+  view.webContents.send(Channel.view.record.TOGGLE_RECORD, currentMode, detectMode); // Send message to attach event listeners
 }
 
 export async function initBBox() {
@@ -461,7 +452,7 @@ export async function toggleReplay() {
 
   // Return if there are no test steps or no test cases, since cannot replay
   toggleMode(AppMode.replay);
-  win.webContents.send(Channel.win.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
+  win.webContents.send(Channel.win.UPDATE_STATE, currentMode, detectMode); // Send message to change UI (disable search bar)
   console.log("Current mode: ", currentMode);
 
   await goToUrlReplay();
@@ -483,8 +474,8 @@ export async function toggleReplay() {
   }
 
   controlOverlay();
-  win.webContents.send(Channel.win.UPDATE_STATE, currentMode); // Send message to change UI (disable search bar)
-  view.webContents.send(Channel.view.replay.TOGGLE_REPLAY, currentMode);
+  win.webContents.send(Channel.win.UPDATE_STATE, currentMode, detectMode); // Send message to change UI (disable search bar)
+  view.webContents.send(Channel.view.replay.TOGGLE_REPLAY, currentMode, detectMode);
 }
 
 // ------------------- HANDLING GROUP FUNCTIONS -------------------
@@ -510,6 +501,7 @@ export function handleRecordEvents(eventNames: string[]) {
 
 export function handleViewEvents() {
   ipcGetMode();
+  ipcGetDetectMode();
   testLogEvents();
   handleTestCaseEnded(win);
   handleNavigateInPage(view);

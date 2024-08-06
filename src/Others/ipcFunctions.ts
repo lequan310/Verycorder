@@ -14,6 +14,7 @@ import {
   toggleRecord,
   toggleReplay,
   updateTestEventList,
+  getDetectMode
 } from "./electronUtilities";
 
 // ------------------- IPC EVENT export functionS -------------------
@@ -25,8 +26,14 @@ export function testLogEvents() {
 }
 
 export function ipcGetMode() {
-  ipcMain.handle(Channel.view.all.GET_MODE, async (event) => {
+  ipcMain.handle(Channel.view.all.GET_MODE, (event) => {
     return getCurrentMode();
+  });
+}
+
+export function ipcGetDetectMode() {
+  ipcMain.handle(Channel.view.all.GET_DETECT_MODE, (event) => {
+    return getDetectMode();
   });
 }
 
@@ -45,7 +52,7 @@ export function handleUpdateTestCase() {
 
 export function handleClickRecord() {
   ipcMain.handle(Channel.win.CLICK_RECORD, async (event) => {
-    toggleRecord();
+    await toggleRecord();
     return getCurrentMode();
   });
 }

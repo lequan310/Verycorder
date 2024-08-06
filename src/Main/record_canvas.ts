@@ -1,7 +1,7 @@
 import { ipcRenderer } from "electron";
 import { BoundingBox } from "../Types/bbox";
 import { Channel } from "../Others/listenerConst";
-import { delay } from "../Others/utilities";
+import { delay, getCssSelector, hasValueProperty } from "../Others/utilities";
 
 let bboxes: BoundingBox[] = [];
 let mouseX: number = 0;
@@ -74,15 +74,24 @@ function mouseTracker(event: MouseEvent) {
             clearTimeout(hoverTimer);
 
             hoverTimer = setTimeout(() => {
-                ipcRenderer.send(Channel.all.TEST_LOG, `Entered object: ${enteredBbox}`);
+                if (enteredBbox.contains(mouseX, mouseY)) {
+                    ipcRenderer.send(Channel.all.TEST_LOG, `Entered object: ${enteredBbox}`);
 
-                // This should be for receiving caption from OpenAI, printing here is just for debug
-                let base64image = captureElementScreenshot(enteredBbox).then((base64image) => {
-                    ipcRenderer.send(Channel.all.TEST_LOG, `Sent image to OpenAI`);
-                });
-                retakeBbox();
+                    // This should be for receiving caption from OpenAI, printing here is just for debug
+                    let base64image = captureElementScreenshot(enteredBbox).then((base64image) => {
+                        ipcRenderer.send(Channel.all.TEST_LOG, `Sent image to OpenAI`);
+                    });
+                    retakeBbox();
+                }
             }, TIMEOUT);
         }
+    }
+}
+
+function changeHandler(event: Event) {
+    const target = event.target as HTMLElement;
+    if (hasValueProperty(target)) {
+        ipcRenderer.send(Channel.all.TEST_LOG, `Entered value: ${target.value}`);
     }
 }
 
@@ -127,6 +136,7 @@ export function recordCanvas(boundingBoxes: BoundingBox[]) {
     document.body.addEventListener("mousemove", mouseTracker, true);
     document.body.addEventListener("click", clickHandler, true);
     window.addEventListener("wheel", wheelHandler, true);
+    document.body.addEventListener("change", changeHandler, true);
 }
 
 export function stopRecordCanvas() {
@@ -134,4 +144,5 @@ export function stopRecordCanvas() {
     document.body.removeEventListener("mousemove", mouseTracker, true);
     document.body.removeEventListener("click", clickHandler, true);
     window.removeEventListener("wheel", wheelHandler, true);
+    document.body.removeEventListener("change", changeHandler, true);
 }

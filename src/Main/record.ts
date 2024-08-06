@@ -104,7 +104,7 @@ function clickHandler(event: MouseEvent) {
     // Clicks on editable content
     if (isEditable(target)) {
       registerClick(true, false);
-      ipcRenderer.send("click-event", eventObject); 
+      ipcRenderer.send("click-event", eventObject);
       return;
     }
 
