@@ -18,7 +18,6 @@ import TitleBar from "./Components/TitleBar/TitleBar";
 import SideBar from "./Components/SideBar/SizeBar";
 
 const App = () => {
-  const [shrink, setShrink] = useState(true);
   const [responseMessage, setResponseMessage] = useState(
     "Please enter a link to continue"
   );
@@ -32,12 +31,6 @@ const App = () => {
     setRecordingButtonEnable(object.success);
   }
 
-  const handleButtonClick = () => {
-    setShrink((prev) => {
-      return !prev;
-    });
-  };
-
   //GLOBAL REDUCER----------------
   const initialState: TargetContext = {
     target: TargetEnum.css,
@@ -48,14 +41,7 @@ const App = () => {
     editState: false,
     testCaseSize: 0,
   };
-
   const [state, dispatch] = useReducer(reducer, initialState);
-
-  //State for target css or x-path
-  const setTarget = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newTarget = event.target.value as TargetEnum;
-    dispatch({ type: "SET_TARGET", payload: newTarget });
-  };
 
   //USECONTEXT FUNC HERE---------------------------------
   const targetContext = useContext(TargetContext);
@@ -93,48 +79,50 @@ const App = () => {
   useEffect(() => {
     //handle state change --------------
     const updateStateHandler = (mode: AppMode) => {
+      const disableAll = () => {
+        setRecordingButtonEnable(false);
+        setReplayingButtonEnable(false);
+        setEnableSeachBar(false);
+        setEnableResize(false);
+        setEditState(false);
+      };
+
       switch (mode) {
         case AppMode.normal:
           setRecordingButtonEnable(!targetContext.recordingButtonEnable);
-          //record will be handled in Step view
           setRecordState(false);
           setReplayState(false);
           setEnableSeachBar(true);
           setEnableResize(true);
           setEditState(true);
           break;
+
         case AppMode.record:
           setRecordState(!targetContext.recordState);
-          setReplayingButtonEnable(false);
-          setEnableSeachBar(false);
-          setEnableResize(false);
-          setEditState(false);
+          disableAll();
+          setRecordingButtonEnable(true);
           break;
+
         case AppMode.replay:
           setReplayState(!targetContext.replayState);
-          setRecordingButtonEnable(false);
-          setEnableSeachBar(false);
-          setEnableResize(false);
-          setEditState(false);
+          disableAll();
+          setReplayingButtonEnable(true);
           break;
+
         case AppMode.edit:
-          ipcRenderer.send(
-            Channel.all.TEST_LOG,
-            "----------------------- edit mode"
-          );
           setEditState(false);
           setReplayingButtonEnable(false);
           break;
+
         default:
           setRecordState(false);
           setReplayState(false);
-          setReplayingButtonEnable(false);
-          setRecordingButtonEnable(false);
+          disableAll();
           setEnableSeachBar(true);
-          setEnableResize(false);
           break;
       }
     };
+
     const updateState = ipcRenderer.on(
       Channel.win.UPDATE_STATE,
       updateStateHandler
