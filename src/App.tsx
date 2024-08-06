@@ -5,12 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import {
-  ControllerItem,
-  HeaderComponent,
-  SearchBar,
-  StepsView,
-} from "./Components";
+import { StepsView } from "./Components";
 import {
   reducer,
   TargetContext,
@@ -19,7 +14,6 @@ import {
 import { TargetEnum } from "./Types/eventComponents";
 import { Channel } from "./Others/listenerConst";
 import { AppMode } from "./Types/appMode";
-import PopupSettings from "./Components/PopupSettings/PopupSettings";
 import TitleBar from "./Components/TitleBar/TitleBar";
 import SideBar from "./Components/SideBar/SizeBar";
 
