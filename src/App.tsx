@@ -194,7 +194,7 @@ const App = () => {
       <TargetDispatchContext.Provider value={dispatch}>
         <TitleBar response={handleResponse} disable={enableSeachBar} />
         <div className="app__container">
-          <SideBar />
+          <SideBar addEvent={} />
           <div className="main__wrapper" ref={containerRef}>
             <div
               className="main-content__wrapper"
@@ -208,18 +208,6 @@ const App = () => {
                   </div>
                   <StepsView />
                 </div>
-                {/* <div
-                  className={`controllers__wrapper ${
-                    shrink ? "shrink" + " change-padding-bottom" : "expand"
-                  }`}
-                > */}
-                {/* <button className="collapse_btn" onClick={handleButtonClick}>
-                    {shrink ? "^ Expand" : " v Collapse"}
-                  </button>
-                  <ControllerItem hide={shrink ? "hide" : ""}></ControllerItem>
-                  <ControllerItem hide={shrink ? "hide" : ""}></ControllerItem>
-                  <textarea placeholder={"Comment"} /> */}
-                {/* </div> */}
               </div>
             </div>
             <button

@@ -54,9 +54,11 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
     }
 
     const value = () => {
-      if (
+      if (data.type === EventEnum.input) {
+        return <p className="sub_content">{data.value}</p>;
+      } else if (
         data.type === EventEnum.scroll &&
-        data.scrollValue instanceof Object
+        typeof data.scrollValue === "object"
       ) {
         return (
           <p className="sub_content">
@@ -64,7 +66,7 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
           </p>
         );
       } else {
-        return <p className="sub_content">{data.value}</p>;
+        return null;
       }
     };
 
@@ -91,12 +93,19 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
 
     const handleToggleEditMode = () => {
       ipcRenderer.send(Channel.win.CLICK_EDIT);
-      setEditMode(!editMode);
-      if (!editMode) {
-        selectedIndex(itemKey);
-      } else {
-        selectedIndex(-1);
-      }
+      setEditMode((prev) => !prev);
+      selectedIndex(editMode ? -1 : itemKey);
+    };
+
+    const handleSave = () => {
+      handleToggleEditMode();
+      doneEditing(
+        EventEnum[selectedEvent.toLowerCase() as keyof typeof EventEnum],
+        itemKey,
+        data.target,
+        selectedEvent === EventEnum.scroll ? editedScrollValue : null,
+        selectedEvent === EventEnum.input ? editedInputValue : null
+      );
     };
 
     const handleEventEditType = () => {
@@ -133,20 +142,7 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
                 <span className="material-symbols-rounded">close</span>
               </button> */}
 
-                <button
-                  onClick={() => {
-                    handleToggleEditMode();
-                    doneEditing(
-                      EventEnum[
-                        selectedEvent.toLowerCase() as keyof typeof EventEnum
-                      ],
-                      itemKey,
-                      data.target,
-                      null,
-                      null
-                    );
-                  }}
-                >
+                <button onClick={handleSave}>
                   <span className="material-symbols-rounded">save</span>
                 </button>
               </div>
@@ -207,20 +203,7 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
                 <span className="material-symbols-rounded">close</span>
               </button> */}
 
-                <button
-                  onClick={() => {
-                    handleToggleEditMode();
-                    doneEditing(
-                      EventEnum[
-                        selectedEvent.toLowerCase() as keyof typeof EventEnum
-                      ],
-                      itemKey,
-                      data.target,
-                      editedScrollValue,
-                      null
-                    );
-                  }}
-                >
+                <button onClick={handleSave}>
                   <span className="material-symbols-rounded">save</span>
                 </button>
               </div>
@@ -271,20 +254,7 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
                 <span className="material-symbols-rounded">close</span>
               </button> */}
 
-                <button
-                  onClick={() => {
-                    handleToggleEditMode();
-                    doneEditing(
-                      EventEnum[
-                        selectedEvent.toLowerCase() as keyof typeof EventEnum
-                      ],
-                      itemKey,
-                      data.target,
-                      null,
-                      editedInputValue
-                    );
-                  }}
-                >
+                <button onClick={handleSave}>
                   <span className="material-symbols-rounded">save</span>
                 </button>
               </div>
@@ -307,9 +277,7 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
             <div className={`stepitem__container`}>
               <div className="oneline_spacebetween_flex">
                 <h4>{data.type}</h4>
-                {data.type === EventEnum.scroll || data.type === EventEnum.input
-                  ? value()
-                  : null}
+                {value()}
               </div>
               <p>{preferedTarget()}</p>
             </div>
