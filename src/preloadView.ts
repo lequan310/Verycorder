@@ -1,17 +1,12 @@
 import { ipcRenderer } from "electron";
-import {
-  record,
-  stopRecording,
-  hoverEditHandler,
-  startEdit,
-  stopEditing,
-} from "./Main/record";
+import { record, stopRecording } from "./Main/record";
 import {
   replay,
   stopReplaying,
   getTestCase,
   setCurrentIndex,
 } from "./Main/replay";
+import { startEdit, stopEditing } from "./Main/edit";
 import { Channel } from "./Others/listenerConst";
 import { AppMode } from "./Types/appMode";
 
@@ -24,12 +19,10 @@ function onload(load: boolean) {
 }
 
 window.addEventListener("load", () => {
-  // document.body.addEventListener("mouseenter", hoverEditHandler, true);
   onload(true);
 });
 
 window.addEventListener("beforeunload", () => {
-  // document.body.removeEventListener("mouseenter", hoverEditHandler, true);
   onload(false);
 });
 

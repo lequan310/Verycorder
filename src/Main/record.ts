@@ -14,12 +14,8 @@ import { RecordedEvent } from "../Types/recordedEvent";
 import { ipcRenderer } from "electron";
 import { Channel } from "../Others/listenerConst";
 import { EventEnum } from "../Types/eventComponents";
-import { Target } from "../Types/eventComponents";
 
 // ------------------- GLOBAL VARIABLES -------------------
-// Variables for editing target element
-let hoveredElement: HTMLElement; // Current Hover
-let previousOutlineStyle = ""; // Previous outline style
 
 // Variables for event recording
 let currentEvent = document.createEvent("Event");
@@ -259,30 +255,6 @@ function mouseTracker(event: MouseEvent) {
   mouseY = event.clientY;
 }
 
-function clearPreviousOutline() {
-  if (hoveredElement) {
-    hoveredElement.style.outline = previousOutlineStyle; // Re-assigned previous outline style
-  }
-}
-
-// Hover to edit target element for event
-export function hoverEditHandler(event: MouseEvent) {
-  clearPreviousOutline();
-  // Highlight currently hovered element
-  hoveredElement = event.target as HTMLElement;
-  previousOutlineStyle = hoveredElement.style.outline;
-  hoveredElement.style.outline = "2px solid red";
-}
-
-function handleContextMenu(e: MouseEvent) {
-  e.preventDefault();
-  if (hoveredElement) {
-    const css = getCssSelector(hoveredElement);
-    const xpath = getXPath(hoveredElement);
-    const eventTarget: Target = { css, xpath };
-    ipcRenderer.send(Channel.view.edit.UPDATE_EVENT_TARGET, eventTarget);
-  }
-}
 export function record() {
   observeMutation();
   document.body.addEventListener("mousemove", mouseTracker, true);
@@ -303,17 +275,4 @@ export function stopRecording() {
   document.body.removeEventListener("mouseenter", hoverHandler, true);
   document.body.removeEventListener("change", changeHandler, true);
   document.body.removeEventListener("focus", focusHandler, true);
-}
-
-export function startEdit() {
-  ipcRenderer.send(Channel.all.TEST_LOG, "Edit mode started");
-  document.body.addEventListener("mouseenter", hoverEditHandler, true);
-  document.body.addEventListener("contextmenu", handleContextMenu, true);
-}
-
-export function stopEditing() {
-  ipcRenderer.send(Channel.all.TEST_LOG, "Edit mode stopped");
-  document.body.removeEventListener("mouseenter", hoverEditHandler, true);
-  document.body.removeEventListener("contextmenu", handleContextMenu, true);
-  clearPreviousOutline();
 }
