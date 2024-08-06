@@ -20,7 +20,7 @@ function onload(load: boolean) {
     
     if (mode === AppMode.canvas_record) {
       if (load) {
-        ipcRenderer.invoke(Channel.view.all.GET_BBOX).then((bboxes: BoundingBox[]) => {
+        ipcRenderer.invoke(Channel.view.record.GET_BBOX).then((bboxes: BoundingBox[]) => {
           recordCanvas(bboxes);
         })
       } else {

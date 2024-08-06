@@ -112,7 +112,7 @@ function handleAfterClick() {
 
 function retakeBbox() {
     bboxes = [];
-    ipcRenderer.invoke(Channel.view.all.GET_BBOX).then((boundingBoxes: BoundingBox[]) => {
+    ipcRenderer.invoke(Channel.view.record.GET_BBOX).then((boundingBoxes: BoundingBox[]) => {
         setBBoxes(boundingBoxes);
     })
 }

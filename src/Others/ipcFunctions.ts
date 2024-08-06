@@ -80,13 +80,13 @@ export function handleTestCaseEnded(win: BrowserWindow) {
 }
 
 export function handleGetBBoxes() {
-  ipcMain.handle(Channel.GET_BBOX, async (event) => {
+  ipcMain.handle(Channel.view.record.GET_BBOX, async (event) => {
     return await initBBox();
   });
 }
 
 export function handleCaptureElementScreenshot() {
-  ipcMain.handle(Channel.ELEMENT_SCREENSHOT, async (event, boundingBox) => {
+  ipcMain.handle(Channel.view.record.ELEMENT_SCREENSHOT, async (event, boundingBox) => {
     return await elementScreenshot(boundingBox);
   });
 }

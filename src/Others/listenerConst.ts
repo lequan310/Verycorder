@@ -53,7 +53,8 @@ export const Channel = {
       // Toggle record feature on/off
       TOGGLE_RECORD: "view-record-toggle-record",
       TOGGLE_CANVAS_RECORD: "toggle-canvas-record",
-      ELEMENT_SCREENSHOT: "element-screenshot"
+      ELEMENT_SCREENSHOT: "element-screenshot",
+      GET_BBOX: "get-bbox",
     },
 
     edit: {
@@ -66,7 +67,6 @@ export const Channel = {
     all: {
       // Get current mode of the app
       GET_MODE: "view-all-get-mode",
-      GET_BBOX: "get-bbox",
     },
   },
   all: {
