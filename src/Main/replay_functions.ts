@@ -25,11 +25,21 @@ function hoverEvent(x: number, y: number) {
 function replayInputEvent() {
   ipcMain.on(Channel.view.replay.REPLAY_INPUT, async (event, data) => {
     const view = getView();
+
+    // Delete previous text if there is any
+    for (let i = 0; i < data.prevLength; i++) {
+      view.webContents.sendInputEvent({
+        type: "keyDown",
+        keyCode: "Backspace",
+      });
+      view.webContents.sendInputEvent({ type: "keyUp", keyCode: "Backspace" });
+    }
+
     // Simulate key press for each character in data.value
     for (const char of data.value) {
       view.webContents.sendInputEvent({ type: "char", keyCode: char });
     }
-    console.log("Inputed" + data.value + " at ", data.x, data.y);
+    console.log("Inputed " + data.value + " at ", data.x, data.y);
   });
 }
 
