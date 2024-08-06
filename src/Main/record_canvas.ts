@@ -34,10 +34,8 @@ function clickHandler(event: MouseEvent) {
             if (clickedBbox) {
                 ipcRenderer.send(Channel.all.TEST_LOG, `Clicked object: ${clickedBbox}`);
 
-                // This should be for receiving caption from OpenAI, printing here is just for debug
-                let base64image = captureElementScreenshot(clickedBbox).then((base64image) => {
-                    ipcRenderer.send(Channel.all.TEST_LOG, `Sent image to OpenAI`);
-                });
+                // Send the clicked element to main process
+                ipcRenderer.send(Channel.view.record.CANVAS_CLICK, clickedBbox);
             }
 
             handleAfterClick();
@@ -76,11 +74,6 @@ function mouseTracker(event: MouseEvent) {
             hoverTimer = setTimeout(() => {
                 if (enteredBbox.contains(mouseX, mouseY)) {
                     ipcRenderer.send(Channel.all.TEST_LOG, `Entered object: ${enteredBbox}`);
-
-                    // This should be for receiving caption from OpenAI, printing here is just for debug
-                    let base64image = captureElementScreenshot(enteredBbox).then((base64image) => {
-                        ipcRenderer.send(Channel.all.TEST_LOG, `Sent image to OpenAI`);
-                    });
                     retakeBbox();
                 }
             }, TIMEOUT);
@@ -126,10 +119,15 @@ function retakeBbox() {
     })
 }
 
-async function captureElementScreenshot(boundingBox: BoundingBox) {
-    const base64image = await ipcRenderer.invoke(Channel.view.record.ELEMENT_SCREENSHOT, boundingBox);
-    return base64image;
-}
+// async function captureElementScreenshot(boundingBox: BoundingBox) {
+//     const base64image = await ipcRenderer.invoke(Channel.view.record.ELEMENT_SCREENSHOT, boundingBox);
+//     return base64image;
+// }
+
+// function getElementCaption(boundingBox: BoundingBox) {
+//     const caption = ipcRenderer.invoke(Channel.view.record.GET_CAPTION, boundingBox);
+//     return caption;
+// }
 
 export function recordCanvas(boundingBoxes: BoundingBox[]) {
     setBBoxes(boundingBoxes);

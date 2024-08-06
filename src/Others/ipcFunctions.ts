@@ -16,6 +16,8 @@ import {
   updateTestEventList,
   getDetectMode
 } from "./electronUtilities";
+import { getCaption } from "./openai";
+import { EventEnum } from "../Types/eventComponents";
 
 // ------------------- IPC EVENT export functionS -------------------
 // export function to test log events
@@ -92,8 +94,23 @@ export function handleGetBBoxes() {
   });
 }
 
-export function handleCaptureElementScreenshot() {
-  ipcMain.handle(Channel.view.record.ELEMENT_SCREENSHOT, async (event, boundingBox) => {
-    return await elementScreenshot(boundingBox);
+// export function handleGetCaption() {
+//   ipcMain.handle(Channel.view.record.GET_CAPTION, async (event, boundingBox) => {
+//     const base64image = await elementScreenshot(boundingBox);
+//     const caption = getCaption(base64image);
+//     return caption;
+//   });
+// }
+
+export function handleRecordCanvasClick(view: BrowserView) {
+  ipcMain.on(Channel.view.record.CANVAS_CLICK, (event, data) => {
+    // Get base64 image here
+
+    // Get caption here
+
+    // Create event object here
+    let object = { type: EventEnum.click, target: "caption" };
+
+    view.webContents.send(Channel.view.record.CANVAS_CLICK, object);
   });
 }

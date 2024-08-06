@@ -18,7 +18,7 @@ import {
   handleTestCaseEnded,
   handleClickEdit,
   handleGetBBoxes,
-  handleCaptureElementScreenshot,
+  handleGetCaption,
   ipcGetDetectMode,
 } from "./ipcFunctions";
 import { BoundingBox } from "../Types/bbox";
@@ -319,7 +319,7 @@ export async function initBBox() {
   return await getBBoxes(image);
 }
 
-export async function elementScreenshot(boundingBox: BoundingBox): Promise<String> {
+export async function elementScreenshot(boundingBox: BoundingBox): Promise<string> {
   const rect = { x: boundingBox.x, y: boundingBox.y, width: boundingBox.width, height: boundingBox.height };
 
   const image = await view.webContents.capturePage(rect);
@@ -512,7 +512,7 @@ export function handleViewEvents() {
   updateEvent();
   // updateEventFromFrontend();
   handleGetBBoxes();
-  handleCaptureElementScreenshot();
+  handleGetCaption();
 }
 
 // ------------------- IPC EVENT FUNCTIONS -------------------
