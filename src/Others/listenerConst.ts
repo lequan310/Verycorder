@@ -55,7 +55,10 @@ export const Channel = {
       TOGGLE_CANVAS_RECORD: "toggle-canvas-record",
       GET_CAPTION: "get-caption",
       GET_BBOX: "get-bbox",
-      CANVAS_CLICK: "canvas-click",
+      CANVAS_CLICK: "record-canvas-click",
+      CANVAS_HOVER: "record-canvas-click",
+      CANVAS_INPUT: "record-canvas-input",
+      CANVAS_SCROLL: "record-canvas-scroll",
     },
 
     edit: {

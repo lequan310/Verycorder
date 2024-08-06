@@ -18,8 +18,11 @@ import {
   handleTestCaseEnded,
   handleClickEdit,
   handleGetBBoxes,
-  handleGetCaption,
   ipcGetDetectMode,
+  handleRecordCanvasClick,
+  handleRecordCanvasHover,
+  handleRecordCanvasInput,
+  handleRecordCanvasScroll,
 } from "./ipcFunctions";
 import { BoundingBox } from "../Types/bbox";
 import { DetectMode } from "../Types/detectMode";
@@ -499,6 +502,13 @@ export function handleRecordEvents(eventNames: string[]) {
   }
 }
 
+export function handleRecordCanvas() {
+  handleRecordCanvasClick(win);
+  handleRecordCanvasHover(win);
+  handleRecordCanvasInput(win);
+  handleRecordCanvasScroll(win);
+}
+
 export function handleViewEvents() {
   ipcGetMode();
   ipcGetDetectMode();
@@ -512,7 +522,6 @@ export function handleViewEvents() {
   updateEvent();
   // updateEventFromFrontend();
   handleGetBBoxes();
-  handleGetCaption();
 }
 
 // ------------------- IPC EVENT FUNCTIONS -------------------

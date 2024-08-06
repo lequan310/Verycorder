@@ -102,7 +102,7 @@ export function handleGetBBoxes() {
 //   });
 // }
 
-export function handleRecordCanvasClick(view: BrowserView) {
+export function handleRecordCanvasClick(win: BrowserWindow) {
   ipcMain.on(Channel.view.record.CANVAS_CLICK, (event, data) => {
     // Get base64 image here
 
@@ -111,6 +111,24 @@ export function handleRecordCanvasClick(view: BrowserView) {
     // Create event object here
     let object = { type: EventEnum.click, target: "caption" };
 
-    view.webContents.send(Channel.view.record.CANVAS_CLICK, object);
+    win.webContents.send(Channel.view.record.CANVAS_CLICK, object);
+  });
+}
+
+export function handleRecordCanvasScroll(win: BrowserWindow) {
+  ipcMain.on(Channel.view.record.CANVAS_SCROLL, (event, data) => {
+
+  });
+}
+
+export function handleRecordCanvasHover(win: BrowserWindow) {
+  ipcMain.on(Channel.view.record.CANVAS_HOVER, (event, data) => {
+
+  });
+}
+
+export function handleRecordCanvasInput(win: BrowserWindow) {
+  ipcMain.on(Channel.view.record.CANVAS_INPUT, (event, data) => {
+
   });
 }
