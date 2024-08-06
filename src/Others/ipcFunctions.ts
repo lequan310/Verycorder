@@ -109,9 +109,9 @@ export function handleRecordCanvasClick(win: BrowserWindow) {
     // Get caption here
 
     // Create event object here
-    let object = { type: EventEnum.click, target: "caption" };
+    let clickEvent = { type: EventEnum.click, target: "caption" };
 
-    win.webContents.send(Channel.view.record.CANVAS_CLICK, object);
+    win.webContents.send(Channel.win.ADD_EVENT, clickEvent);
   });
 }
 
