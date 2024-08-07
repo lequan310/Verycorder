@@ -24,25 +24,19 @@ function setBBoxes(boundingBoxes: BoundingBox[]) {
 }
 
 function clickHandler(event: MouseEvent) {
-    clearTimeout(clickTimer);
+    if (event.isTrusted) {
+        const clickedBbox = findClickedBox();
 
-    // Check if the event is made by user
-    clickTimer = setTimeout(() => {
-        if (event.isTrusted) {
-            let clickedBbox = isMouseInBoxes();
+        if (clickedBbox) {
+            ipcRenderer.send(Channel.all.TEST_LOG, `Clicked object: ${clickedBbox}`);
 
-            if (clickedBbox) {
-                ipcRenderer.send(Channel.all.TEST_LOG, `Clicked object: ${clickedBbox}`);
-
-                // Send the clicked element to main process
-                ipcRenderer.send(Channel.view.record.CANVAS_CLICK, clickedBbox);
-            }
+            // Send the clicked element to main process
+            ipcRenderer.send(Channel.view.record.CANVAS_CLICK, clickedBbox, mouseX, mouseY);
 
             handleAfterClick();
-        };
-
-        retakeBbox();
-    }, TIMEOUT);
+            retakeBbox();
+        }
+    }
 }
 
 function wheelHandler(event: WheelEvent) {
@@ -52,6 +46,9 @@ function wheelHandler(event: WheelEvent) {
 
     scrollTimer = setTimeout(() => {
         ipcRenderer.send(Channel.all.TEST_LOG, "Scrolled X: " + deltaScrollX + " Y: " + deltaScrollY);
+        ipcRenderer.send(Channel.view.record.CANVAS_SCROLL, deltaScrollX, deltaScrollY, mouseX, mouseY);
+
+        // Reset values
         deltaScrollX = 0;
         deltaScrollY = 0;
         retakeBbox();
@@ -63,17 +60,19 @@ function mouseTracker(event: MouseEvent) {
     prevMouseY = mouseY;
     mouseX = event.clientX;
     mouseY = event.clientY;
-    let enteredBbox: BoundingBox | null;
 
     // Hover detection
     if (event.isTrusted) {
-        enteredBbox = isMouseEnterBoxes();
+        const enteredBbox = findHoveredBox();
         if (enteredBbox) {
             clearTimeout(hoverTimer);
 
             hoverTimer = setTimeout(() => {
                 if (enteredBbox.contains(mouseX, mouseY)) {
                     ipcRenderer.send(Channel.all.TEST_LOG, `Entered object: ${enteredBbox}`);
+
+                    // Send the clicked element to main process
+                    ipcRenderer.send(Channel.view.record.CANVAS_HOVER, enteredBbox, mouseX, mouseY);
                     retakeBbox();
                 }
             }, TIMEOUT);
@@ -85,10 +84,11 @@ function changeHandler(event: Event) {
     const target = event.target as HTMLElement;
     if (hasValueProperty(target)) {
         ipcRenderer.send(Channel.all.TEST_LOG, `Entered value: ${target.value}`);
+        ipcRenderer.send(Channel.view.record.CANVAS_INPUT, target.value);
     }
 }
 
-function isMouseInBoxes() {
+function findClickedBox() {
     for (let i = 0; i < bboxes.length; i++) {
         if (bboxes[i].contains(mouseX, mouseY)) {
             return bboxes[i];
@@ -97,7 +97,7 @@ function isMouseInBoxes() {
     return null;
 }
 
-function isMouseEnterBoxes() {
+function findHoveredBox() {
     for (let i = 0; i < bboxes.length; i++) {
         if (bboxes[i].entered(prevMouseX, prevMouseY, mouseX, mouseY))
             return bboxes[i];
@@ -119,20 +119,10 @@ function retakeBbox() {
     })
 }
 
-// async function captureElementScreenshot(boundingBox: BoundingBox) {
-//     const base64image = await ipcRenderer.invoke(Channel.view.record.ELEMENT_SCREENSHOT, boundingBox);
-//     return base64image;
-// }
-
-// function getElementCaption(boundingBox: BoundingBox) {
-//     const caption = ipcRenderer.invoke(Channel.view.record.GET_CAPTION, boundingBox);
-//     return caption;
-// }
-
 export function recordCanvas(boundingBoxes: BoundingBox[]) {
     setBBoxes(boundingBoxes);
-    document.body.addEventListener("mousemove", mouseTracker, true);
     document.body.addEventListener("click", clickHandler, true);
+    document.body.addEventListener("mousemove", mouseTracker, true);
     window.addEventListener("wheel", wheelHandler, true);
     document.body.addEventListener("change", changeHandler, true);
 }

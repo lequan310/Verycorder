@@ -26,6 +26,8 @@ export const Channel = {
     END_RESIZE: "win-end-resize",
     // Send updated target from main to win for edit mode
     SEND_TARGET: "win-send-target",
+    // Send updated target from main to win during canvas record
+    UPDATE_EVENT_CAPTION: "win-update-event-caption",
   },
   view: {
     replay: {
@@ -54,11 +56,11 @@ export const Channel = {
     record: {
       // Toggle record feature on/off
       TOGGLE_RECORD: "view-record-toggle-record",
-      TOGGLE_CANVAS_RECORD: "toggle-canvas-record",
-      GET_CAPTION: "get-caption",
-      GET_BBOX: "get-bbox",
+      TOGGLE_CANVAS_RECORD: "view-toggle-canvas-record",
+      GET_CAPTION: "view-record-get-caption",
+      GET_BBOX: "view-record-get-bbox",
       CANVAS_CLICK: "record-canvas-click",
-      CANVAS_HOVER: "record-canvas-click",
+      CANVAS_HOVER: "record-canvas-hover",
       CANVAS_INPUT: "record-canvas-input",
       CANVAS_SCROLL: "record-canvas-scroll",
     },
@@ -73,7 +75,7 @@ export const Channel = {
     all: {
       // Get current mode of the app
       GET_MODE: "view-all-get-mode",
-      GET_DETECT_MODE: "get-detect-mode",
+      GET_DETECT_MODE: "view-get-detect-mode",
     },
   },
   all: {
