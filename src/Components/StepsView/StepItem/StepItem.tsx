@@ -12,6 +12,7 @@ import { TargetContext } from "../../../Types/targetContext";
 
 import { LegacyRef } from "react";
 import { Channel } from "../../../Others/listenerConst";
+import HandleEventEditType from "./handleEventEditType";
 
 interface StepItemProps {
   itemKey: number;
@@ -22,7 +23,6 @@ interface StepItemProps {
   selectedIndex: (index: number) => void;
   doneEditing: (
     type: EventEnum,
-    index: number,
     target: Target | null,
     value: Value | null,
     inputValue: string | null
@@ -37,7 +37,6 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
   ) => {
     const ipcRenderer = window.api;
     const [editMode, setEditMode] = useState(false);
-    const eventOptions = getEnumValues(EventEnum);
 
     //Edit data
     const [selectedEvent, setSelectedEvent] = useState<string>(data.type); // Default selected option
@@ -101,119 +100,27 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
       handleToggleEditMode();
       doneEditing(
         EventEnum[selectedEvent.toLowerCase() as keyof typeof EventEnum],
-        itemKey,
         data.target,
         selectedEvent === EventEnum.scroll ? editedScrollValue : null,
         selectedEvent === EventEnum.input ? editedInputValue : null
       );
     };
 
-    const handleEventEditType = () => {
-      const commonContent = (
-        <>
-          <h5>Event type</h5>
-          <select
-            value={selectedEvent}
-            onChange={(e) => setSelectedEvent(e.target.value)}
-          >
-            {eventOptions.map((event: string, index) => (
-              <option key={index} value={event}>
-                {event}
-              </option>
-            ))}
-          </select>
-          <h5>Target</h5>
-          <div
-            suppressContentEditableWarning={true}
-            className="stepitem_target_location"
-          >
-            <p>{preferedTarget()}</p>
-          </div>
-        </>
-      );
-
-      const commonFooter = (
-        <div className="stepitem_flex_col">
-          <button onClick={handleSave}>
-            <span className="material-symbols-rounded">save</span>
-          </button>
-        </div>
-      );
-
-      switch (selectedEvent) {
-        case EventEnum.click:
-        case EventEnum.hover:
-          return (
-            <div ref={ref} className={`stepitem__wrapper grey`}>
-              <div className={`stepitem__container`}>{commonContent}</div>
-              {commonFooter}
-              <div className="divider fixed_bottom"></div>
-            </div>
-          );
-        case EventEnum.scroll:
-          return (
-            <div ref={ref} className={`stepitem__wrapper grey`}>
-              <div className={`stepitem__container`}>
-                {commonContent}
-                <h5>Scroll Values</h5>
-                <div className="flex">
-                  <p className="stepitem_target_title">x</p>
-                  <p className="stepitem_target_title">y</p>
-                </div>
-                <div className="flex">
-                  <input
-                    className="stepitem_target_location"
-                    type="number"
-                    value={editedScrollValue.x}
-                    onChange={(e) =>
-                      setEditedScrollValue({
-                        x: parseInt(e.target.value),
-                        y: editedScrollValue.y,
-                      })
-                    }
-                  />
-                  <input
-                    className="stepitem_target_location"
-                    type="number"
-                    value={editedScrollValue.y}
-                    onChange={(e) =>
-                      setEditedScrollValue({
-                        x: editedScrollValue.x,
-                        y: parseInt(e.target.value),
-                      })
-                    }
-                  />
-                </div>
-              </div>
-              {commonFooter}
-              <div className="divider fixed_bottom"></div>
-            </div>
-          );
-        case EventEnum.input:
-          return (
-            <div ref={ref} className={`stepitem__wrapper grey`}>
-              <div className={`stepitem__container`}>
-                {commonContent}
-                <h5>Input Data</h5>
-                <input
-                  className="stepitem_target_location"
-                  value={editedInputValue}
-                  onChange={(e) => setEditedInputValue(e.target.value)}
-                />
-              </div>
-              {commonFooter}
-              <div className="divider fixed_bottom"></div>
-            </div>
-          );
-        default:
-          handleToggleEditMode();
-          return null;
-      }
-    };
-
     const handleEditMode = () => {
       if (editMode) {
-        return handleEventEditType();
+        return (
+          <HandleEventEditType
+            ref={ref}
+            selectedEvent={selectedEvent}
+            setSelectedEvent={setSelectedEvent}
+            editedScrollValue={editedScrollValue}
+            setEditedScrollValue={setEditedScrollValue}
+            editedInputValue={editedInputValue}
+            setEditedInputValue={setEditedInputValue}
+            handleSave={handleSave}
+            data={data.target}
+          />
+        );
       } else {
         return (
           <div ref={ref} className={` stepitem__wrapper ${handleCaseState()}`}>

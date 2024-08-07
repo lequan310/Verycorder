@@ -9,6 +9,7 @@ export interface TargetContext {
   recordingButtonEnable: boolean;
   editState: boolean;
   testCaseSize: number;
+  addNewEventManually: boolean;
 }
 
 export const TargetContext = React.createContext<TargetContext>({
@@ -17,8 +18,9 @@ export const TargetContext = React.createContext<TargetContext>({
   recordState: false,
   replayingButtonEnable: false,
   recordingButtonEnable: false,
-  editState: false,  // for edit functionality in case of x-path target
+  editState: false, // for edit functionality in case of x-path target
   testCaseSize: 0,
+  addNewEventManually: false,
 });
 
 type Action =
@@ -29,6 +31,7 @@ type Action =
   | { type: "SET_REPLAYING_BUTTON_ENABLE"; payload: boolean }
   | { type: "SET_RECORDING_BUTTON_ENABLE"; payload: boolean }
   | { type: "SET_EDIT_STATE"; payload: boolean }
+  | { type: "SET_ADD_NEW_EVENT_MANUALLY"; payload: boolean };
 
 export const reducer = (
   state: TargetContext,
@@ -48,7 +51,9 @@ export const reducer = (
     case "SET_RECORDING_BUTTON_ENABLE":
       return { ...state, recordingButtonEnable: action.payload };
     case "SET_EDIT_STATE":
-        return {...state, editState: action.payload };
+      return { ...state, editState: action.payload };
+    case "SET_ADD_NEW_EVENT_MANUALLY":
+      return { ...state, addNewEventManually: action.payload };
     default:
       return state;
   }

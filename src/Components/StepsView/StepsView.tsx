@@ -15,6 +15,7 @@ import {
 } from "../../../src/Types/targetContext";
 import { AppMode } from "../../Types/appMode";
 import { EventEnum, Target, Value } from "../../Types/eventComponents";
+import AddEvent from "./NewItem/AddEvent";
 
 const StepsView = () => {
   const initState: { index: number; state: boolean } = {
@@ -35,6 +36,9 @@ const StepsView = () => {
   const dispatch = useContext(TargetDispatchContext);
   const targetContext = useContext(TargetContext);
 
+  //Add edit event manually
+  const [addEditManually, setSddEditManually] = useState<Target>();
+
   const setGlobalReplayingButtonEnable = (newRecordState: boolean) => {
     if (dispatch) {
       dispatch({
@@ -50,14 +54,20 @@ const StepsView = () => {
     setCurrentReplayIndex(initState);
   };
 
-  //This handle scroll when adding new test case
+  // Combined useEffect hook for scroll to the bottom
   useEffect(() => {
-    if (bottomRef.current && targetContext.recordState) {
-      bottomRef.current.scrollIntoView({ behavior: "smooth" });
+    if (bottomRef.current) {
+      if (targetContext.recordState || targetContext.addNewEventManually) {
+        bottomRef.current.scrollIntoView({ behavior: "smooth" });
+      }
     }
-
     editEventIndexRef.current = editEventIndex;
-  }, [eventList, editEventIndex]); // This hook runs whenever eventList changes
+  }, [
+    eventList,
+    editEventIndex,
+    targetContext.recordState,
+    targetContext.addNewEventManually,
+  ]);
 
   // Clean up stuff
   useEffect(() => {
@@ -128,19 +138,21 @@ const StepsView = () => {
 
     // Handle edit event
     const handleUpdateTarget = (value: Target) => {
-      if (
-        editEventIndexRef.current >= 0 &&
-        editEventIndexRef.current < eventList.length
-      ) {
-        const updatedEventList = [...eventList];
-        updatedEventList[editEventIndexRef.current] = {
-          ...updatedEventList[editEventIndexRef.current],
-          target: {
-            css: value.css,
-            xpath: value.xpath,
-          },
-        };
-        setEventList(updatedEventList);
+      if (!targetContext.addNewEventManually) {
+        if (
+          editEventIndexRef.current >= 0 &&
+          editEventIndexRef.current < eventList.length
+        ) {
+          const updatedEventList = [...eventList];
+          updatedEventList[editEventIndexRef.current] = {
+            ...updatedEventList[editEventIndexRef.current],
+            target: {
+              css: value.css,
+              xpath: value.xpath,
+            },
+          };
+          setEventList(updatedEventList);
+        }
       }
     };
 
@@ -159,16 +171,21 @@ const StepsView = () => {
 
   const sentEditedEvents = (
     type: EventEnum,
-    index: number,
     target: Target,
     scrollValue?: Value,
     inputValue?: string
   ) => {
-    ipcRenderer.send(Channel.all.TEST_LOG, type + "----------------1");
-
-    if (index >= 0 && index < eventList.length) {
+    if (
+      editEventIndexRef.current >= 0 &&
+      editEventIndexRef.current < eventList.length
+    ) {
       const updatedEventList = [...eventList];
-      const currentEvent = updatedEventList[editEventIndexRef.current];
+      const currentEvent =
+        updatedEventList[
+          targetContext.addNewEventManually
+            ? eventList.length
+            : editEventIndexRef.current
+        ];
       let updatedEvent: RecordedEvent;
 
       // Handle specific properties for each event type
@@ -220,7 +237,7 @@ const StepsView = () => {
   };
 
   return (
-    <div ref={listRef} className="__container">
+    <div ref={listRef} className="stepView__container">
       {eventList.map((event, index) => {
         return (
           <StepItem
@@ -240,6 +257,11 @@ const StepsView = () => {
           />
         );
       })}
+      {targetContext.addNewEventManually && (
+        <>
+          <AddEvent addEvent={(event) => addEvent(event)} />
+        </>
+      )}
       <div ref={bottomRef} />
     </div>
   );

@@ -40,6 +40,7 @@ const App = () => {
     recordingButtonEnable: false,
     editState: false,
     testCaseSize: 0,
+    addNewEventManually: false,
   };
   const [state, dispatch] = useReducer(reducer, initialState);
 
@@ -176,7 +177,7 @@ const App = () => {
       <TargetDispatchContext.Provider value={dispatch}>
         <TitleBar response={handleResponse} disable={enableSeachBar} />
         <div className="app__container">
-          <SideBar addEvent={} />
+          <SideBar />
           <div className="main__wrapper" ref={containerRef}>
             <div
               className="main-content__wrapper"
