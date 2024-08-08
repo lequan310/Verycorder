@@ -9,6 +9,7 @@ import {
   TestDetectorEnum,
 } from "../../../src/Types/eventComponents";
 import { Channel } from "../../Others/listenerConst";
+import { DetectMode } from "../../Types/detectMode";
 
 const PopupSettings = ({
   popupState,
@@ -23,8 +24,14 @@ const PopupSettings = ({
     const newTarget = event.target.checked
       ? TargetEnum["x-path"]
       : TargetEnum.css;
-    ipcRenderer.send(Channel.all.TEST_LOG, newTarget);
     dispatch({ type: "SET_TARGET", payload: newTarget });
+  };
+
+  const setDetectMode = (detectMode: DetectMode) => {
+    if (dispatch) {
+      ipcRenderer.send(Channel.all.TEST_LOG, detectMode);
+      dispatch({ type: "SET_DETECT_MODE", payload: detectMode });
+    }
   };
 
   const popupRef = useRef<HTMLDivElement>(null);
@@ -46,17 +53,6 @@ const PopupSettings = ({
     <div className="popup_wrapper" ref={popupRef}>
       <div>
         <p>Test detector: </p>
-        {/* <select
-          name="target"
-          id="target"
-          value={targetContext.target ?? ""}
-          onChange={(e) => {
-            setTarget(e);
-          }}
-        >
-          <option value={TargetEnum.css}>{TargetEnum.css}</option>
-          <option value={TargetEnum["x-path"]}>{TargetEnum["x-path"]}</option>
-        </select> */}
         <div className="toggle_wrapper">
           <div className="toggle-switch">
             <input
@@ -76,11 +72,10 @@ const PopupSettings = ({
         <select
           name="target"
           id="target"
-          //   value={targetContext.target ?? ""}
-          //   onChange={(e) => {
-          //     setTarget(e);
-          //     ipcRenderer.send(Channel.TEST_LOG, e.target.value);
-          //   }}
+          value={targetContext.detectMode ?? ""}
+          onChange={(e) => {
+            setDetectMode(e.target.value as DetectMode);
+          }}
         >
           <option value={TestDetectorEnum.dom}>{TestDetectorEnum.dom}</option>
           <option value={TestDetectorEnum.ai}>{TestDetectorEnum.ai}</option>

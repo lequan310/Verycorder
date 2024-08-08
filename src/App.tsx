@@ -16,6 +16,7 @@ import { Channel } from "./Others/listenerConst";
 import { AppMode } from "./Types/appMode";
 import TitleBar from "./Components/TitleBar/TitleBar";
 import SideBar from "./Components/SideBar/SizeBar";
+import { DetectMode } from "./Types/detectMode";
 
 const App = () => {
   const [responseMessage, setResponseMessage] = useState(
@@ -41,6 +42,7 @@ const App = () => {
     editState: false,
     testCaseSize: 0,
     addNewEventManually: false,
+    detectMode: DetectMode.DOM,
   };
   const [state, dispatch] = useReducer(reducer, initialState);
 

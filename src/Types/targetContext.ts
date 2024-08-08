@@ -1,5 +1,6 @@
 import React from "react";
 import { TargetEnum } from "./eventComponents";
+import { DetectMode } from "./detectMode";
 
 export interface TargetContext {
   target: TargetEnum | null;
@@ -10,6 +11,7 @@ export interface TargetContext {
   editState: boolean;
   testCaseSize: number;
   addNewEventManually: boolean;
+  detectMode: DetectMode;
 }
 
 export const TargetContext = React.createContext<TargetContext>({
@@ -21,6 +23,7 @@ export const TargetContext = React.createContext<TargetContext>({
   editState: false, // for edit functionality in case of x-path target
   testCaseSize: 0,
   addNewEventManually: false,
+  detectMode: DetectMode.DOM,
 });
 
 type Action =
@@ -31,7 +34,8 @@ type Action =
   | { type: "SET_REPLAYING_BUTTON_ENABLE"; payload: boolean }
   | { type: "SET_RECORDING_BUTTON_ENABLE"; payload: boolean }
   | { type: "SET_EDIT_STATE"; payload: boolean }
-  | { type: "SET_ADD_NEW_EVENT_MANUALLY"; payload: boolean };
+  | { type: "SET_ADD_NEW_EVENT_MANUALLY"; payload: boolean }
+  | { type: "SET_DETECT_MODE"; payload: DetectMode };
 
 export const reducer = (
   state: TargetContext,
@@ -54,6 +58,8 @@ export const reducer = (
       return { ...state, editState: action.payload };
     case "SET_ADD_NEW_EVENT_MANUALLY":
       return { ...state, addNewEventManually: action.payload };
+    case "SET_DETECT_MODE":
+      return { ...state, detectMode: action.payload };
     default:
       return state;
   }
