@@ -9,26 +9,54 @@ import {
 import { startEdit, stopEditing } from "./Main/edit";
 import { Channel } from "./Others/listenerConst";
 import { AppMode } from "./Types/appMode";
+import { recordCanvas, stopRecordCanvas } from "./Main/record_canvas";
+import { BoundingBox } from "./Types/bbox";
+import { DetectMode } from "./Types/detectMode";
 
-function onload(load: boolean) {
-  ipcRenderer.invoke(Channel.view.all.GET_MODE).then((mode: AppMode) => {
-    if (mode === AppMode.record) {
+async function onload(load: boolean) {
+  let mode = await ipcRenderer.invoke(Channel.view.all.GET_MODE);
+  let detectMode = await ipcRenderer.invoke(Channel.view.all.GET_DETECT_MODE);
+
+  if (mode === AppMode.record) {
+    if (detectMode === DetectMode.AI) {
+      if (load) {
+        ipcRenderer.invoke(Channel.view.record.GET_BBOX).then((bboxes: BoundingBox[]) => {
+          recordCanvas(bboxes);
+        })
+      } else {
+        stopRecordCanvas();
+      }
+    } else {
       load ? record() : stopRecording();
     }
-  });
+  }
 }
 
-window.addEventListener("load", () => {
-  onload(true);
+window.addEventListener("load", async () => {
+  await onload(true);
 });
 
-window.addEventListener("beforeunload", () => {
-  onload(false);
+window.addEventListener("beforeunload", async () => {
+  await onload(false);
 });
 
 // Handle when toggle record notification is received
-ipcRenderer.on(Channel.view.record.TOGGLE_RECORD, (event, currentMode) => {
-  currentMode === AppMode.record ? record() : stopRecording();
+ipcRenderer.on(Channel.view.record.TOGGLE_RECORD, (event, currentMode, detectMode) => {
+  if (currentMode === AppMode.record) {
+    if (detectMode === DetectMode.AI) {
+      ipcRenderer.invoke(Channel.view.record.GET_BBOX).then((bboxes: BoundingBox[]) => {
+        recordCanvas(bboxes);
+      })
+    } else {
+      record();
+    }
+  } else {
+    if (detectMode === DetectMode.AI) {
+      stopRecordCanvas();
+    } else {
+      stopRecording();
+    }
+  }
 });
 
 // Handle when toggle replay notification is received
