@@ -123,7 +123,7 @@ export function recordCanvas(boundingBoxes: BoundingBox[]) {
     setBBoxes(boundingBoxes);
     document.body.addEventListener("click", clickHandler, true);
     document.body.addEventListener("mousemove", mouseTracker, true);
-    document.body.addEventListener("wheel", wheelHandler, true);
+    document.body.addEventListener("wheel", wheelHandler, { passive: true, capture: true });
     document.body.addEventListener("change", changeHandler, true);
 }
 
