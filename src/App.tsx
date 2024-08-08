@@ -152,12 +152,17 @@ const App = () => {
   const handleMouseMove = (e: MouseEvent) => {
     if (containerRef.current) {
       const containerRect = containerRef.current.getBoundingClientRect();
-      console.log(e.clientX);
       const newLeftWidth = e.clientX - containerRect.left;
+
+      // Get screen width
+      const screenWidth = window.innerWidth;
+
+      // Ensure the new width is within the limits of 250 and screen width - 200
       const finalLeftWidth = Math.min(
         Math.max(newLeftWidth, 250),
-        containerRect.width - 200
+        screenWidth - 400
       );
+
       setLeftWidth(finalLeftWidth);
       ipcRenderer.send(Channel.win.END_RESIZE, finalLeftWidth); // Limit the width between 100px and container width - 100px
     }
