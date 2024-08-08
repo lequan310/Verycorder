@@ -10,8 +10,10 @@ Generate a single precise locator for the web element based on visual descriptio
 Visual Description should contains all details available from the web element.
 Example attributes of details include but not limited to text, background color, shape, icon, etc.
 Only mention those properties that are visible in the element.
+If it includes an icon, the element is normally a button.
+
 Locator format: [Element description based on visual].
-Element description example: [button with text="Sign in", background_color="Light Blue", shape="rectangle"]
+Element description example: [button with text="Sign in", background_color=#0b0b0b, shape="rectangle"]
 For image elements, describe the details of the image.
 Locator format for image elements: [image description]`;
 
