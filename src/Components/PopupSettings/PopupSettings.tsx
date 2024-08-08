@@ -4,12 +4,9 @@ import {
   TargetContext,
   TargetDispatchContext,
 } from "../../../src/Types/targetContext";
-import {
-  TargetEnum,
-  TestDetectorEnum,
-} from "../../../src/Types/eventComponents";
+import { TargetEnum } from "../../../src/Types/eventComponents";
 import { Channel } from "../../Others/listenerConst";
-import { DetectMode } from "../../Types/detectMode";
+import { DetectMode, DetectType } from "../../Types/detectMode";
 
 const PopupSettings = ({
   popupState,
@@ -27,9 +24,8 @@ const PopupSettings = ({
     dispatch({ type: "SET_TARGET", payload: newTarget });
   };
 
-  const setDetectMode = (detectMode: DetectMode) => {
+  const setDetectMode = (detectMode: DetectType) => {
     if (dispatch) {
-      ipcRenderer.send(Channel.all.TEST_LOG, detectMode);
       dispatch({ type: "SET_DETECT_MODE", payload: detectMode });
     }
   };
@@ -72,13 +68,13 @@ const PopupSettings = ({
         <select
           name="target"
           id="target"
-          value={targetContext.detectMode ?? ""}
+          value={targetContext.detectMode}
           onChange={(e) => {
-            setDetectMode(e.target.value as DetectMode);
+            setDetectMode(e.target.value as DetectType);
           }}
         >
-          <option value={TestDetectorEnum.dom}>{TestDetectorEnum.dom}</option>
-          <option value={TestDetectorEnum.ai}>{TestDetectorEnum.ai}</option>
+          <option value={DetectMode.DOM}>{DetectMode.DOM}</option>
+          <option value={DetectMode.AI}>{DetectMode.AI}</option>
         </select>
       </div>
       {/* <div className="close_wrapper"></div> */}

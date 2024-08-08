@@ -8,16 +8,6 @@ export enum TargetEnum {
   "x-path" = "X-path",
 }
 
-export type TestDetector = {
-  ai: string;
-  dom: string;
-};
-
-export enum TestDetectorEnum {
-  "ai" = "AI",
-  "dom" = "DOM",
-}
-
 export type Value = {
   x: number;
   y: number;

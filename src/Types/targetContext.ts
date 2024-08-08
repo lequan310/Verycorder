@@ -1,6 +1,6 @@
 import React from "react";
 import { TargetEnum } from "./eventComponents";
-import { DetectMode } from "./detectMode";
+import { DetectMode, DetectType } from "./detectMode";
 
 export interface TargetContext {
   target: TargetEnum | null;
@@ -11,7 +11,7 @@ export interface TargetContext {
   editState: boolean;
   testCaseSize: number;
   addNewEventManually: boolean;
-  detectMode: DetectMode;
+  detectMode: DetectType;
 }
 
 export const TargetContext = React.createContext<TargetContext>({
@@ -35,7 +35,7 @@ type Action =
   | { type: "SET_RECORDING_BUTTON_ENABLE"; payload: boolean }
   | { type: "SET_EDIT_STATE"; payload: boolean }
   | { type: "SET_ADD_NEW_EVENT_MANUALLY"; payload: boolean }
-  | { type: "SET_DETECT_MODE"; payload: DetectMode };
+  | { type: "SET_DETECT_MODE"; payload: DetectType };
 
 export const reducer = (
   state: TargetContext,

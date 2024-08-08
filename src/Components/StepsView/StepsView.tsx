@@ -16,6 +16,7 @@ import {
 import { AppMode } from "../../Types/appMode";
 import { EventEnum, Target, Value } from "../../Types/eventComponents";
 import AddEvent from "./NewItem/AddEvent";
+import { DetectMode } from "../../Types/detectMode";
 
 const StepsView = () => {
   const initState: { index: number; state: boolean } = {
@@ -238,6 +239,7 @@ const StepsView = () => {
 
   return (
     <div ref={listRef} className="stepView__container">
+      {targetContext.detectMode === DetectMode.DOM ? "DOM" : "AI"}
       {eventList.map((event, index) => {
         return (
           <StepItem
