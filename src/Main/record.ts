@@ -224,10 +224,7 @@ function changeHandler(event: Event) {
         value: target.value,
       };
 
-      if (
-        !(target instanceof HTMLInputElement) ||
-        keyboardInputTypes.includes(target.type)
-      ) {
+      if (!(target instanceof HTMLInputElement) || keyboardInputTypes.includes(target.type)) {
         ipcRenderer.send("input-event", eventObject);
       }
     } else if (hasEditableContent(target)) {

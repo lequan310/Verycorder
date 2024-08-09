@@ -1,7 +1,7 @@
 import { ipcRenderer } from "electron";
 import { BoundingBox } from "../Types/bbox";
 import { Channel } from "../Others/listenerConst";
-import { delay, getCssSelector, hasValueProperty } from "../Others/utilities";
+import { delay, getCssSelector, hasEditableContent, hasValueProperty } from "../Others/utilities";
 
 let bboxes: BoundingBox[] = [];
 let mouseX: number = 0;
@@ -82,9 +82,24 @@ function mouseTracker(event: MouseEvent) {
 
 function changeHandler(event: Event) {
     const target = event.target as HTMLElement;
+    const keyboardInputTypes = [
+        "text",
+        "password",
+        "number",
+        "email",
+        "tel",
+        "url",
+        "search",
+    ];
+
     if (hasValueProperty(target)) {
-        ipcRenderer.send(Channel.all.TEST_LOG, `Entered value: ${target.value}`);
-        ipcRenderer.send(Channel.view.record.CANVAS_INPUT, target.value);
+        if (!(target instanceof HTMLInputElement) || keyboardInputTypes.includes(target.type)) {
+            ipcRenderer.send(Channel.all.TEST_LOG, `Entered value: ${target.value}`);
+            ipcRenderer.send(Channel.view.record.CANVAS_INPUT, target.value);
+        }
+    } else if (hasEditableContent(target)) {
+        ipcRenderer.send(Channel.all.TEST_LOG, `Entered value: ${target.textContent}`);
+        ipcRenderer.send(Channel.view.record.CANVAS_INPUT, target.textContent);
     }
 }
 
