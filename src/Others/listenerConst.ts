@@ -28,6 +28,8 @@ export const Channel = {
     SEND_TARGET: "win-send-target",
     // Send updated target from main to win during canvas record
     UPDATE_EVENT_CAPTION: "win-update-event-caption",
+    //Update detect mode either AI for DOM
+    UPDATE_DETECT_MODE: "win-update-detect-mode",
   },
   view: {
     replay: {

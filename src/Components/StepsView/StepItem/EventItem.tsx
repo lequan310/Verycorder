@@ -1,9 +1,8 @@
 import React, { forwardRef, useContext, useEffect, useState } from "react";
-import "./StepItem.css";
+import "./EventItem.css";
 import { RecordedEvent } from "../../../Types/recordedEvent";
 import {
   EventEnum,
-  getEnumValues,
   Target,
   TargetEnum,
   Value,
@@ -13,24 +12,25 @@ import { TargetContext } from "../../../Types/targetContext";
 import { LegacyRef } from "react";
 import { Channel } from "../../../Others/listenerConst";
 import HandleEventEditType from "./handleEventEditType";
+import { CanvasEvent } from "../../../Types/canvasEvent";
 
-interface StepItemProps {
+interface EventItemProps {
   itemKey: number;
-  data: RecordedEvent;
+  data: RecordedEvent | CanvasEvent;
   state: boolean;
   current: boolean;
   prevState: boolean;
   selectedIndex: (index: number) => void;
   doneEditing: (
     type: EventEnum,
-    target: Target | null,
+    target: string | Target | null,
     value: Value | null,
     inputValue: string | null
   ) => void;
   ref: LegacyRef<HTMLDivElement>;
 }
 
-const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
+const EventItem = forwardRef<HTMLDivElement, EventItemProps>(
   (
     { itemKey, data, state, current, prevState, selectedIndex, doneEditing },
     ref
@@ -70,14 +70,22 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
     };
 
     const preferedTarget = () => {
-      switch (targetContext.target) {
-        case TargetEnum.css:
-          return data.target.css;
-        case TargetEnum["x-path"]:
-          return data.target.xpath;
-        default:
-          return data.target.css;
+      //Check type for only Target
+      if (typeof data.target !== "string") {
+        switch (targetContext.target) {
+          case TargetEnum.css:
+            return data.target.css;
+          case TargetEnum["x-path"]:
+            return data.target.xpath;
+          default:
+            return data.target.css;
+        }
+      } else if (typeof data.target === "string") {
+        return data.target;
       }
+
+      //Fail safe
+      return "";
     };
 
     const handleCaseState = () => {
@@ -150,4 +158,4 @@ const StepItem = forwardRef<HTMLDivElement, StepItemProps>(
   }
 );
 
-export default StepItem;
+export default EventItem;

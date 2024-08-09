@@ -18,7 +18,7 @@ interface HandleEventEditTypeProps {
   editedInputValue: string;
   setEditedInputValue: React.Dispatch<React.SetStateAction<string>>;
   handleSave: () => void;
-  data: Target;
+  data: string | Target;
 }
 
 const HandleEventEditType: React.FC<HandleEventEditTypeProps> = ({
@@ -40,14 +40,22 @@ const HandleEventEditType: React.FC<HandleEventEditTypeProps> = ({
   }
 
   const preferedTarget = () => {
-    switch (targetContext.target) {
-      case TargetEnum.css:
-        return data.css;
-      case TargetEnum["x-path"]:
-        return data.xpath;
-      default:
-        return data.css;
+    //Check type for only Target
+    if (typeof data !== "string" && "css" in data) {
+      switch (targetContext.target) {
+        case TargetEnum.css:
+          return data.css;
+        case TargetEnum["x-path"]:
+          return data.xpath;
+        default:
+          return data.css;
+      }
+    } else if (typeof data === "string") {
+      return data;
     }
+
+    //Fail safe
+    return "";
   };
 
   const commonContent = (

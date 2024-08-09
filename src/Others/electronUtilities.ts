@@ -23,6 +23,7 @@ import {
   handleRecordCanvasHover,
   handleRecordCanvasInput,
   handleRecordCanvasScroll,
+  ipcSetDetectMode,
 } from "./ipcFunctions";
 import { BoundingBox } from "../Types/bbox";
 import { DetectMode } from "../Types/detectMode";
@@ -35,7 +36,7 @@ declare const MAIN_WINDOW_PRELOAD_WEBPACK_ENTRY: string;
 declare const BROWSER_VIEW_PRELOAD_WEBPACK_ENTRY: string;
 
 let currentMode = AppMode.disabled;
-let detectMode = DetectMode.AI;
+let detectMode = DetectMode.DOM;
 let testCase: TestCase;
 let canvasTestCase: CanvasTestCase;
 let abortController: AbortController;
@@ -163,7 +164,7 @@ export const createWindow = (): void => {
   win.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  // win.webContents.openDevTools({ mode: "detach" });
+  win.webContents.openDevTools({ mode: "detach" });
 
   // Update overlay window position when app window is moved
   win.on("move", () => handleOverlayUpdate());
@@ -254,6 +255,11 @@ export function getDetectMode() {
   return detectMode;
 }
 
+export function setDetectMode(data: DetectMode) {
+  console.log(data);
+  detectMode = data;
+}
+
 export function setMode(mode: AppMode) {
   currentMode = mode;
 }
@@ -261,9 +267,11 @@ export function setMode(mode: AppMode) {
 // Toggle record/replay/edit mode vs normal mode
 function toggleMode(mode: AppMode) {
   if (mode === AppMode.record) {
-    currentMode = currentMode === AppMode.record ? AppMode.normal : AppMode.record;
+    currentMode =
+      currentMode === AppMode.record ? AppMode.normal : AppMode.record;
   } else if (mode === AppMode.replay) {
-    currentMode = currentMode === AppMode.replay ? AppMode.normal : AppMode.replay;
+    currentMode =
+      currentMode === AppMode.replay ? AppMode.normal : AppMode.replay;
   } else if (mode === AppMode.edit) {
     currentMode = currentMode === AppMode.edit ? AppMode.normal : AppMode.edit;
   }
@@ -324,19 +332,30 @@ export async function toggleRecord() {
     }
   }
 
-  view.webContents.send(Channel.view.record.TOGGLE_RECORD, currentMode, detectMode); // Send message to attach event listeners
+  view.webContents.send(
+    Channel.view.record.TOGGLE_RECORD,
+    currentMode,
+    detectMode
+  ); // Send message to attach event listeners
 }
 
 export async function initBBox() {
-  let image = (await view.webContents.capturePage()).toPNG();
+  const image = (await view.webContents.capturePage()).toPNG();
   return await getBBoxes(image);
 }
 
-export async function elementScreenshot(boundingBox: BoundingBox): Promise<string> {
-  const rect = { x: boundingBox.x, y: boundingBox.y, width: boundingBox.width, height: boundingBox.height };
+export async function elementScreenshot(
+  boundingBox: BoundingBox
+): Promise<string> {
+  const rect = {
+    x: boundingBox.x,
+    y: boundingBox.y,
+    width: boundingBox.width,
+    height: boundingBox.height,
+  };
 
   const image = await view.webContents.capturePage(rect);
-  const base64image = image.toPNG().toString('base64');
+  const base64image = image.toPNG().toString("base64");
   return base64image;
 }
 
@@ -488,7 +507,11 @@ export async function toggleReplay() {
 
   controlOverlay();
   win.webContents.send(Channel.win.UPDATE_STATE, currentMode, detectMode); // Send message to change UI (disable search bar)
-  view.webContents.send(Channel.view.replay.TOGGLE_REPLAY, currentMode, detectMode);
+  view.webContents.send(
+    Channel.view.replay.TOGGLE_REPLAY,
+    currentMode,
+    detectMode
+  );
 }
 
 // ------------------- HANDLING GROUP FUNCTIONS -------------------
@@ -501,6 +524,7 @@ export function handleUIEvents() {
   handleClickEdit();
   updateTestSteps(win);
   handleEndResize();
+  ipcSetDetectMode();
 }
 
 // Function to register events (click, input, etc.) into left panel

@@ -24,8 +24,10 @@ const PopupSettings = ({
     dispatch({ type: "SET_TARGET", payload: newTarget });
   };
 
-  const setDetectMode = (detectMode: DetectType) => {
+  const updateDetectMode = (detectMode: DetectType) => {
     if (dispatch) {
+      ipcRenderer.send(Channel.win.UPDATE_DETECT_MODE, detectMode);
+      ipcRenderer.send(Channel.all.TEST_LOG, detectMode);
       dispatch({ type: "SET_DETECT_MODE", payload: detectMode });
     }
   };
@@ -70,8 +72,13 @@ const PopupSettings = ({
           id="target"
           value={targetContext.detectMode}
           onChange={(e) => {
-            setDetectMode(e.target.value as DetectType);
+            updateDetectMode(e.target.value as DetectType);
           }}
+          // disabled={
+          //   targetContext.replayState ||
+          //   targetContext.recordState ||
+          //   targetContext.editState
+          // }
         >
           <option value={DetectMode.DOM}>{DetectMode.DOM}</option>
           <option value={DetectMode.AI}>{DetectMode.AI}</option>

@@ -1,30 +1,31 @@
 import React, { useContext, useEffect, useRef, useState } from "react";
-import StepItem from "./StepItem/StepItem";
-import "./StepsView.css";
 import {
   ClickEvent,
   HoverEvent,
   InputEvent,
   RecordedEvent,
   ScrollEvent,
-} from "../../Types/recordedEvent";
-import { Channel } from "../../Others/listenerConst";
+} from "../../../Types/recordedEvent";
+import { Channel } from "../../../Others/listenerConst";
 import {
   TargetContext,
   TargetDispatchContext,
-} from "../../../src/Types/targetContext";
-import { AppMode } from "../../Types/appMode";
-import { EventEnum, Target, Value } from "../../Types/eventComponents";
-import AddEvent from "./NewItem/AddEvent";
-import { DetectMode } from "../../Types/detectMode";
+} from "../../../Types/targetContext";
+import { AppMode } from "../../../Types/appMode";
+import { EventEnum, Target, Value } from "../../../Types/eventComponents";
+import AddEvent from "../NewItem/AddEvent";
+import EventItem from "./EventItem";
+import { DetectMode } from "../../../Types/detectMode";
+import { CanvasEvent } from "../../../Types/canvasEvent";
 
-const StepsView = () => {
+const EventItemList = () => {
   const initState: { index: number; state: boolean } = {
     index: -1,
     state: true,
   };
   const ipcRenderer = window.api;
   const [eventList, setEventList] = useState<RecordedEvent[]>([]);
+  const [canvasEventList, setCanvasEventList] = useState<CanvasEvent[]>([]);
   const [currentReplayIndex, setCurrentReplayIndex] = useState(initState);
   const [editEventIndex, setEditEventIndex] = useState(-1);
   const editEventIndexRef = useRef(editEventIndex);
@@ -37,9 +38,6 @@ const StepsView = () => {
   const dispatch = useContext(TargetDispatchContext);
   const targetContext = useContext(TargetContext);
 
-  //Add edit event manually
-  const [addEditManually, setSddEditManually] = useState<Target>();
-
   const setGlobalReplayingButtonEnable = (newRecordState: boolean) => {
     if (dispatch) {
       dispatch({
@@ -50,8 +48,12 @@ const StepsView = () => {
   };
 
   //This func handle event cases
-  const addEvent = (event: RecordedEvent) => {
+  const addRecordedEvent = (event: RecordedEvent) => {
     setEventList([...eventList, event]);
+    setCurrentReplayIndex(initState);
+  };
+  const addCanvasEvent = (event: CanvasEvent) => {
+    setCanvasEventList([...canvasEventList, event]);
     setCurrentReplayIndex(initState);
   };
 
@@ -70,9 +72,20 @@ const StepsView = () => {
     targetContext.addNewEventManually,
   ]);
 
+  useEffect(() => {
+    setCurrentReplayIndex(initState);
+  }, [targetContext.detectMode]);
+
   // Clean up stuff
   useEffect(() => {
-    const removeAddEvent = ipcRenderer.on(Channel.win.ADD_EVENT, addEvent);
+    const removeAddEvent = ipcRenderer.on(
+      targetContext.detectMode === DetectMode.DOM
+        ? Channel.win.ADD_EVENT
+        : Channel.win.ADD_EVENT_CANVAS,
+      targetContext.detectMode === DetectMode.DOM
+        ? addRecordedEvent
+        : addCanvasEvent
+    );
 
     //Get data from IPC with contains the index as well as state for fail or succeed
     const handleReplay = (data: { index: number; state: boolean }) => {
@@ -168,7 +181,7 @@ const StepsView = () => {
       updateState();
       updateTarget();
     };
-  }, [eventList]);
+  }, [eventList, canvasEventList]);
 
   const sentEditedEvents = (
     type: EventEnum,
@@ -239,10 +252,12 @@ const StepsView = () => {
 
   return (
     <div ref={listRef} className="stepView__container">
-      {targetContext.detectMode === DetectMode.DOM ? "DOM" : "AI"}
-      {eventList.map((event, index) => {
+      {(targetContext.detectMode === DetectMode.DOM
+        ? eventList
+        : canvasEventList
+      ).map((event, index) => {
         return (
-          <StepItem
+          <EventItem
             key={index}
             itemKey={index}
             data={event}
@@ -260,13 +275,11 @@ const StepsView = () => {
         );
       })}
       {targetContext.addNewEventManually && (
-        <>
-          <AddEvent addEvent={(event) => addEvent(event)} />
-        </>
+        <>{/* <AddEvent addEvent={(event) => addEvent(event)} /> */}</>
       )}
       <div ref={bottomRef} />
     </div>
   );
 };
 
-export default StepsView;
+export default EventItemList;

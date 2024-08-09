@@ -1,11 +1,11 @@
 import { useContext, useState } from "react";
 import "./SizeBar.css";
-import PopupSettings from "../PopupSettings/PopupSettings";
 import {
   TargetDispatchContext,
   TargetContext,
 } from "../../Types/targetContext";
 import { Channel } from "../../Others/listenerConst";
+import PopupSettings from "../PopupSettings/PopupSettings";
 const SideBar = () => {
   const ipcRenderer = window.api;
   const [settingState, setSettingState] = useState(false);

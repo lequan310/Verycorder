@@ -5,7 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import { StepsView } from "./Components";
+import { EventItemList } from "./Components";
 import {
   reducer,
   TargetContext,
@@ -196,7 +196,7 @@ const App = () => {
                     <h4>Commands</h4>
                     <span className="material-symbols-rounded">tune</span>
                   </div>
-                  <StepsView />
+                  <EventItemList />
                 </div>
               </div>
             </div>
