@@ -87,6 +87,21 @@ const EventItemList = () => {
         : addCanvasEvent
     );
 
+    const handleCaptionCanvasEvent = (id: number, caption: string) => {
+      if (id > canvasEventList.length) return;
+      const updatedEventList = [...canvasEventList];
+      updatedEventList[id] = {
+        ...updatedEventList[id],
+        target: caption,
+      };
+      setCanvasEventList(updatedEventList);
+    };
+
+    const updateCaptionCanvasEvent = ipcRenderer.on(
+      Channel.win.UPDATE_EVENT_CAPTION,
+      handleCaptionCanvasEvent
+    );
+
     //Get data from IPC with contains the index as well as state for fail or succeed
     const handleReplay = (data: { index: number; state: boolean }) => {
       setCurrentReplayIndex({
@@ -180,6 +195,7 @@ const EventItemList = () => {
       handleCurrentReplay();
       updateState();
       updateTarget();
+      updateCaptionCanvasEvent();
     };
   }, [eventList, canvasEventList]);
 

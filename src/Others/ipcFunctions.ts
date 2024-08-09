@@ -119,7 +119,7 @@ export function handleRecordCanvasClick(win: BrowserWindow) {
       const eventId = getCurrentEventIndex();
 
       // Screenshot and send caption later
-      // handleGetCaption(win, bbox, eventId);
+      handleGetCaption(win, bbox, eventId);
 
       const clickEvent: CanvasEvent = {
         id: eventId,
@@ -165,7 +165,7 @@ export function handleRecordCanvasHover(win: BrowserWindow) {
       const eventId = getCurrentEventIndex();
 
       // Screenshot and send caption later
-      // handleGetCaption(win, bbox, eventId);
+      handleGetCaption(win, bbox, eventId);
 
       const hoverEvent: CanvasEvent = {
         id: eventId,
