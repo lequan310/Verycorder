@@ -41,7 +41,7 @@ async function main(){
 
     const downloadButtonPath = "download.png";
     const downloadButton = await Jimp.read(downloadButtonPath)
-    const locator = await getLocator(await downloadButton.getBufferAsync(Jimp.MIME_PNG))
+    const locator = await getLocator((await downloadButton.getBufferAsync(Jimp.MIME_PNG)).toString("base64"))
 
     const element = await identifyElement(buffer, locator)
 

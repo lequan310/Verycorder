@@ -102,9 +102,7 @@ const openai = new OpenAI();
     Function to generate a caption for an image using OpenAI's GPT-4 model.
     The function takes an image buffer as input and returns a string caption aka locator.
 */
-export async function getLocator(imageBuffer: Buffer): Promise<string> {
-
-    const base64_image = imageBuffer.toString('base64');
+export async function getLocator(base64_image: string): Promise<string> {
 
     const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
         {
@@ -213,6 +211,7 @@ export async function drawBoxes(imageBuffer: Buffer, boundingBoxes: BoundingBox[
 export type Position = {
     x: number,
     y: number,
+    idx: number
 };
 
 export async function identifyElement(imageBuffer: Buffer, locator: string): Promise<Position> {
@@ -258,5 +257,5 @@ export async function identifyElement(imageBuffer: Buffer, locator: string): Pro
         console.log(e);
     }
 
-    return index === -1 ? { x: -1, y: -1 } : { x: (boundingBoxes[index].x1 + boundingBoxes[index].x2) / 2, y: (boundingBoxes[index].y1 + boundingBoxes[index].y2) / 2 };
+    return index === -1 ? { x: -1, y: -1, idx: -1 } : { x: (boundingBoxes[index].x1 + boundingBoxes[index].x2) / 2, y: (boundingBoxes[index].y1 + boundingBoxes[index].y2) / 2, idx: index };
 }
