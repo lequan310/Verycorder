@@ -143,6 +143,7 @@ const EventItemList = () => {
         case AppMode.record:
           //when going to record state, reset the test case list
           setEventList([]);
+          setCanvasEventList([]);
           setCurrentReplayIndex(initState);
           break;
         case AppMode.replay:
@@ -154,6 +155,7 @@ const EventItemList = () => {
           break;
         case AppMode.disabled:
           setEventList([]);
+          setCanvasEventList([]);
           setCurrentReplayIndex(initState);
           break;
         default:
