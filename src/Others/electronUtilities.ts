@@ -52,9 +52,20 @@ let win: BrowserWindow;
 let view: BrowserView;
 let overlayWin: BrowserWindow | null = null;
 
-function initializeTestCase() {
+function initializeDOMTestCase() {
   const { x, y, width, height } = view.getBounds();
   const newTestCase: TestCase = {
+    url: view.webContents.getURL(),
+    events: [],
+    size: { width, height },
+  };
+
+  return newTestCase;
+}
+
+function initializeCanvasTestCase() {
+  const { x, y, width, height } = view.getBounds();
+  const newTestCase: CanvasTestCase = {
     url: view.webContents.getURL(),
     events: [],
     size: { width, height },
@@ -80,7 +91,7 @@ export function toggleEdit() {
     return;
 
   if (!testCase || !testCase.events) {
-    testCase = initializeTestCase();
+    testCase = initializeDOMTestCase();
   }
   toggleMode(AppMode.edit);
   win.webContents.send(Channel.win.UPDATE_STATE, currentMode);
@@ -325,17 +336,12 @@ export async function toggleRecord() {
 
   if (detectMode === DetectMode.DOM) {
     if (currentMode === AppMode.record) {
-      testCase = initializeTestCase();
+      testCase = initializeDOMTestCase();
     }
   } else {
     if (currentMode === AppMode.record) {
       currentEventIndex = 0;
-      canvasTestCase = {
-        url: view.webContents.getURL(),
-        events: [],
-        size: { width, height },
-      };
-
+      canvasTestCase = initializeCanvasTestCase();
       await createOnnxSession();
     } else {
       await releaseOnnxSession();
