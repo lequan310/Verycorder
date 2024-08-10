@@ -52,6 +52,15 @@ let win: BrowserWindow;
 let view: BrowserView;
 let overlayWin: BrowserWindow | null = null;
 
+function initializeTestCase() {
+  const { x, y, width, height } = view.getBounds();
+  testCase = {
+    url: view.webContents.getURL(),
+    events: [],
+    size: { width, height },
+  };
+}
+
 export function toggleEdit() {
   if (
     currentMode === AppMode.record ||
@@ -60,7 +69,7 @@ export function toggleEdit() {
   )
     return;
 
-  if (!testCase || !testCase.events || testCase.events.length === 0) return;
+  //if (!testCase || !testCase.events || testCase.events.length === 0) return;
 
   if (
     view.webContents.getURL() === "" ||
@@ -68,6 +77,9 @@ export function toggleEdit() {
   )
     return;
 
+  if (!testCase || !testCase.events) {
+    initializeTestCase();
+  }
   toggleMode(AppMode.edit);
   win.webContents.send(Channel.win.UPDATE_STATE, currentMode);
   view.webContents.send(Channel.view.edit.TOGGLE_EDIT, currentMode);
