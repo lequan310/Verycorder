@@ -10,8 +10,10 @@ import { DetectMode, DetectType } from "../../Types/detectMode";
 
 const PopupSettings = ({
   popupState,
+  toggleButtonRef,
 }: {
   popupState: Dispatch<SetStateAction<boolean>>;
+  toggleButtonRef: React.RefObject<HTMLButtonElement>;
 }) => {
   const targetContext = useContext(TargetContext);
   const dispatch = useContext(TargetDispatchContext);
@@ -35,7 +37,12 @@ const PopupSettings = ({
   const popupRef = useRef<HTMLDivElement>(null);
 
   const handleClickOutside = (event: MouseEvent) => {
-    if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
+    if (
+      popupRef.current &&
+      !popupRef.current.contains(event.target as Node) &&
+      toggleButtonRef.current &&
+      !toggleButtonRef.current.contains(event.target as Node)
+    ) {
       popupState(false);
     }
   };

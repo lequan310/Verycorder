@@ -1,4 +1,4 @@
-import { useContext, useState } from "react";
+import { useContext, useRef, useState } from "react";
 import "./SizeBar.css";
 import {
   TargetDispatchContext,
@@ -10,7 +10,7 @@ const SideBar = () => {
   const ipcRenderer = window.api;
   const [settingState, setSettingState] = useState(false);
   const [folderState, setFolderState] = useState(true);
-
+  const toggleButtonRef = useRef<HTMLButtonElement>(null);
   const dispatch = useContext(TargetDispatchContext);
   const targetContext = useContext(TargetContext);
   if (!targetContext) {
@@ -48,8 +48,14 @@ const SideBar = () => {
       </div>
 
       <div className="top_sizeBar_wrapper">
-        {settingState && <PopupSettings popupState={setSettingState} />}
+        {settingState && (
+          <PopupSettings
+            popupState={setSettingState}
+            toggleButtonRef={toggleButtonRef}
+          />
+        )}
         <button
+          ref={toggleButtonRef}
           className={settingState ? "active" : ""}
           onClick={() => {
             setSettingState(!settingState);
