@@ -127,7 +127,10 @@ export async function getLocator(imageBuffer: Buffer): Promise<string> {
 
     const response = await openai.chat.completions.create({
         model: 'gpt-4o',
+        seed: 0,
         messages: messages,
+        max_tokens:30, // Max number of tokens to generate locator. tokens are words, punctuation, etc. (approximately)
+        temperature:0 // 0 to 1 range, lower = more truthful => more consistent, less creative and randomness
     });
 
     return response.choices[0].message.content;
@@ -140,21 +143,21 @@ export async function drawBoxes(imageBuffer: Buffer, boundingBoxes: BoundingBox[
 
     //determine font size to use: 
     let imageSize = Math.min(jimpImage.bitmap.width, jimpImage.bitmap.height);
-    let fontSize: string;
+    let fontSize: string = Jimp.FONT_SANS_64_BLACK;
 
-    if (imageSize < 100) {
-        fontSize = Jimp.FONT_SANS_10_BLACK;
-    } else if (imageSize < 200) {
-        fontSize = Jimp.FONT_SANS_12_BLACK;
-    } else if (imageSize < 300) {
-        fontSize = Jimp.FONT_SANS_14_BLACK;
-    } else if (imageSize < 400) {
-        fontSize = Jimp.FONT_SANS_16_BLACK;
-    } else if (imageSize < 500) {
-        fontSize = Jimp.FONT_SANS_32_BLACK;
-    } else {
-        fontSize = Jimp.FONT_SANS_64_BLACK;
-    }
+    // if (imageSize < 100) {
+    //     fontSize = Jimp.FONT_SANS_10_BLACK;
+    // } else if (imageSize < 200) {
+    //     fontSize = Jimp.FONT_SANS_12_BLACK;
+    // } else if (imageSize < 300) {
+    //     fontSize = Jimp.FONT_SANS_14_BLACK;
+    // } else if (imageSize < 400) {
+    //     fontSize = Jimp.FONT_SANS_16_BLACK;
+    // } else if (imageSize < 500) {
+    //     fontSize = Jimp.FONT_SANS_32_BLACK;
+    // } else {
+    //     fontSize = Jimp.FONT_SANS_64_BLACK;
+    // }
 
     for (let boundingBox of boundingBoxes) {
         // Draw rectangle and text
@@ -198,7 +201,7 @@ export async function drawBoxes(imageBuffer: Buffer, boundingBoxes: BoundingBox[
                 this.bitmap.data[idx + 2] = blue ^ 0x00;
             });
 
-            jimpImage.blit(textImage, boundingBox.x1, boundingBox.y1)
+            jimpImage.blit(textImage, boundingBox.x1, boundingBox.y1 - 22)
         });
 
         i++;
@@ -240,7 +243,10 @@ export async function identifyElement(imageBuffer: Buffer, locator: string): Pro
 
     const response = await openai.chat.completions.create({
         model: 'gpt-4o',
+        seed: 0,
         messages: messages,
+        max_tokens:30, // Max number of tokens to generate locator. tokens are words, punctuation, etc. (approximately)
+        temperature:0 // 0 to 1 range, lower = more truthful => more consistent, less creative and randomness
     });
 
     const answer = response.choices[0].message.content;
