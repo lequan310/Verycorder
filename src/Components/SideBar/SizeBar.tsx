@@ -6,6 +6,7 @@ import {
 } from "../../Types/targetContext";
 import { Channel } from "../../Others/listenerConst";
 import PopupSettings from "../PopupSettings/PopupSettings";
+import { DetectMode } from "../../Types/detectMode";
 const SideBar = () => {
   const ipcRenderer = window.api;
   const [settingState, setSettingState] = useState(false);

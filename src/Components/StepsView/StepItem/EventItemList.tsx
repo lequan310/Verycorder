@@ -72,6 +72,7 @@ const EventItemList = () => {
     targetContext.addNewEventManually,
   ]);
 
+  //Reset index when switch betwen modes
   useEffect(() => {
     setCurrentReplayIndex(initState);
   }, [targetContext.detectMode]);
@@ -293,7 +294,7 @@ const EventItemList = () => {
         );
       })}
       {targetContext.addNewEventManually && (
-        <>{/* <AddEvent addEvent={(event) => addEvent(event)} /> */}</>
+        <AddEvent addEvent={(event) => addRecordedEvent(event)} />
       )}
       <div ref={bottomRef} />
     </div>
