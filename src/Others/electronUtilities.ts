@@ -54,11 +54,13 @@ let overlayWin: BrowserWindow | null = null;
 
 function initializeTestCase() {
   const { x, y, width, height } = view.getBounds();
-  testCase = {
+  const newTestCase: TestCase = {
     url: view.webContents.getURL(),
     events: [],
     size: { width, height },
   };
+
+  return newTestCase;
 }
 
 export function toggleEdit() {
@@ -78,7 +80,7 @@ export function toggleEdit() {
     return;
 
   if (!testCase || !testCase.events) {
-    initializeTestCase();
+    testCase = initializeTestCase();
   }
   toggleMode(AppMode.edit);
   win.webContents.send(Channel.win.UPDATE_STATE, currentMode);
@@ -323,11 +325,7 @@ export async function toggleRecord() {
 
   if (detectMode === DetectMode.DOM) {
     if (currentMode === AppMode.record) {
-      testCase = {
-        url: view.webContents.getURL(),
-        events: [],
-        size: { width, height },
-      };
+      testCase = initializeTestCase();
     }
   } else {
     if (currentMode === AppMode.record) {
