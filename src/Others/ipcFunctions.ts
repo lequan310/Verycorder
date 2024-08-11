@@ -14,7 +14,7 @@ import {
   toggleReplay,
   updateTestEventList,
 } from "./electronUtilities";
-import { processImage } from "./inference";
+import { getBoundingBoxes } from "./inference";
 import Jimp from "jimp";
 
 // ------------------- IPC EVENT export functionS -------------------
@@ -53,7 +53,7 @@ export function handleClickRecord() {
 export function handleProcessImage() {
   // handle to process img
   ipcMain.on(Channel.PROCESS_IMAGE, async (event, imageBuffer: Buffer) => {
-    const processedImageBuffer = await processImage(imageBuffer);
+    const processedImageBuffer = await getBoundingBoxes(imageBuffer);
     event.sender.send('processed-image', processedImageBuffer);
   });
 
