@@ -111,12 +111,6 @@ function updateEvent() {
   );
 }
 
-// function handleDoneEdit() {
-//   ipcMain.on(Channel.DONE_EDIT, async (event, newTestCase) => {
-//     testCase = newTestCase;
-//   });
-// }
-
 // Getter for win
 export function getWin(): BrowserWindow {
   return win;
@@ -312,6 +306,9 @@ export function incrementCurrentEventIndex() {
 
 export function updateTestEventList(eventList: RecordedEvent[]) {
   testCase.events = eventList;
+  if (testCase.events.length === 0) {
+    win.webContents.send(Channel.win.UPDATE_STATE, getCurrentMode());
+  }
 }
 
 // Export for Ctrl + R to toggle record
