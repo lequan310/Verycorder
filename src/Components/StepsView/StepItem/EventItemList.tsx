@@ -202,6 +202,7 @@ const EventItemList = () => {
     };
   }, [eventList, canvasEventList]);
 
+  //This func handle the edited event and sent to electron
   const sentEditedEvents = (
     type: EventEnum,
     target: Target,
@@ -269,6 +270,18 @@ const EventItemList = () => {
     // }
   };
 
+  const deleteItem = (index: number) => {
+    const newArray = eventList
+      .slice(0, index)
+      .concat(eventList.slice(index + 1));
+    setEventList(newArray);
+    ipcRenderer
+      .invoke(Channel.win.UPDATE_TEST_CASE, newArray)
+      .then((data: RecordedEvent[]) => {
+        setEventList(data);
+      });
+  };
+
   return (
     <div ref={listRef} className="stepView__container">
       {(targetContext.detectMode === DetectMode.DOM
@@ -290,6 +303,7 @@ const EventItemList = () => {
             prevState={currentReplayIndex.index > index ? true : false}
             selectedIndex={setEditEventIndex}
             doneEditing={sentEditedEvents}
+            deleteItem={deleteItem}
           />
         );
       })}

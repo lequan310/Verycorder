@@ -35,6 +35,7 @@ const SideBar = () => {
             ipcRenderer.send(Channel.win.CLICK_EDIT);
             setGlobalAddEventManually(!targetContext.addNewEventManually);
           }}
+          disabled={!targetContext.editState}
         >
           <span className="material-symbols-rounded">add</span>
         </button>

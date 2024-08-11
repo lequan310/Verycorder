@@ -28,11 +28,21 @@ interface EventItemProps {
     inputValue: string | null
   ) => void;
   ref: LegacyRef<HTMLDivElement>;
+  deleteItem: (index: number) => void;
 }
 
 const EventItem = forwardRef<HTMLDivElement, EventItemProps>(
   (
-    { itemKey, data, state, current, prevState, selectedIndex, doneEditing },
+    {
+      itemKey,
+      data,
+      state,
+      current,
+      prevState,
+      selectedIndex,
+      doneEditing,
+      deleteItem,
+    },
     ref
   ) => {
     const ipcRenderer = window.api;
@@ -139,15 +149,26 @@ const EventItem = forwardRef<HTMLDivElement, EventItemProps>(
               </div>
               <p>{preferedTarget()}</p>
             </div>
-
-            {
-              <button
-                disabled={!targetContext.editState}
-                onClick={() => handleToggleEditMode()}
-              >
-                <span className="material-symbols-rounded">edit</span>
-              </button>
-            }
+            <div>
+              <div className="stepitem_flex_col hidden">
+                <button
+                  disabled={!targetContext.editState}
+                  onClick={() => deleteItem(itemKey)}
+                  className="close_save_button"
+                >
+                  <span className="material-symbols-rounded">delete</span>
+                  Delete
+                </button>
+                <button
+                  disabled={!targetContext.editState}
+                  onClick={() => handleToggleEditMode()}
+                  className="edit_save_button"
+                >
+                  <span className="material-symbols-rounded">edit</span>
+                  Edit
+                </button>
+              </div>
+            </div>
             <div className="divider fixed_bottom"></div>
           </div>
         );
