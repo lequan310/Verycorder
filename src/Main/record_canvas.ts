@@ -96,10 +96,12 @@ function changeHandler(event: Event) {
         if (!(target instanceof HTMLInputElement) || keyboardInputTypes.includes(target.type)) {
             ipcRenderer.send(Channel.all.TEST_LOG, `Entered value: ${target.value}`);
             ipcRenderer.send(Channel.view.record.CANVAS_INPUT, target.value);
+            retakeBbox();
         }
     } else if (hasEditableContent(target)) {
         ipcRenderer.send(Channel.all.TEST_LOG, `Entered value: ${target.textContent}`);
         ipcRenderer.send(Channel.view.record.CANVAS_INPUT, target.textContent);
+        retakeBbox();
     }
 }
 
