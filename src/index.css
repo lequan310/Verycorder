@@ -57,6 +57,7 @@ h4 {
 p {
   font-size: 12px;
   margin: 0;
+  word-break: break-all;
 }
 
 button {
@@ -78,7 +79,6 @@ select {
   border-radius: 8px;
   border: 1px solid #cfcfcf;
   padding: 0 8px;
-  margin: 8px 0;
 }
 
 textarea {
@@ -92,11 +92,13 @@ textarea {
 .flex {
   display: flex;
   flex-direction: row;
+  gap: 4px;
 }
 
 .oneline_spacebetween_flex {
   display: flex;
   justify-content: space-between;
+  gap: 8px;
 }
 
 .baseline {
@@ -168,8 +170,6 @@ textarea {
 .commands__wrapper {
   flex: 1;
   overflow-x: hidden;
-  overflow-y: scroll;
-  /* margin-bottom: 12px; */
 }
 
 .commands__wrapper__title {

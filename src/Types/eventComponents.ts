@@ -8,16 +8,6 @@ export enum TargetEnum {
   "x-path" = "X-path",
 }
 
-export type TestDetector = {
-  ai: string;
-  dom: string;
-};
-
-export enum TestDetectorEnum {
-  "ai" = "AI",
-  "dom" = "DOM",
-}
-
 export type Value = {
   x: number;
   y: number;
@@ -26,4 +16,15 @@ export type Value = {
 export type MousePosition = {
   x: number;
   y: number;
+};
+
+export enum EventEnum {
+  click = "Click",
+  hover = "Hover",
+  scroll = "Scroll",
+  input = "Input",
+}
+
+export const getEnumValues = <T>(enumObj: T) => {
+  return Object.values(enumObj);
 };

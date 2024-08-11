@@ -13,11 +13,9 @@ import {
 import { RecordedEvent } from "../Types/recordedEvent";
 import { ipcRenderer } from "electron";
 import { Channel } from "../Others/listenerConst";
+import { EventEnum } from "../Types/eventComponents";
 
 // ------------------- GLOBAL VARIABLES -------------------
-// Variables for editing target element
-let hoveredElement: HTMLElement; // Current Hover
-let previousOutlineStyle: string = ""; // Previous outline style
 
 // Variables for event recording
 let currentEvent = document.createEvent("Event");
@@ -48,7 +46,7 @@ const mutationObserver = new MutationObserver((mutations) => {
       change = false;
 
       const eventObject: RecordedEvent = {
-        type: "click",
+        type: EventEnum.click,
         target: { css: getCssSelector(target), xpath: getXPath(target) },
         value: null,
         mousePosition: { x: mouseEvent.clientX, y: mouseEvent.clientY },
@@ -95,9 +93,9 @@ function clickHandler(event: MouseEvent) {
   if (event.isTrusted) {
     currentEvent = event;
     const target = event.target as HTMLElement;
-    ipcRenderer.send(Channel.TEST_LOG, target.outerHTML);
+    ipcRenderer.send(Channel.all.TEST_LOG, target.outerHTML);
     const eventObject: RecordedEvent = {
-      type: "click",
+      type: EventEnum.click,
       target: { css: getCssSelector(target), xpath: getXPath(target) },
       value: null,
       mousePosition: { x: event.clientX, y: event.clientY },
@@ -130,9 +128,10 @@ function windowScrollHandler(event: Event) {
   // Set a timeout to detect scroll end
   scrollTimer = setTimeout(() => {
     const eventObject: RecordedEvent = {
-      type: "scroll",
+      type: EventEnum.scroll,
       target: { css: "window", xpath: "window" },
-      value: { x: window.scrollX, y: window.scrollY },
+      value: `${window.scrollX} ${window.scrollY}`,
+      scrollValue: { x: window.scrollX, y: window.scrollY },
       mousePosition: { x: mouseX, y: mouseY },
     };
 
@@ -149,14 +148,15 @@ function scrollHandler(event: Event) {
   scrollTimer = setTimeout(() => {
     const target = event.target as HTMLElement;
     const eventObject: RecordedEvent = {
-      type: "scroll",
+      type: EventEnum.scroll,
       target: { css: getCssSelector(target), xpath: getXPath(target) },
-      value: { x: target.scrollLeft, y: target.scrollTop },
+      value: `${target.scrollLeft} ${target.scrollTop}`,
+      scrollValue: { x: target.scrollLeft, y: target.scrollTop },
       mousePosition: { x: mouseX, y: mouseY },
     };
 
     ipcRenderer.send("scroll-event", eventObject);
-  }, TIMEOUT); // Adjust the delay as needed
+  }, TIMEOUT * 2); // Adjust the delay as needed
 }
 
 function hoverHandler(event: MouseEvent) {
@@ -165,7 +165,7 @@ function hoverHandler(event: MouseEvent) {
   if (target === document.body) return;
 
   const eventObject: RecordedEvent = {
-    type: "hover",
+    type: EventEnum.hover,
     target: { css: getCssSelector(target), xpath: getXPath(target) },
     value: null,
     mousePosition: { x: mouseX, y: mouseY },
@@ -219,20 +219,17 @@ function changeHandler(event: Event) {
   if (target === focusElement) {
     if (hasValueProperty(target)) {
       const eventObject: RecordedEvent = {
-        type: "input",
+        type: EventEnum.input,
         target: { css: getCssSelector(target), xpath: getXPath(target) },
         value: target.value,
       };
 
-      if (
-        !(target instanceof HTMLInputElement) ||
-        keyboardInputTypes.includes(target.type)
-      ) {
+      if (!(target instanceof HTMLInputElement) || keyboardInputTypes.includes(target.type)) {
         ipcRenderer.send("input-event", eventObject);
       }
     } else if (hasEditableContent(target)) {
       const eventObject: RecordedEvent = {
-        type: "input",
+        type: EventEnum.input,
         target: { css: getCssSelector(target), xpath: getXPath(target) },
         value: target.textContent,
       };
@@ -253,16 +250,6 @@ function disconnectObserver() {
 function mouseTracker(event: MouseEvent) {
   mouseX = event.clientX;
   mouseY = event.clientY;
-}
-
-// Hover to edit target element for event
-export function hoverEditHandler(event: MouseEvent) {
-  if (hoveredElement) hoveredElement.style.outline = previousOutlineStyle; // Re-assigned previous outline style
-
-  // Highlight currently hovered element
-  hoveredElement = event.target as HTMLElement;
-  previousOutlineStyle = hoveredElement.style.outline;
-  hoveredElement.style.outline = "2px solid red";
 }
 
 export function record() {

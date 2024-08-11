@@ -99,6 +99,7 @@ python/*.onnx
 python/*.ipynb
 
 *.png
+*.jpg
+*.jpeg
 
 /src/models
-

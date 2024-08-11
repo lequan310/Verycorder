@@ -1,5 +1,6 @@
 import React from "react";
 import { TargetEnum } from "./eventComponents";
+import { DetectMode, DetectType } from "./detectMode";
 
 export interface TargetContext {
   target: TargetEnum | null;
@@ -7,7 +8,10 @@ export interface TargetContext {
   recordState: boolean;
   replayingButtonEnable: boolean;
   recordingButtonEnable: boolean;
+  editState: boolean;
   testCaseSize: number;
+  addNewEventManually: boolean;
+  detectMode: DetectType;
 }
 
 export const TargetContext = React.createContext<TargetContext>({
@@ -16,7 +20,10 @@ export const TargetContext = React.createContext<TargetContext>({
   recordState: false,
   replayingButtonEnable: false,
   recordingButtonEnable: false,
+  editState: false, // for edit functionality in case of x-path target
   testCaseSize: 0,
+  addNewEventManually: false,
+  detectMode: DetectMode.DOM,
 });
 
 type Action =
@@ -25,7 +32,10 @@ type Action =
   | { type: "SET_RECORD_STATE"; payload: boolean }
   | { type: "SET_TEST_CASE_SIZE"; payload: number }
   | { type: "SET_REPLAYING_BUTTON_ENABLE"; payload: boolean }
-  | { type: "SET_RECORDING_BUTTON_ENABLE"; payload: boolean };
+  | { type: "SET_RECORDING_BUTTON_ENABLE"; payload: boolean }
+  | { type: "SET_EDIT_STATE"; payload: boolean }
+  | { type: "SET_ADD_NEW_EVENT_MANUALLY"; payload: boolean }
+  | { type: "SET_DETECT_MODE"; payload: DetectType };
 
 export const reducer = (
   state: TargetContext,
@@ -44,6 +54,12 @@ export const reducer = (
       return { ...state, replayingButtonEnable: action.payload };
     case "SET_RECORDING_BUTTON_ENABLE":
       return { ...state, recordingButtonEnable: action.payload };
+    case "SET_EDIT_STATE":
+      return { ...state, editState: action.payload };
+    case "SET_ADD_NEW_EVENT_MANUALLY":
+      return { ...state, addNewEventManually: action.payload };
+    case "SET_DETECT_MODE":
+      return { ...state, detectMode: action.payload };
     default:
       return state;
   }

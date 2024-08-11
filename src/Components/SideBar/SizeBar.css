@@ -20,10 +20,10 @@
   padding: 6px;
 }
 
-.sizeBar__wrapper button:hover {
-  background-color: antiquewhite;
+button:hover {
+  background-color: #c5c5c56a;
 }
 
-.hover {
+.active {
   background-color: antiquewhite;
 }

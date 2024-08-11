@@ -1,5 +1,4 @@
 export { default as HeaderComponent } from "./HeaderComponent/HeaderComponent";
-export { default as StepsView } from "./StepsView/StepsView";
-export { default as StepItem } from "./StepsView/StepItem/StepItem"
-export { default as ControllerItem } from "./ControllerItem/ControllerItem";
+export { default as EventItemList } from "./StepsView/StepItem/EventItemList";
+export { default as EventItem } from "./StepsView/StepItem/EventItem";
 export { default as SearchBar } from "./SearchBar/SearchBar";

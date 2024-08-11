@@ -1,13 +1,15 @@
 import { app, BrowserWindow, globalShortcut } from "electron";
 import {
   handleRecordEvents,
-  toggleRecord,
+  handleRecordCanvas,
   handleViewEvents,
   handleUIEvents,
   getView,
   getWin,
   createWindow,
+  toggleRecord,
   toggleReplay,
+  toggleEdit,
 } from "./Others/electronUtilities";
 import { handleReplayEvents } from "./Main/replay_functions";
 
@@ -58,6 +60,7 @@ app.whenReady().then(() => {
     "hover-event",
     "input-event",
   ]);
+  handleRecordCanvas();
   handleReplayEvents();
 });
 

@@ -1,16 +1,31 @@
 const ort = require('onnxruntime-node');
-
-import Jimp from 'jimp';
-import OpenAI from "openai";
-import { text } from 'stream/consumers';
-
-// Load ONNX model
+import * as Jimp from 'jimp';
+import sharp from 'sharp';
+import { BoundingBox } from '../Types/bbox';
 
 type Tensor = typeof ort.Tensor;
+type InferenceSession = typeof ort.InferenceSession;
+
+const MODEL_PATH = "./src/Models/best.onnx";
+
+let session: InferenceSession | null = null;
+
+export async function createOnnxSession() {
+    if (!session) session = await ort.InferenceSession.create(MODEL_PATH);
+    console.log("Session created");
+}
+
+export async function releaseOnnxSession() {
+    await session?.release();
+    session = null;
+    console.log("Session released");
+}
 
 function imageBufferToTensor(imageBufferData: Buffer, dims: number[]): Tensor {
     // 1. Get buffer data from image and create R, G, and B arrays.
-    const [redArray, greenArray, blueArray] = new Array(new Array<number>(), new Array<number>(), new Array<number>());
+    const redArray = new Array<number>();
+    const greenArray = new Array<number>();
+    const blueArray = new Array<number>();
 
     // 2. Loop through the image buffer and extract the R, G, and B channels
     for (let i = 0; i < imageBufferData.length; i += 4) {
@@ -23,13 +38,12 @@ function imageBufferToTensor(imageBufferData: Buffer, dims: number[]): Tensor {
     // 3. Concatenate RGB to transpose [224, 224, 3] -> [3, 224, 224] to a number array
     const transposedData = redArray.concat(greenArray).concat(blueArray);
 
-    // 4. convert to float32
-    let i, l = transposedData.length; // length, we need this for the loop
     // create the Float32Array size 3 * 224 * 224 for these dimensions output
     const float32Data = new Float32Array(dims[1] * dims[2] * dims[3]);
-    for (i = 0; i < l; i++) {
+    for (let i = 0; i < transposedData.length; i++) {
         float32Data[i] = transposedData[i] / 255.0; // convert to float
     }
+
     // 5. create the tensor object from onnxruntime-node.
     const inputTensor = new ort.Tensor("float32", float32Data, dims);
     return inputTensor;
@@ -44,21 +58,12 @@ export async function loadImagefromPath(path: string, width: number = 640, heigh
     return imageData;
 }
 
-export type BoundingBox = {
-    x1: number,
-    y1: number,
-    x2: number,
-    y2: number,
-};
-
-
 // Function to process the image
-export async function getBoundingBoxes(imageBuffer: Buffer, modelPath: string = "src/Models/best.onnx"): Promise<BoundingBox[]> {
+export async function processImage(imageBuffer: Buffer): Promise<Jimp> {
     // Wait for the session to be ready
-    const session = await ort.InferenceSession.create(modelPath);
+    const session = await ort.InferenceSession.create(MODEL_PATH);
 
-    const image = await Jimp.create(imageBuffer);
-
+    const image = await Jimp.default.create(imageBuffer), originalImage = image.clone();
     const originalWidth = image.getWidth(), originalHeight = image.getHeight();
 
     image.resize(640, 640);
@@ -127,8 +132,8 @@ export async function getLocator(base64_image: string): Promise<string> {
         model: 'gpt-4o',
         seed: 0,
         messages: messages,
-        max_tokens:30, // Max number of tokens to generate locator. tokens are words, punctuation, etc. (approximately)
-        temperature:0 // 0 to 1 range, lower = more truthful => more consistent, less creative and randomness
+        max_tokens: 30, // Max number of tokens to generate locator. tokens are words, punctuation, etc. (approximately)
+        temperature: 0 // 0 to 1 range, lower = more truthful => more consistent, less creative and randomness
     });
 
     return response.choices[0].message.content;
@@ -162,100 +167,77 @@ export async function drawBoxes(imageBuffer: Buffer, boundingBoxes: BoundingBox[
         // Draw the border of the rectangle
         var thickness = 2;
 
-        jimpImage.scan(boundingBox.x1, boundingBox.y1, boundingBox.x2 - boundingBox.x1, thickness, function (x, y, idx) { // Top border
+        originalImage.scan(rescaledX1, rescaledY1, rescaledX2 - rescaledX1, thickness, function (x, y, idx) { // Top border
             this.bitmap.data.writeUInt32BE(0xFF0000FF, idx);
         });
-        jimpImage.scan(boundingBox.x1, boundingBox.y2, boundingBox.x2 - boundingBox.x1, thickness, function (x, y, idx) { // Bottom border
+        originalImage.scan(rescaledX1, rescaledY2, rescaledX2 - rescaledX1, thickness, function (x, y, idx) { // Bottom border
             this.bitmap.data.writeUInt32BE(0xFF0000FF, idx);
         });
-        jimpImage.scan(boundingBox.x1, boundingBox.y1, thickness, boundingBox.y2 - boundingBox.y1, function (x, y, idx) { // Left border
+        originalImage.scan(rescaledX1, rescaledY1, thickness, rescaledY2 - rescaledY1, function (x, y, idx) { // Left border
             this.bitmap.data.writeUInt32BE(0xFF0000FF, idx);
         });
-        jimpImage.scan(boundingBox.x2, boundingBox.y1, thickness, boundingBox.y2 - boundingBox.y1, function (x, y, idx) { // Right border
+        originalImage.scan(rescaledX2, rescaledY1, thickness, rescaledY2 - rescaledY1, function (x, y, idx) { // Right border
             this.bitmap.data.writeUInt32BE(0xFF0000FF, idx);
         });
+        // await Jimp.loadFont(Jimp.FONT_SANS_10_BLACK).then(font => {
+        //     originalImage.print(font, rescaledX1, rescaledY1, `Class: ${Math.round(classId)}, Conf: ${conf.toFixed(2)}`);
+        // });
 
-
-
-        await Jimp.loadFont(fontSize).then(font => {
-            const textLabel = `${i}`;
-
-            const measureTextWidth = Jimp.measureText(font, textLabel);
-            const measureTextHeight = Jimp.measureTextHeight(font, textLabel, measureTextWidth);
-
-            let textImage = new Jimp(measureTextWidth, measureTextHeight, 0x0);
-
-            textImage.print(font, 0, 0, textLabel);
-
-            textImage.scan(0, 0, textImage.bitmap.width, textImage.bitmap.height, function (x, y, idx) {
-                // Get the original color values
-                const red = this.bitmap.data[idx + 0];
-                const green = this.bitmap.data[idx + 1];
-                const blue = this.bitmap.data[idx + 2];
-
-                // Apply XOR operation with 0xFF (255) to invert the color
-                this.bitmap.data[idx + 0] = red ^ 0xFF;
-                this.bitmap.data[idx + 1] = green ^ 0x00;
-                this.bitmap.data[idx + 2] = blue ^ 0x00;
-            });
-
-            jimpImage.blit(textImage, boundingBox.x1, boundingBox.y1 - 22)
-        });
-
-        i++;
+        // console.log(`Class: ${Math.round(classId)}, Conf: ${conf.toFixed(2)}`);
+        // console.log(`Coordinates: (${rescaledX1}, ${rescaledY1}) - (${rescaledX2}, ${rescaledY2})`);
     }
+}
 
-    return await jimpImage.getBufferAsync(Jimp.MIME_PNG);
-};
+session.release();
+return originalImage;
+}
 
-export type Position = {
-    x: number,
-    y: number,
-    idx: number
-};
+export async function getImageBuffer(imagePath: string): Promise<Buffer> {
+    // Load the image
+    const image = sharp(imagePath);
 
-export async function identifyElement(imageBuffer: Buffer, locator: string): Promise<Position> {
-    const boundingBoxes = await getBoundingBoxes(imageBuffer);
+    // Convert image to a buffer
+    const imageBuffer = await image.toBuffer();
 
-    const boxedImageBuffer = await drawBoxes(imageBuffer, boundingBoxes);
+    return imageBuffer;
+}
 
-    const base64_image = boxedImageBuffer.toString('base64');
+export async function getBBoxes(imageBuffer: Buffer) {
+    const startTime = performance.now();
 
-    const messages: OpenAI.Chat.Completions.ChatCompletionMessageParam[] = [
-        {
-            role: "system",
-            content: `You are provided a screenshot of a web page with bounding boxes around the web elements and the index number on the top left of the corresponding bounding box. Which bounding box corresponds to the description ${locator}? Provide only a single index number as the answer or -1 if no box fits the description.`,
-        },
-        {
-            role: "user",
-            content: [
-                {
-                    type: "image_url",
-                    image_url: {
-                        url: `data:image/png;base64,${base64_image}`,
-                        detail: "low"
-                    }
-                },
-            ]
+    const image = await Jimp.default.create(imageBuffer);
+    const originalWidth = image.getWidth(), originalHeight = image.getHeight();
+
+    image.resize(640, 640);
+    const imageTensor = imageBufferToTensor(image.bitmap.data, [1, 3, 640, 640]);
+
+    // Perform inference
+    const feeds = { [session.inputNames[0]]: imageTensor };
+    const results = await session.run(feeds);
+    const output = results[session.outputNames[0]].data;
+
+    const bboxes: BoundingBox[] = [];
+    // Draw bounding boxes
+    for (let i = 0; i < output.length; i += 6) {
+        const x1 = output[i];
+        const y1 = output[i + 1];
+        const x2 = output[i + 2];
+        const y2 = output[i + 3];
+        const conf = output[i + 4];
+        //const classId = output[i + 5];
+        if (conf > 0.4) {  // Confidence threshold
+            // Rescale coordinates to the original image size
+            const rescaledX1 = Math.floor(x1 / 640 * originalWidth);
+            const rescaledY1 = Math.floor(y1 / 640 * originalHeight);
+            const rescaledX2 = Math.ceil(x2 / 640 * originalWidth);
+            const rescaledY2 = Math.ceil(y2 / 640 * originalHeight);
+            const bbox = BoundingBox.createNewBBox(rescaledX1, rescaledX2, rescaledY1, rescaledY2);
+            bboxes.push(bbox);
         }
-    ];
-
-    const response = await openai.chat.completions.create({
-        model: 'gpt-4o',
-        seed: 0,
-        messages: messages,
-        max_tokens:30, // Max number of tokens to generate locator. tokens are words, punctuation, etc. (approximately)
-        temperature:0 // 0 to 1 range, lower = more truthful => more consistent, less creative and randomness
-    });
-
-    const answer = response.choices[0].message.content;
-
-    let index = -1;
-    try {
-        index = parseInt(answer);
-    } catch (e) {
-        console.log(e);
     }
 
-    return index === -1 ? { x: -1, y: -1, idx: -1 } : { x: (boundingBoxes[index].x1 + boundingBoxes[index].x2) / 2, y: (boundingBoxes[index].y1 + boundingBoxes[index].y2) / 2, idx: index };
+    const endTime = performance.now();
+    const timeTaken = endTime - startTime;
+    console.log(`Time taken: ${timeTaken} milliseconds`);
+    return bboxes;
 }

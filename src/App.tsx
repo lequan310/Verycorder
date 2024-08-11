@@ -5,12 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
-import {
-  ControllerItem,
-  HeaderComponent,
-  SearchBar,
-  StepsView,
-} from "./Components";
+import { EventItemList } from "./Components";
 import {
   reducer,
   TargetContext,
@@ -19,12 +14,11 @@ import {
 import { TargetEnum } from "./Types/eventComponents";
 import { Channel } from "./Others/listenerConst";
 import { AppMode } from "./Types/appMode";
-import PopupSettings from "./Components/PopupSettings/PopupSettings";
 import TitleBar from "./Components/TitleBar/TitleBar";
 import SideBar from "./Components/SideBar/SizeBar";
+import { DetectMode } from "./Types/detectMode";
 
 const App = () => {
-  const [shrink, setShrink] = useState(true);
   const [responseMessage, setResponseMessage] = useState(
     "Please enter a link to continue"
   );
@@ -38,12 +32,6 @@ const App = () => {
     setRecordingButtonEnable(object.success);
   }
 
-  const handleButtonClick = () => {
-    setShrink((prev) => {
-      return !prev;
-    });
-  };
-
   //GLOBAL REDUCER----------------
   const initialState: TargetContext = {
     target: TargetEnum.css,
@@ -51,16 +39,12 @@ const App = () => {
     recordState: false,
     replayingButtonEnable: false,
     recordingButtonEnable: false,
+    editState: false,
     testCaseSize: 0,
+    addNewEventManually: false,
+    detectMode: DetectMode.DOM,
   };
-
   const [state, dispatch] = useReducer(reducer, initialState);
-
-  //State for target css or x-path
-  const setTarget = (event: React.ChangeEvent<HTMLSelectElement>) => {
-    const newTarget = event.target.value as TargetEnum;
-    dispatch({ type: "SET_TARGET", payload: newTarget });
-  };
 
   //USECONTEXT FUNC HERE---------------------------------
   const targetContext = useContext(TargetContext);
@@ -89,43 +73,61 @@ const App = () => {
     }
   };
 
+  const setEditState = (newEditState: boolean) => {
+    if (dispatch) {
+      dispatch({ type: "SET_EDIT_STATE", payload: newEditState });
+    }
+  };
+
   useEffect(() => {
     //handle state change --------------
     const updateStateHandler = (mode: AppMode) => {
-      ipcRenderer.send(Channel.TEST_LOG, mode);
+      const disableAll = () => {
+        setRecordingButtonEnable(false);
+        setReplayingButtonEnable(false);
+        setEnableSeachBar(false);
+        setEnableResize(false);
+        setEditState(false);
+      };
+
       switch (mode) {
         case AppMode.normal:
           setRecordingButtonEnable(!targetContext.recordingButtonEnable);
-          //record will be handled in Step view
           setRecordState(false);
           setReplayState(false);
           setEnableSeachBar(true);
           setEnableResize(true);
+          setEditState(true);
           break;
+
         case AppMode.record:
           setRecordState(!targetContext.recordState);
-          setReplayingButtonEnable(false);
-          setEnableSeachBar(false);
-          setEnableResize(false);
+          disableAll();
+          setRecordingButtonEnable(true);
           break;
+
         case AppMode.replay:
           setReplayState(!targetContext.replayState);
-          setRecordingButtonEnable(false);
-          setEnableSeachBar(false);
-          setEnableResize(false);
+          disableAll();
+          setReplayingButtonEnable(true);
           break;
+
+        case AppMode.edit:
+          setEditState(false);
+          setReplayingButtonEnable(false);
+          break;
+
         default:
           setRecordState(false);
           setReplayState(false);
-          setReplayingButtonEnable(false);
-          setRecordingButtonEnable(false);
+          disableAll();
           setEnableSeachBar(true);
-          setEnableResize(false);
           break;
       }
     };
+
     const updateState = ipcRenderer.on(
-      Channel.UPDATE_STATE,
+      Channel.win.UPDATE_STATE,
       updateStateHandler
     );
 
@@ -152,14 +154,19 @@ const App = () => {
   const handleMouseMove = (e: MouseEvent) => {
     if (containerRef.current) {
       const containerRect = containerRef.current.getBoundingClientRect();
-      console.log(e.clientX);
       const newLeftWidth = e.clientX - containerRect.left;
+
+      // Get screen width
+      const screenWidth = window.innerWidth;
+
+      // Ensure the new width is within the limits of 250 and screen width - 200
       const finalLeftWidth = Math.min(
         Math.max(newLeftWidth, 250),
-        containerRect.width - 200
+        screenWidth - 400
       );
+
       setLeftWidth(finalLeftWidth);
-      ipcRenderer.send(Channel.END_RESIZE, finalLeftWidth); // Limit the width between 100px and container width - 100px
+      ipcRenderer.send(Channel.win.END_RESIZE, finalLeftWidth); // Limit the width between 100px and container width - 100px
     }
   };
 
@@ -187,21 +194,10 @@ const App = () => {
                 <div className="commands__wrapper">
                   <div className="commands__wrapper__title">
                     <h4>Commands</h4>
+                    <span className="material-symbols-rounded">tune</span>
                   </div>
-                  <StepsView />
+                  <EventItemList />
                 </div>
-                {/* <div
-                  className={`controllers__wrapper ${
-                    shrink ? "shrink" + " change-padding-bottom" : "expand"
-                  }`}
-                > */}
-                {/* <button className="collapse_btn" onClick={handleButtonClick}>
-                    {shrink ? "^ Expand" : " v Collapse"}
-                  </button>
-                  <ControllerItem hide={shrink ? "hide" : ""}></ControllerItem>
-                  <ControllerItem hide={shrink ? "hide" : ""}></ControllerItem>
-                  <textarea placeholder={"Comment"} /> */}
-                {/* </div> */}
               </div>
             </div>
             <button

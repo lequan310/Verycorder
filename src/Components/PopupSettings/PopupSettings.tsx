@@ -4,16 +4,16 @@ import {
   TargetContext,
   TargetDispatchContext,
 } from "../../../src/Types/targetContext";
-import {
-  TargetEnum,
-  TestDetectorEnum,
-} from "../../../src/Types/eventComponents";
+import { TargetEnum } from "../../../src/Types/eventComponents";
 import { Channel } from "../../Others/listenerConst";
+import { DetectMode, DetectType } from "../../Types/detectMode";
 
 const PopupSettings = ({
   popupState,
+  toggleButtonRef,
 }: {
   popupState: Dispatch<SetStateAction<boolean>>;
+  toggleButtonRef: React.RefObject<HTMLButtonElement>;
 }) => {
   const targetContext = useContext(TargetContext);
   const dispatch = useContext(TargetDispatchContext);
@@ -23,14 +23,26 @@ const PopupSettings = ({
     const newTarget = event.target.checked
       ? TargetEnum["x-path"]
       : TargetEnum.css;
-    ipcRenderer.send(Channel.TEST_LOG, newTarget);
     dispatch({ type: "SET_TARGET", payload: newTarget });
+  };
+
+  const updateDetectMode = (detectMode: DetectType) => {
+    if (dispatch) {
+      ipcRenderer.send(Channel.win.UPDATE_DETECT_MODE, detectMode);
+      ipcRenderer.send(Channel.all.TEST_LOG, detectMode);
+      dispatch({ type: "SET_DETECT_MODE", payload: detectMode });
+    }
   };
 
   const popupRef = useRef<HTMLDivElement>(null);
 
   const handleClickOutside = (event: MouseEvent) => {
-    if (popupRef.current && !popupRef.current.contains(event.target as Node)) {
+    if (
+      popupRef.current &&
+      !popupRef.current.contains(event.target as Node) &&
+      toggleButtonRef.current &&
+      !toggleButtonRef.current.contains(event.target as Node)
+    ) {
       popupState(false);
     }
   };
@@ -46,17 +58,6 @@ const PopupSettings = ({
     <div className="popup_wrapper" ref={popupRef}>
       <div>
         <p>Test detector: </p>
-        {/* <select
-          name="target"
-          id="target"
-          value={targetContext.target ?? ""}
-          onChange={(e) => {
-            setTarget(e);
-          }}
-        >
-          <option value={TargetEnum.css}>{TargetEnum.css}</option>
-          <option value={TargetEnum["x-path"]}>{TargetEnum["x-path"]}</option>
-        </select> */}
         <div className="toggle_wrapper">
           <div className="toggle-switch">
             <input
@@ -76,14 +77,18 @@ const PopupSettings = ({
         <select
           name="target"
           id="target"
-          //   value={targetContext.target ?? ""}
-          //   onChange={(e) => {
-          //     setTarget(e);
-          //     ipcRenderer.send(Channel.TEST_LOG, e.target.value);
-          //   }}
+          value={targetContext.detectMode}
+          onChange={(e) => {
+            updateDetectMode(e.target.value as DetectType);
+          }}
+          disabled={
+            targetContext.recordState ||
+            targetContext.replayState ||
+            !targetContext.editState
+          }
         >
-          <option value={TestDetectorEnum.dom}>{TestDetectorEnum.dom}</option>
-          <option value={TestDetectorEnum.ai}>{TestDetectorEnum.ai}</option>
+          <option value={DetectMode.DOM}>{DetectMode.DOM}</option>
+          <option value={DetectMode.AI}>{DetectMode.AI}</option>
         </select>
       </div>
       {/* <div className="close_wrapper"></div> */}

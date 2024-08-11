@@ -1,30 +1,22 @@
-import { Target, Value, MousePosition } from "./eventComponents";
+import { Target, Value, MousePosition, EventEnum } from "./eventComponents";
 
-interface ClickEvent {
-    type: 'click'
-    target: Target
-    value: null
-    mousePosition: MousePosition
+// Base interface for common properties
+interface BaseEvent<T extends EventEnum, V = null, M = null> {
+  type: T;
+  target: Target;
+  value?: V;
+  mousePosition?: M;
 }
 
-interface ScrollEvent {
-    type: 'scroll'
-    target: Target
-    value: Value
-    mousePosition: MousePosition
-}
-
-interface InputEvent {
-    type: 'input'
-    target: Target
-    value: string
-}
-
-interface HoverEvent {
-    type: 'hover'
-    target: Target
-    value: null
-    mousePosition: MousePosition
-}
+export type ClickEvent = BaseEvent<EventEnum.click, null, MousePosition | null>;
+export type ScrollEvent = BaseEvent<
+  EventEnum.scroll,
+  string | null,
+  MousePosition | null
+> & {
+  scrollValue: Value;
+};
+export type InputEvent = BaseEvent<EventEnum.input, string | null>;
+export type HoverEvent = BaseEvent<EventEnum.hover, null, MousePosition | null>;
 
 export type RecordedEvent = ClickEvent | ScrollEvent | InputEvent | HoverEvent;
