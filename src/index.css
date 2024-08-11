@@ -57,6 +57,7 @@ h4 {
 p {
   font-size: 12px;
   margin: 0;
+  word-break: break-all;
 }
 
 button {
