@@ -81,7 +81,11 @@ const PopupSettings = ({
           onChange={(e) => {
             updateDetectMode(e.target.value as DetectType);
           }}
-          disabled={targetContext.recordState || targetContext.replayState}
+          disabled={
+            targetContext.recordState ||
+            targetContext.replayState ||
+            !targetContext.editState
+          }
         >
           <option value={DetectMode.DOM}>{DetectMode.DOM}</option>
           <option value={DetectMode.AI}>{DetectMode.AI}</option>
