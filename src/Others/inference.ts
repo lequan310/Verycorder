@@ -118,6 +118,10 @@ export async function drawBoxes(imageBuffer: Buffer) {
     let imageSize = Math.min(jimpImage.bitmap.width, jimpImage.bitmap.height);
     let fontSize: string = Jimp.FONT_SANS_64_BLACK;
 
+    let colors = [
+        [255, 0, 0],
+    ]
+
     // if (imageSize < 100) {
     //     fontSize = Jimp.FONT_SANS_10_BLACK;
     // } else if (imageSize < 200) {
@@ -171,9 +175,11 @@ export async function drawBoxes(imageBuffer: Buffer) {
                 const blue = this.bitmap.data[idx + 2];
 
                 // Apply XOR operation with 0xFF (255) to invert the color
-                this.bitmap.data[idx + 0] = red ^ 0xFF;
-                this.bitmap.data[idx + 1] = green ^ 0x00;
-                this.bitmap.data[idx + 2] = blue ^ 0x00;
+                let color = colors[i % colors.length];
+
+                this.bitmap.data[idx + 0] = red ^ color[0];
+                this.bitmap.data[idx + 1] = green ^ color[1];
+                this.bitmap.data[idx + 2] = blue ^ color[2];
             });
 
             jimpImage.blit(textImage, x1, y1 - 22);
