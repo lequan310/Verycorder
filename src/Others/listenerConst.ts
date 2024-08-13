@@ -30,6 +30,8 @@ export const Channel = {
     UPDATE_EVENT_CAPTION: "win-update-event-caption",
     //Update detect mode either AI for DOM
     UPDATE_DETECT_MODE: "win-update-detect-mode",
+    // Update canvas test case from win to main
+    UPDATE_CANVAS_EVENT_LIST: "win-update-canvas-event-list",
   },
   view: {
     replay: {
