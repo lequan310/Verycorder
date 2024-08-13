@@ -29,6 +29,7 @@ const EventItemList = () => {
   const [currentReplayIndex, setCurrentReplayIndex] = useState(initState);
   const [editEventIndex, setEditEventIndex] = useState(-1);
   const editEventIndexRef = useRef(editEventIndex);
+  const [captionNumber, setCaptionNumber] = useState(0);
 
   const listRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -53,6 +54,22 @@ const EventItemList = () => {
     setCurrentReplayIndex(initState);
   };
   const addCanvasEvent = (event: CanvasEvent) => {
+    ipcRenderer.send(Channel.all.TEST_LOG, "Current canvas event: " + event.id);
+    if (event.id == 0) {
+      setCaptionNumber(0); // Reset captionNumber
+    }
+
+    if (
+      (event.type === EventEnum.click || event.type === EventEnum.hover) &&
+      targetContext.detectMode === DetectMode.AI
+    ) {
+      setCaptionNumber((prev) => prev + 1); // Increment captionNumber
+    }
+    // Use a callback to ensure the state update is completed before logging
+    setCaptionNumber((prev) => {
+      ipcRenderer.send(Channel.all.TEST_LOG, "captionNumber: " + prev);
+      return prev;
+    });
     setCanvasEventList([...canvasEventList, event]);
     setCurrentReplayIndex(initState);
   };
