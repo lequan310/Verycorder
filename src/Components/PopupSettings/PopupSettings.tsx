@@ -27,6 +27,7 @@ const PopupSettings = ({
   };
 
   const updateDetectMode = (detectMode: DetectType) => {
+    popupState(false);
     if (dispatch) {
       ipcRenderer.send(Channel.win.UPDATE_DETECT_MODE, detectMode);
       ipcRenderer.send(Channel.all.TEST_LOG, detectMode);

@@ -67,6 +67,7 @@ const EventItemList = () => {
     editEventIndexRef.current = editEventIndex;
   }, [
     eventList,
+    canvasEventList,
     editEventIndex,
     targetContext.recordState,
     targetContext.addNewEventManually,
