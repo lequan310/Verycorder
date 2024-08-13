@@ -119,7 +119,7 @@ export async function drawBoxes(imageBuffer: Buffer) {
     let fontSize: string = Jimp.FONT_SANS_64_BLACK;
 
     let colors = [
-        [255, 0, 0],
+        [255, 0, 0], [0, 255, 0], [0, 0, 255], [255, 255, 0], [255, 0, 255], [0, 255, 255],
     ]
 
     // if (imageSize < 100) {

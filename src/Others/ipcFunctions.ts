@@ -103,12 +103,10 @@ export function handleGetBBoxes() {
 }
 
 function handleGetCaption(win: BrowserWindow, bbox: BoundingBox, id: number) {
-  elementScreenshot(bbox).then((base64image) => {
-    getCaption(base64image).then((completion) => {
-      const caption = completion.choices[0].message.content;
-      win.webContents.send(Channel.win.UPDATE_EVENT_CAPTION, id, caption);
-      console.log(`ID:${id} - ${caption}`);
-    });
+  elementScreenshot(bbox).then(async (base64image) => {
+    const caption = await getCaption(base64image);
+    win.webContents.send(Channel.win.UPDATE_EVENT_CAPTION, id, caption);
+    console.log(`ID:${id} - ${caption}`);
   });
 }
 

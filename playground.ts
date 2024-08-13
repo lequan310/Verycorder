@@ -1,7 +1,7 @@
 import 'dotenv/config'
 
 import Jimp from "jimp";
-import { getImageBuffer, getBBoxes, createOnnxSession, releaseOnnxSession, processImage } from "./src/Others/inference";
+import { getImageBuffer, getBBoxes, createOnnxSession, releaseOnnxSession } from "./src/Others/inference";
 import { BoundingBox } from "./src/Types/bbox";
 
 // Command to run this file for testing: npx ts-node playground.ts

@@ -1,6 +1,8 @@
 import dotenv from 'dotenv';
 import OpenAI from "openai";
 import { drawBoxes } from './inference';
+import { elementScreenshot } from './electronUtilities';
+import { BoundingBox } from '../Types/bbox';
 
 dotenv.config();
 
@@ -37,8 +39,45 @@ Give a single number, which is the index of the bounding box, as the answer.
 Begin!
 `;
 
-export function getCaption(base64image: string) {
-    const response = openai.chat.completions.create({
+function cosine_similarity(a: number[], b: number[]) {
+    let dotproduct = 0;
+    let mA = 0;
+    let mB = 0;
+
+    for (let i = 0; i < a.length; i++) {
+        dotproduct += (a[i] * b[i]);
+        mA += (a[i] * a[i]);
+        mB += (b[i] * b[i]);
+    }
+
+    mA = Math.sqrt(mA);
+    mB = Math.sqrt(mB);
+    let similarity = (dotproduct) / ((mA) * (mB));
+    return similarity;
+}
+
+async function getSimilarity(locator: string, newLocator: string): Promise<number> {
+    const embeddingObject = await openai.embeddings.create({
+        model: "text-embedding-3-small",
+        input: locator.replace("[", "").replace("]", ""),
+        encoding_format: "float",
+    });
+
+    const newEmbeddingObject = await openai.embeddings.create({
+        model: "text-embedding-3-small",
+        input: newLocator.replace("[", "").replace("]", ""),
+        encoding_format: "float",
+    });
+
+    const embedding = embeddingObject.data[0].embedding;
+    const newEmbedding = newEmbeddingObject.data[0].embedding;
+    const similarity = cosine_similarity(embedding, newEmbedding);
+
+    return similarity * similarity;
+}
+
+export async function getCaption(base64image: string) {
+    const response = await openai.chat.completions.create({
         messages: [
             { role: "system", content: CAPTION_PROPMT },
             {
@@ -57,15 +96,16 @@ export function getCaption(base64image: string) {
         temperature: 0,
     });
 
-    return response;
+    return response.choices[0].message.content;
 }
 
-export async function getReplayTargetBBox(imageBuffer: Buffer, locator: string) {
+export async function getReplayTargetBBox(imageBuffer: Buffer, locator: string): Promise<BoundingBox> {
     // Draw bounding boxes for this image
     const result = await drawBoxes(imageBuffer);
+    let index = -1;
 
     // Convert the image to base64
-    const base64image = result.buffer.toString('base64');
+    const annotatedImage = result.buffer.toString('base64');
 
     const completion = await openai.chat.completions.create({
         messages: [
@@ -79,7 +119,7 @@ export async function getReplayTargetBBox(imageBuffer: Buffer, locator: string) 
                     {
                         type: "image_url",
                         image_url: {
-                            url: `data:image/png;base64,${base64image}`,
+                            url: `data:image/png;base64,${annotatedImage}`,
                             detail: "low"
                         }
                     }
@@ -96,10 +136,20 @@ export async function getReplayTargetBBox(imageBuffer: Buffer, locator: string) 
 
     // Return the bounding box down here
     try {
-        const index = parseInt(repsonse);
-        return result.bboxes[index];
+        index = parseInt(repsonse);
+        // return result.bboxes[index];
     } catch (error) {
-        const index = repsonse.match(/\d+/g).map(Number)[0];
-        return result.bboxes[index];
+        index = repsonse.match(/\d+/g).map(Number)[0];
+        // return result.bboxes[index];
     }
+
+    if (index === -1) return null;
+
+    // Check if the detected element matches the locator
+    const screenshotElement = await elementScreenshot(result.bboxes[index]);
+    const newLocator = await getCaption(screenshotElement);
+    const similarity = await getSimilarity(locator, newLocator);
+
+    if (similarity >= 0.8) return result.bboxes[index];
+    return null;
 }
