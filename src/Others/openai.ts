@@ -7,8 +7,11 @@ import { BoundingBox } from '../Types/bbox';
 dotenv.config();
 
 const openai = new OpenAI();
+const caption_model = "gpt-4o-mini";
+const locate_model = "gpt-4o";
+const embed_model = "text-embedding-3-small";
 
-let CAPTION_PROPMT = `You are an expert at captioning web element. You are given an image of a web element.
+const CAPTION_PROPMT = `You are an expert at captioning web element. You are given an image of a web element.
 Generate a single precise locator for the web element based on visual description.
 Visual Description should contains all details available from the web element.
 Example attributes of details include but not limited to text, background color, shape, icon, etc.
@@ -21,7 +24,7 @@ For image elements, if you recognize the image, say the name of the image and th
 If you don't recognize the image, describe the image. Locator format for image elements: [image description based on visual]
 Answer should be within 50 words.`;
 
-let LOCATE_PROMPT = `You are an expert at locating web element based on visual description. 
+const LOCATE_PROMPT = `You are an expert at locating web element based on visual description. 
 You are provided a screenshot of a web page with bounding boxes around the web elements and the index number on the TOP LEFT of the corresponding bounding box.
 You are also provided with a visual description of a web element.
 Numbers may be hard to see, but they should have the same color with the corresponding bounding box.
@@ -58,13 +61,13 @@ function cosine_similarity(a: number[], b: number[]) {
 
 async function getSimilarity(locator: string, newLocator: string): Promise<number> {
     const embeddingObject = await openai.embeddings.create({
-        model: "text-embedding-3-small",
+        model: embed_model,
         input: locator.replace("[", "").replace("]", ""),
         encoding_format: "float",
     });
 
     const newEmbeddingObject = await openai.embeddings.create({
-        model: "text-embedding-3-small",
+        model: embed_model,
         input: newLocator.replace("[", "").replace("]", ""),
         encoding_format: "float",
     });
@@ -90,7 +93,7 @@ export async function getCaption(base64image: string) {
                 }]
             }
         ],
-        model: "gpt-4o-mini",
+        model: caption_model,
         seed: 0,
         max_tokens: 100,
         temperature: 0,
@@ -126,7 +129,7 @@ export async function getReplayTargetBBox(imageBuffer: Buffer, locator: string):
                 ]
             }
         ],
-        model: "gpt-4o",
+        model: locate_model,
         seed: 0,
         max_tokens: 50,
         temperature: 0,
