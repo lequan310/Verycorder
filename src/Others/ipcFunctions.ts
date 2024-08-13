@@ -14,6 +14,7 @@ import {
   incrementCurrentEventIndex,
   getCurrentEventIndex,
   setDetectMode,
+  updateCanvasTestEventList,
 } from "./electronUtilities";
 import { getCaption } from "./openai";
 import { EventEnum } from "../Types/eventComponents";
@@ -58,6 +59,15 @@ export function handleUpdateTestCase() {
     updateTestEventList(updatedEventList);
     return updatedEventList;
   });
+}
+
+export function handleUpdateCanvasTestCase() {
+  ipcMain.on(
+    Channel.win.UPDATE_CANVAS_EVENT_LIST,
+    (event, updatedCanvasEventList) => {
+      updateCanvasTestEventList(updatedCanvasEventList);
+    }
+  );
 }
 
 export function handleClickRecord() {

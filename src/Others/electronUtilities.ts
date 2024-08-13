@@ -5,6 +5,7 @@ import { ChangeUrlResult } from "../Types/urlResult";
 import { BLANK_PAGE, Channel } from "./listenerConst";
 import { AppMode } from "../Types/appMode";
 import { RecordedEvent } from "../Types/recordedEvent";
+import { CanvasEvent } from "../Types/canvasEvent";
 import { createOnnxSession, getBBoxes, releaseOnnxSession } from "./inference";
 import { Target } from "../Types/eventComponents";
 import {
@@ -24,6 +25,7 @@ import {
   handleRecordCanvasInput,
   handleRecordCanvasScroll,
   ipcSetDetectMode,
+  handleUpdateCanvasTestCase,
 } from "./ipcFunctions";
 import { BoundingBox } from "../Types/bbox";
 import { DetectMode } from "../Types/detectMode";
@@ -51,16 +53,6 @@ let editedTarget: Target = {
 let win: BrowserWindow;
 let view: BrowserView;
 let overlayWin: BrowserWindow | null = null;
-
-function updateCanvasTestCase() {
-  ipcMain.on(
-    Channel.win.UPDATE_CANVAS_EVENT_LIST,
-    (event, updatedCanvasEventList) => {
-      canvasTestCase.events = updatedCanvasEventList;
-      console.log(canvasTestCase);
-    }
-  );
-}
 
 function initializeDOMTestCase() {
   const { x, y, width, height } = view.getBounds();
@@ -321,6 +313,13 @@ export function updateTestEventList(eventList: RecordedEvent[]) {
   }
 }
 
+export function updateCanvasTestEventList(
+  updatedCanvasEventList: CanvasEvent[]
+) {
+  canvasTestCase.events = updatedCanvasEventList;
+  console.log(canvasTestCase);
+}
+
 // Export for Ctrl + R to toggle record
 export async function toggleRecord() {
   if (
@@ -548,7 +547,7 @@ export function handleUIEvents() {
   updateTestSteps(win);
   handleEndResize();
   ipcSetDetectMode();
-  updateCanvasTestCase();
+  handleUpdateCanvasTestCase();
 }
 
 // Function to register events (click, input, etc.) into left panel
