@@ -54,6 +54,16 @@ let win: BrowserWindow;
 let view: BrowserWindow;
 let overlayWin: BrowserWindow | null = null;
 
+function updateCanvasTestCase() {
+  ipcMain.on(
+    Channel.win.UPDATE_CANVAS_EVENT_LIST,
+    (event, updatedCanvasEventList) => {
+      canvasTestCase.events = updatedCanvasEventList;
+      console.log(canvasTestCase);
+    }
+  );
+}
+
 function initializeDOMTestCase() {
   const { x, y, width, height } = view.getBounds();
   const newTestCase: TestCase = {
@@ -577,6 +587,7 @@ export function handleUIEvents() {
   handleResize();
   ipcSetDetectMode();
   handleUpdateCanvasTestCase();
+  updateCanvasTestCase();
 }
 
 // Function to register events (click, input, etc.) into left panel
