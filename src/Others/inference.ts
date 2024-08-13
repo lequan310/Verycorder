@@ -115,11 +115,14 @@ export async function drawBoxes(imageBuffer: Buffer) {
     let i = 1;
 
     // determine font size to use: 
-    let imageSize = Math.min(jimpImage.bitmap.width, jimpImage.bitmap.height);
-    let fontSize: string = Jimp.FONT_SANS_64_BLACK;
+    const imageSize = Math.min(jimpImage.bitmap.width, jimpImage.bitmap.height);
+    const fontSize: string = Jimp.FONT_SANS_14_BLACK;
 
-    let colors = [
+    const colors = [
         [255, 0, 0], [0, 255, 0], [0, 0, 255], [255, 255, 0], [255, 0, 255], [0, 255, 255],
+    ]
+    const colorHex = [
+        0xFF0000FF, 0x00FF00FF, 0x0000FFFF, 0xFFFF00FF, 0xFF00FFFF, 0x00FFFFFF
     ]
 
     // if (imageSize < 100) {
@@ -139,23 +142,23 @@ export async function drawBoxes(imageBuffer: Buffer) {
     for (let boundingBox of boundingBoxes) {
         // Draw rectangle and text
         // Draw the border of the rectangle
-        const thickness = 2;
+        const thickness = 1.5;
         const x1 = boundingBox.x;
         const x2 = boundingBox.x + boundingBox.width;
         const y1 = boundingBox.y;
         const y2 = boundingBox.y + boundingBox.height;
 
         jimpImage.scan(x1, y1, boundingBox.width, thickness, function (x, y, idx) { // Top border
-            this.bitmap.data.writeUInt32BE(0xFF0000FF, idx);
+            this.bitmap.data.writeUInt32BE(colorHex[i % colorHex.length], idx);
         });
         jimpImage.scan(x1, y2, boundingBox.width, thickness, function (x, y, idx) { // Bottom border
-            this.bitmap.data.writeUInt32BE(0xFF0000FF, idx);
+            this.bitmap.data.writeUInt32BE(colorHex[i % colorHex.length], idx);
         });
         jimpImage.scan(x1, y1, thickness, boundingBox.height, function (x, y, idx) { // Left border
-            this.bitmap.data.writeUInt32BE(0xFF0000FF, idx);
+            this.bitmap.data.writeUInt32BE(colorHex[i % colorHex.length], idx);
         });
         jimpImage.scan(x2, y1, thickness, boundingBox.height, function (x, y, idx) { // Right border
-            this.bitmap.data.writeUInt32BE(0xFF0000FF, idx);
+            this.bitmap.data.writeUInt32BE(colorHex[i % colorHex.length], idx);
         });
 
         await Jimp.loadFont(fontSize).then(font => {
@@ -182,7 +185,7 @@ export async function drawBoxes(imageBuffer: Buffer) {
                 this.bitmap.data[idx + 2] = blue ^ color[2];
             });
 
-            jimpImage.blit(textImage, x1, y1 - 22);
+            jimpImage.blit(textImage, x1, y1 - 18);
         });
 
         i++;
