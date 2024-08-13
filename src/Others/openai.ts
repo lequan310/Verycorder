@@ -32,7 +32,7 @@ For example, if the element locator is [button with text="Sign in", background_c
 3. If the web element matches the visual description, provide the index number of the bounding box and stop the process.
 4. After going through all the web elements, if no element matches the visual description, answer -1.
 
-The answer must be a single number.
+Give a single number, which is the index of the bounding box, as the answer.
 
 Begin!
 `;
@@ -52,7 +52,7 @@ export function getCaption(base64image: string) {
             }
         ],
         model: "gpt-4o-mini",
-        seed: 42,
+        seed: 0,
         max_tokens: 100,
         temperature: 0,
     });
@@ -86,9 +86,9 @@ export async function getReplayTargetBBox(imageBuffer: Buffer, locator: string) 
                 ]
             }
         ],
-        model: "gpt-4o-mini",
-        seed: 42,
-        max_tokens: 100,
+        model: "gpt-4o",
+        seed: 0,
+        max_tokens: 50,
         temperature: 0,
     });
 
