@@ -276,9 +276,18 @@ export function getDetectMode() {
   return detectMode;
 }
 
+function clearTestCase() {
+  if (detectMode === DetectMode.DOM) {
+    canvasTestCase.events = [];
+  } else if (detectMode === DetectMode.AI) {
+    testCase.events = [];
+  }
+}
+
 export function setDetectMode(data: DetectMode) {
   console.log(data);
   detectMode = data;
+  clearTestCase();
 }
 
 export function setMode(mode: AppMode) {

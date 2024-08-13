@@ -32,7 +32,6 @@ const EventItemList = () => {
   const [captionNumber, setCaptionNumber] = useState(0);
   const [captionCounter, setCaptionCounter] = useState(0);
   let currentMode = AppMode.normal;
-  //useState<AppMode>(AppMode.normal);
 
   const listRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -130,10 +129,6 @@ const EventItemList = () => {
         }
         return prev;
       });
-
-      // if (captionNumber === captionCounter && currentMode === AppMode.normal) {
-      //   ipcRenderer.send(Channel.win.UPDATE_CANVAS_EVENT_LIST, canvasEventList);
-      // }
     };
 
     const updateCaptionCanvasEvent = ipcRenderer.on(
