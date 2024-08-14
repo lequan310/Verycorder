@@ -278,9 +278,9 @@ export function getDetectMode() {
 
 function clearTestCase() {
   if (detectMode === DetectMode.DOM) {
-    canvasTestCase.events = [];
+    if (canvasTestCase) canvasTestCase.events = [];
   } else if (detectMode === DetectMode.AI) {
-    testCase.events = [];
+    if (testCase) testCase.events = [];
   }
 }
 

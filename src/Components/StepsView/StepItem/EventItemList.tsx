@@ -126,6 +126,9 @@ const EventItemList = () => {
             Channel.win.UPDATE_CANVAS_EVENT_LIST,
             updatedEventList
           );
+          setGlobalReplayingButtonEnable(true);
+        } else {
+          setGlobalReplayingButtonEnable(false);
         }
         return prev;
       });
@@ -175,14 +178,19 @@ const EventItemList = () => {
             setGlobalReplayingButtonEnable(true);
           } else {
             setGlobalReplayingButtonEnable(false);
-          }
-
-          // Additional condition to check if canvasEventList has items
-          if (canvasEventList.length > 0 && captionCounter === captionNumber) {
-            ipcRenderer.send(
-              Channel.win.UPDATE_CANVAS_EVENT_LIST,
-              canvasEventList
-            );
+            // Additional condition to check if canvasEventList has items
+            if (
+              canvasEventList.length > 0 &&
+              captionCounter === captionNumber
+            ) {
+              ipcRenderer.send(
+                Channel.win.UPDATE_CANVAS_EVENT_LIST,
+                canvasEventList
+              );
+              setGlobalReplayingButtonEnable(true);
+            } else {
+              setGlobalReplayingButtonEnable(false);
+            }
           }
           break;
         case AppMode.record:
