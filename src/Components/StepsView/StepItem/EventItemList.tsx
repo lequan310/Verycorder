@@ -196,16 +196,6 @@ const EventItemList = () => {
             }
           }
 
-          // Additional condition to check if canvasEventList has items
-          if (canvasEventList.length > 0 && captionCounter === captionNumber) {
-            ipcRenderer.send(
-              Channel.win.UPDATE_CANVAS_EVENT_LIST,
-              canvasEventList
-            );
-            setGlobalReplayingButtonEnable(true);
-          } else {
-            setGlobalReplayingButtonEnable(false);
-          }
           break;
         case AppMode.record:
           //when going to record state, reset the test case list

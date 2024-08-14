@@ -14,6 +14,7 @@ let canvasTestCase: CanvasTestCase;
 function resetIndex() {
   currentEventIndex = 0;
   ipcRenderer.send(Channel.view.replay.GET_INDEX, currentEventIndex, false);
+  ipcRenderer.send(Channel.all.TEST_LOG, "Reset index to 0");
 }
 
 export function getCanvasTestCase(newCanvasTestCase: CanvasTestCase) {
