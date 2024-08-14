@@ -202,6 +202,9 @@ const EventItemList = () => {
               Channel.win.UPDATE_CANVAS_EVENT_LIST,
               canvasEventList
             );
+            setGlobalReplayingButtonEnable(true);
+          } else {
+            setGlobalReplayingButtonEnable(false);
           }
           break;
         case AppMode.record:

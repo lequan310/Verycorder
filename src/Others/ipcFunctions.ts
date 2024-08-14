@@ -15,6 +15,7 @@ import {
   getCurrentEventIndex,
   setDetectMode,
   updateCanvasTestEventList,
+  capturePageReplay,
 } from "./electronUtilities";
 import { getCaption } from "./openai";
 import { EventEnum } from "../Types/eventComponents";
@@ -204,5 +205,11 @@ export function handleRecordCanvasInput(win: BrowserWindow) {
     win.webContents.send(Channel.win.ADD_EVENT_CANVAS, inputEvent);
     console.log(inputEvent);
     incrementCurrentEventIndex();
+  });
+}
+
+export function handleScreenshotForReplay() {
+  ipcMain.handle(Channel.view.replay.GET_SCREENSHOT, async (event) => {
+    return (await capturePageReplay()) as Buffer;
   });
 }

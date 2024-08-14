@@ -57,6 +57,10 @@ export const Channel = {
       SET_INDEX: "view-replay-set-index",
       // Update overlay on the screen
       UPDATE_OVERLAY: "view-replay-update-overlay",
+      // Get page screenshot for replay
+      GET_SCREENSHOT: "view-replay-get-screenshot",
+      // Get replay target bbox
+      GET_TARGET_BBOX: "view-replay-get-target-bbox",
     },
 
     record: {
