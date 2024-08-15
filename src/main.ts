@@ -12,6 +12,8 @@ import {
   toggleEdit,
 } from "./Others/electronUtilities";
 import { handleReplayEvents } from "./Main/replay_functions";
+import { createOnnxSession, releaseOnnxSession } from "./Others/inference";
+import { getReplayTargetBBox } from "./Others/openai";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {

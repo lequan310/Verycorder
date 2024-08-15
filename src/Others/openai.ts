@@ -76,7 +76,7 @@ async function getSimilarity(locator: string, newLocator: string): Promise<numbe
     const newEmbedding = newEmbeddingObject.data[0].embedding;
     const similarity = cosine_similarity(embedding, newEmbedding);
 
-    return similarity * similarity;
+    return similarity;
 }
 
 export async function getCaption(base64image: string) {
@@ -153,6 +153,6 @@ export async function getReplayTargetBBox(imageBuffer: Buffer, locator: string):
     const newLocator = await getCaption(screenshotElement);
     const similarity = await getSimilarity(locator, newLocator);
 
-    if (similarity >= 0.8) return result.bboxes[index];
+    if (similarity >= 0.95) return result.bboxes[index];
     return null;
 }
