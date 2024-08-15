@@ -352,7 +352,6 @@ export function updateCanvasTestEventList(
   updatedCanvasEventList: CanvasEvent[]
 ) {
   canvasTestCase.events = updatedCanvasEventList;
-  console.log(canvasTestCase);
 }
 
 // Export for Ctrl + R to toggle record
@@ -409,8 +408,12 @@ export async function getScreenshotBuffer() {
 export function handleFindCanvasReplayTarget() {
   ipcMain.handle(
     Channel.view.replay.GET_TARGET_BBOX,
-    async (event, image, locator) => {
-      const result = getReplayTargetBBox(image, locator);
+    async (event, locator) => {
+      const image = await getScreenshotBuffer();
+      console.log(image);
+      console.log(locator);
+
+      const result = await getReplayTargetBBox(image, locator);
       return result;
     }
   );
@@ -528,15 +531,21 @@ export function updateViewBounds() {
     }
   }
 }
-
 async function goToUrlReplay() {
+  const isReplayMode = getCurrentMode() === AppMode.replay;
+  const isAIMode = detectMode === DetectMode.AI;
+  const isDOMMode = detectMode === DetectMode.DOM;
+
   if (
-    getCurrentMode() === AppMode.replay &&
-    testCase &&
-    testCase.events &&
-    testCase.events.length > 0
+    isReplayMode &&
+    ((isAIMode &&
+      canvasTestCase &&
+      canvasTestCase.events &&
+      canvasTestCase.events.length > 0) ||
+      (isDOMMode && testCase && testCase.events && testCase.events.length > 0))
   ) {
-    await changeUrlFinal(testCase.url);
+    const url = isAIMode ? canvasTestCase.url : testCase.url;
+    await changeUrlFinal(url);
   }
 }
 
@@ -597,7 +606,7 @@ export async function toggleReplay() {
     }
   }
 
-  //controlOverlay();
+  controlOverlay();
   win.webContents.send(Channel.win.UPDATE_STATE, currentMode, detectMode); // Send message to change UI (disable search bar)
   view.webContents.send(
     Channel.view.replay.TOGGLE_REPLAY,
@@ -698,15 +707,26 @@ export function handleNavigate(view: BrowserWindow) {
       console.log("Navigation check (replay event started): ", navigationCheck);
       // Start replay again whenever the page is loaded during replay
       if (currentEventIndex >= 0 && navigationCheck) {
-        view.webContents.send(Channel.view.replay.SEND_EVENTS, testCase);
-        //console.log("Test case sent again");
+        const eventsToSend =
+          detectMode === DetectMode.AI ? canvasTestCase : testCase;
+        view.webContents.send(
+          Channel.view.replay.SEND_EVENTS,
+          eventsToSend,
+          detectMode
+        );
+        console.log("Test case sent again");
         view.webContents.send(
           Channel.view.replay.SET_INDEX,
-          currentEventIndex + 1
+          currentEventIndex + 1,
+          detectMode
         );
-        //console.log("Current Index sent: ", currentEventIndex + 1);
-        view.webContents.send(Channel.view.replay.TOGGLE_REPLAY, currentMode);
-        //console.log("Replay mode toggled again");
+        console.log("Current Index sent: ", currentEventIndex + 1);
+        view.webContents.send(
+          Channel.view.replay.TOGGLE_REPLAY,
+          currentMode,
+          detectMode
+        );
+        console.log("Replay mode toggled again");
       }
     } else if (getCurrentMode() === AppMode.edit) {
       console.log("Navigation finished during edit");

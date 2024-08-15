@@ -1,13 +1,13 @@
-import dotenv from 'dotenv';
+import dotenv from "dotenv";
 import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
-import { drawBoxes } from './inference';
-import { elementScreenshot } from './electronUtilities';
-import { BoundingBox } from '../Types/bbox';
+import { drawBoxes } from "./inference";
+import { elementScreenshot } from "./electronUtilities";
+import { BoundingBox } from "../Types/bbox";
 
 const Result = z.object({
-    value: z.number(),
+  value: z.number(),
 });
 
 dotenv.config();
@@ -49,115 +49,125 @@ Begin!
 `;
 
 function cosine_similarity(a: number[], b: number[]) {
-    let dotproduct = 0;
-    let mA = 0;
-    let mB = 0;
+  let dotproduct = 0;
+  let mA = 0;
+  let mB = 0;
 
-    for (let i = 0; i < a.length; i++) {
-        dotproduct += (a[i] * b[i]);
-        mA += (a[i] * a[i]);
-        mB += (b[i] * b[i]);
-    }
+  for (let i = 0; i < a.length; i++) {
+    dotproduct += a[i] * b[i];
+    mA += a[i] * a[i];
+    mB += b[i] * b[i];
+  }
 
-    mA = Math.sqrt(mA);
-    mB = Math.sqrt(mB);
-    let similarity = (dotproduct) / ((mA) * (mB));
-    return similarity;
+  mA = Math.sqrt(mA);
+  mB = Math.sqrt(mB);
+  let similarity = dotproduct / (mA * mB);
+  return similarity;
 }
 
-async function getSimilarity(locator: string, newLocator: string): Promise<number> {
-    const embeddingObject = await openai.embeddings.create({
-        model: embed_model,
-        input: locator.replace("[", "").replace("]", ""),
-        encoding_format: "float",
-    });
+async function getSimilarity(
+  locator: string,
+  newLocator: string
+): Promise<number> {
+  const embeddingObject = await openai.embeddings.create({
+    model: embed_model,
+    input: locator.replace("[", "").replace("]", ""),
+    encoding_format: "float",
+  });
 
-    const newEmbeddingObject = await openai.embeddings.create({
-        model: embed_model,
-        input: newLocator.replace("[", "").replace("]", ""),
-        encoding_format: "float",
-    });
+  const newEmbeddingObject = await openai.embeddings.create({
+    model: embed_model,
+    input: newLocator.replace("[", "").replace("]", ""),
+    encoding_format: "float",
+  });
 
-    const embedding = embeddingObject.data[0].embedding;
-    const newEmbedding = newEmbeddingObject.data[0].embedding;
-    const similarity = cosine_similarity(embedding, newEmbedding);
+  const embedding = embeddingObject.data[0].embedding;
+  const newEmbedding = newEmbeddingObject.data[0].embedding;
+  const similarity = cosine_similarity(embedding, newEmbedding);
 
-    return similarity;
+  return similarity;
 }
 
 export async function getCaption(base64image: string) {
-    const response = await openai.chat.completions.create({
-        messages: [
-            { role: "system", content: CAPTION_PROPMT },
-            {
-                role: "user", content: [{
-                    type: "image_url",
-                    image_url: {
-                        url: `data:image/png;base64,${base64image}`,
-                        detail: "low"
-                    }
-                }]
-            }
+  const response = await openai.chat.completions.create({
+    messages: [
+      { role: "system", content: CAPTION_PROPMT },
+      {
+        role: "user",
+        content: [
+          {
+            type: "image_url",
+            image_url: {
+              url: `data:image/png;base64,${base64image}`,
+              detail: "low",
+            },
+          },
         ],
-        model: caption_model,
-        seed: 0,
-        max_tokens: 100,
-        temperature: 0,
-    });
+      },
+    ],
+    model: caption_model,
+    seed: 0,
+    max_tokens: 100,
+    temperature: 0,
+  });
 
-    return response.choices[0].message.content;
+  return response.choices[0].message.content;
 }
 
-export async function getReplayTargetBBox(imageBuffer: Buffer, locator: string): Promise<BoundingBox> {
-    try {
-        // Draw bounding boxes for this image
-        const result = await drawBoxes(imageBuffer);
-        let index = -1;
+export async function getReplayTargetBBox(
+  imageBuffer: Buffer,
+  locator: string
+): Promise<BoundingBox> {
+  try {
+    // Draw bounding boxes for this image
+    const result = await drawBoxes(imageBuffer);
+    let index = -1;
 
-        // Convert the image to base64
-        const annotatedImage = result.buffer.toString('base64');
+    // Convert the image to base64
+    const annotatedImage = result.buffer.toString("base64");
 
-        const completion = await openai.beta.chat.completions.parse({
-            messages: [
-                { role: "system", content: LOCATE_PROMPT },
-                {
-                    role: "user", content: [
-                        {
-                            type: "text",
-                            text: `Find the index of the web element with the same visual properties as following: ${locator}. Returns -1 if the element with similar visual properties is not found.`
-                        },
-                        {
-                            type: "image_url",
-                            image_url: {
-                                url: `data:image/png;base64,${annotatedImage}`,
-                            }
-                        }
-                    ]
-                }
-            ],
-            model: locate_model,
-            seed: 0,
-            max_tokens: 50,
-            temperature: 0,
-            response_format: zodResponseFormat(Result, "result"),
-        });
+    const completion = await openai.beta.chat.completions.parse({
+      messages: [
+        { role: "system", content: LOCATE_PROMPT },
+        {
+          role: "user",
+          content: [
+            {
+              type: "text",
+              text: `Find the index of the web element with the same visual properties as following: ${locator}. Returns -1 if the element with similar visual properties is not found.`,
+            },
+            {
+              type: "image_url",
+              image_url: {
+                url: `data:image/png;base64,${annotatedImage}`,
+              },
+            },
+          ],
+        },
+      ],
+      model: locate_model,
+      seed: 0,
+      max_tokens: 50,
+      temperature: 0,
+      response_format: zodResponseFormat(Result, "result"),
+    });
 
-        const response = completion.choices[0].message.parsed;
-        index = response.value;
-        console.log(index);
+    const response = completion.choices[0].message.parsed;
+    index = response.value;
+    console.log(index);
 
-        if (index === -1) return null;
+    if (index === -1) return null;
 
-        // Check if the detected element matches the locator
-        const screenshotElement = await elementScreenshot(result.bboxes[index]);
-        const newLocator = await getCaption(screenshotElement);
-        console.log(newLocator);
-        const similarity = await getSimilarity(locator, newLocator);
-
-        if (similarity >= 0.95) return result.bboxes[index];
-        return null;
-    } catch (error) {
-        console.error(error);
-        return null;
-    }
+    // Check if the detected element matches the locator
+    const screenshotElement = await elementScreenshot(result.bboxes[index]);
+    const newLocator = await getCaption(screenshotElement);
+    console.log(newLocator);
+    const similarity = await getSimilarity(locator, newLocator);
+    console.log(similarity);
+    if (similarity >= 0.9) return result.bboxes[index];
+    return null;
+  } catch (error) {
+    console.error(error);
+    return null;
+  }
 }

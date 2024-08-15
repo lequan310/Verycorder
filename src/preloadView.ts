@@ -15,6 +15,7 @@ import { DetectMode } from "./Types/detectMode";
 import {
   getCanvasTestCase,
   replayCanvas,
+  setCurrentCanvasIndex,
   stopReplayCanvas,
 } from "./Main/replay_canvas";
 
@@ -95,8 +96,12 @@ ipcRenderer.on(
   }
 );
 
-ipcRenderer.on(Channel.view.replay.SET_INDEX, (event, index) => {
-  setCurrentIndex(index);
+ipcRenderer.on(Channel.view.replay.SET_INDEX, (event, index, detectMode) => {
+  if (detectMode === DetectMode.AI) {
+    setCurrentCanvasIndex(index);
+  } else {
+    setCurrentIndex(index);
+  }
 });
 
 ipcRenderer.on(Channel.view.edit.TOGGLE_EDIT, (event, currentMode) => {

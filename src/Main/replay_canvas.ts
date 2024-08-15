@@ -2,8 +2,9 @@ import { delay } from "../Others/utilities";
 import { ipcRenderer } from "electron";
 import { Channel } from "../Others/listenerConst";
 import { CanvasTestCase } from "../Types/testCase";
-import { getReplayTargetBBox } from "../Others/openai";
 import { CanvasEvent } from "../Types/canvasEvent";
+import { EventEnum } from "../Types/eventComponents";
+import { BoundingBox } from "../Types/bbox";
 
 let abortController: AbortController;
 let isReplaying = true; // Flag to control the replay
@@ -15,6 +16,14 @@ function resetIndex() {
   currentEventIndex = 0;
   ipcRenderer.send(Channel.view.replay.GET_INDEX, currentEventIndex, false);
   ipcRenderer.send(Channel.all.TEST_LOG, "Reset index to 0");
+}
+
+function turnOffOverlay() {
+  ipcRenderer.send(Channel.view.replay.UPDATE_OVERLAY);
+}
+
+export function setCurrentCanvasIndex(index: number) {
+  currentEventIndex = index;
 }
 
 export function getCanvasTestCase(newCanvasTestCase: CanvasTestCase) {
@@ -35,42 +44,36 @@ async function delayWithAbort(ms: number, signal: AbortSignal) {
   });
 }
 
-function getCurrentScreenshot(): Promise<Buffer> {
-  try {
-    return new Promise((resolve, reject) => {
-      ipcRenderer
-        .invoke(Channel.view.replay.GET_SCREENSHOT)
-        .then((screenshot: Buffer) => {
-          resolve(screenshot);
-        })
-        .catch((error) => {
-          reject(error);
-        });
-    });
-  } catch (error) {
-    ipcRenderer.send(Channel.all.TEST_LOG, error.message);
-    return null;
-  }
+async function getEventBoundingBox(event: CanvasEvent) {
+  const locator = event.target;
+  const result = await ipcRenderer.invoke(
+    Channel.view.replay.GET_TARGET_BBOX,
+    locator
+  );
+  ipcRenderer.send(Channel.all.TEST_LOG, result);
+  return result;
 }
 
-async function controlReplayLogic(event: CanvasEvent) {
-  const image = await getCurrentScreenshot();
-  const locator = event.target;
-  if (!image) {
-    ipcRenderer.send(Channel.all.TEST_LOG, "Failed to get screenshot");
-    return false;
-  } else {
-    ipcRenderer.send(Channel.all.TEST_LOG, image);
-    ipcRenderer.send(Channel.all.TEST_LOG, locator);
-    const result = await ipcRenderer.invoke(
-      Channel.view.replay.GET_TARGET_BBOX,
-      image,
-      locator
-    );
-    ipcRenderer.send(Channel.all.TEST_LOG, result);
+async function controlEventType(event: CanvasEvent) {
+  switch (event.type) {
+    case EventEnum.click:
+      const clickEventBBox = await getEventBoundingBox(event);
+      if (!clickEventBBox) return false;
+      else runCanvasClickEvent(clickEventBBox);
+      break;
+    case EventEnum.hover:
+      const hoverEventBBox = await getEventBoundingBox(event);
+      if (!hoverEventBBox) return false;
+      else runCanvasHoverEvent(hoverEventBBox);
+      break;
   }
 
   return true;
+}
+
+async function controlReplayLogic(event: CanvasEvent) {
+  const result = await controlEventType(event);
+  return result;
 }
 
 async function manageCanvasReplay() {
@@ -84,8 +87,9 @@ async function manageCanvasReplay() {
   ) {
     if (signal.aborted || !isReplaying) return;
 
+    ipcRenderer.send(Channel.view.replay.GET_INDEX, currentEventIndex, true);
     const event = canvasTestCase.events[currentEventIndex];
-    const result = controlReplayLogic(event);
+    const result = await controlReplayLogic(event);
 
     if (!result) {
       ipcRenderer.send(Channel.win.NEXT_REPLAY, {
@@ -97,7 +101,7 @@ async function manageCanvasReplay() {
         `Event ${currentEventIndex} failed to replay`
       );
       resetIndex();
-      //turnOffOverlay();
+      turnOffOverlay();
       return;
     }
     ipcRenderer.send(Channel.win.NEXT_REPLAY, {
@@ -109,7 +113,7 @@ async function manageCanvasReplay() {
     if (currentEventIndex == canvasTestCase.events.length - 1) {
       // Reset index when out of test cases
       resetIndex();
-      //turnOffOverlay();
+      turnOffOverlay();
       return;
     }
 
@@ -121,6 +125,22 @@ async function manageCanvasReplay() {
       return;
     }
   }
+}
+
+function runCanvasClickEvent(boundingBox: BoundingBox) {
+  const box = boundingBox;
+  const clickX = box.x + box.width / 2;
+  const clickY = box.y + box.height / 2;
+
+  ipcRenderer.send(Channel.view.replay.REPLAY_CLICK, { x: clickX, y: clickY });
+}
+
+function runCanvasHoverEvent(boundingBox: BoundingBox) {
+  const box = boundingBox;
+  const hoverX = box.x + box.width / 2;
+  const hoverY = box.y + box.height / 2;
+
+  ipcRenderer.send(Channel.view.replay.REPLAY_HOVER, { x: hoverX, y: hoverY });
 }
 
 export async function replayCanvas() {

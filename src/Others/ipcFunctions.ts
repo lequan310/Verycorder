@@ -22,6 +22,8 @@ import { EventEnum } from "../Types/eventComponents";
 import { BoundingBox } from "../Types/bbox";
 import { CanvasEvent } from "../Types/canvasEvent";
 import { DetectMode } from "../Types/detectMode";
+import { release } from "os";
+import { releaseOnnxSession } from "./inference";
 
 // ------------------- IPC EVENT export functionS -------------------
 // export function to test log events
@@ -104,6 +106,9 @@ export function handleTestCaseEnded(win: BrowserWindow) {
     setMode(AppMode.normal);
     console.log("ENEDED-------------");
     win.webContents.send(Channel.win.UPDATE_STATE, getCurrentMode());
+    if (getDetectMode() === DetectMode.AI) {
+      releaseOnnxSession();
+    }
   });
 }
 
