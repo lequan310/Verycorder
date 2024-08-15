@@ -69,43 +69,49 @@ export async function getImageBuffer(imagePath: string): Promise<Buffer> {
 }
 
 export async function getBBoxes(imageBuffer: Buffer) {
-    const startTime = performance.now();
+    let bboxes: BoundingBox[] = [];
 
-    const image = await Jimp.create(imageBuffer);
-    const originalWidth = image.getWidth(), originalHeight = image.getHeight();
+    try {
+        const startTime = performance.now();
 
-    image.resize(640, 640);
-    const imageTensor = imageBufferToTensor(image.bitmap.data, [1, 3, 640, 640]);
+        const image = await Jimp.create(imageBuffer);
+        const originalWidth = image.getWidth(), originalHeight = image.getHeight();
 
-    // Perform inference
-    const feeds = { [session.inputNames[0]]: imageTensor };
-    const results = await session.run(feeds);
-    const output = results[session.outputNames[0]].data;
+        image.resize(640, 640);
+        const imageTensor = imageBufferToTensor(image.bitmap.data, [1, 3, 640, 640]);
 
-    const bboxes: BoundingBox[] = [];
-    // Draw bounding boxes
-    for (let i = 0; i < output.length; i += 6) {
-        const x1 = output[i];
-        const y1 = output[i + 1];
-        const x2 = output[i + 2];
-        const y2 = output[i + 3];
-        const conf = output[i + 4];
-        //const classId = output[i + 5];
-        if (conf > 0.4) {  // Confidence threshold
-            // Rescale coordinates to the original image size
-            const rescaledX1 = Math.floor(x1 / 640 * originalWidth);
-            const rescaledY1 = Math.floor(y1 / 640 * originalHeight);
-            const rescaledX2 = Math.ceil(x2 / 640 * originalWidth);
-            const rescaledY2 = Math.ceil(y2 / 640 * originalHeight);
-            const bbox = BoundingBox.createNewBBox(rescaledX1, rescaledX2, rescaledY1, rescaledY2);
-            bboxes.push(bbox);
+        // Perform inference
+        const feeds = { [session.inputNames[0]]: imageTensor };
+        const results = await session.run(feeds);
+        const output = results[session.outputNames[0]].data;
+
+        // Draw bounding boxes
+        for (let i = 0; i < output.length; i += 6) {
+            const x1 = output[i];
+            const y1 = output[i + 1];
+            const x2 = output[i + 2];
+            const y2 = output[i + 3];
+            const conf = output[i + 4];
+            //const classId = output[i + 5];
+            if (conf > 0.4) {  // Confidence threshold
+                // Rescale coordinates to the original image size
+                const rescaledX1 = Math.floor(x1 / 640 * originalWidth);
+                const rescaledY1 = Math.floor(y1 / 640 * originalHeight);
+                const rescaledX2 = Math.ceil(x2 / 640 * originalWidth);
+                const rescaledY2 = Math.ceil(y2 / 640 * originalHeight);
+                const bbox = BoundingBox.createNewBBox(rescaledX1, rescaledX2, rescaledY1, rescaledY2);
+                bboxes.push(bbox);
+            }
         }
-    }
 
-    const endTime = performance.now();
-    const timeTaken = endTime - startTime;
-    console.log(`Time taken: ${timeTaken} milliseconds`);
-    return bboxes;
+        const endTime = performance.now();
+        const timeTaken = endTime - startTime;
+        console.log(`Time taken: ${timeTaken} milliseconds`);
+    } catch (error) {
+        console.error(error);
+    } finally {
+        return bboxes;
+    }
 }
 
 function setColor(buffer: Buffer, idx: number, colors: number[][], i: number) {
