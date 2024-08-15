@@ -28,27 +28,35 @@ app.whenReady().then(() => {
   const win = getWin();
   const view = getView();
 
-  // May consider removing this feature in production
-  globalShortcut.register("CommandOrControl+Shift+J", () => {
-    view.webContents.toggleDevTools();
-  });
+  const registerShortcuts = () => {
+    // May consider removing this feature in production
+    globalShortcut.register("CommandOrControl+Shift+J", view.webContents.toggleDevTools);
 
-  // Remove this after Phy finish his recording button :skull:
-  globalShortcut.register("CommandOrControl+R", () => {
-    toggleRecord();
-  });
+    // Remove this after Phy finish his recording button :skull:
+    globalShortcut.register("CommandOrControl+R", toggleRecord);
 
-  // Remember to add UI for playback later
-  globalShortcut.register("CommandOrControl+P", () => {
-    toggleReplay();
-  });
+    // Remember to add UI for playback later
+    globalShortcut.register("CommandOrControl+P", toggleReplay);
 
-  globalShortcut.register("CommandOrControl+T", async () => {
-    await createOnnxSession();
-    const image = (await view.webContents.capturePage()).toPNG();
-    const result = await getReplayTargetBBox(image, '[button with text=Home", shape="rectangle"]');
-    console.log(result);
-    await releaseOnnxSession();
+    // Test gium
+    globalShortcut.register("CommandOrControl+T", async () => {
+      await createOnnxSession();
+      const image = (await view.webContents.capturePage()).toPNG();
+      const result = await getReplayTargetBBox(image, '[button with text="Home", background_color=#1a1a1a, shape="rectangle", icon="compass"]');
+      console.log(result);
+      await releaseOnnxSession();
+    });
+  }
+
+  win.once("ready-to-show", () => {
+    win.show();
+    registerShortcuts();
+  });
+  win.on("minimize", () => {
+    globalShortcut.unregisterAll();
+  });
+  win.on("restore", () => {
+    registerShortcuts();
   });
 
   // On OS X it's common to re-create a window in the app when the

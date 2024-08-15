@@ -137,6 +137,7 @@ export function createBrowserView() {
     resizable: false,
   });
 
+  view.webContents.setWindowOpenHandler(() => { return { action: 'deny' }; });
   view.webContents.loadURL(BLANK_PAGE); // Load blank page on start
 
   view.webContents.on("did-navigate", async (event, url) => {
@@ -159,6 +160,7 @@ export const createWindow = (): void => {
     width: 1280,
     height: 720,
     frame: false,
+    show: false,
     titleBarStyle: "hidden",
     titleBarOverlay: {
       color: "#fafafc",
