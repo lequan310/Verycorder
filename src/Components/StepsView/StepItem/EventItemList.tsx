@@ -96,6 +96,9 @@ const EventItemList = () => {
   //Reset index when switch betwen modes
   useEffect(() => {
     setCurrentReplayIndex(initState);
+    setEventList([]);
+    setCanvasEventList([]);
+    setGlobalReplayingButtonEnable(false);
   }, [targetContext.detectMode]);
 
   // Clean up stuff
