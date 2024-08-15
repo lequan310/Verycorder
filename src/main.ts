@@ -10,6 +10,8 @@ import {
   toggleRecord,
   toggleReplay,
   toggleEdit,
+  saveTestCase,
+  loadTestCase,
 } from "./Others/electronUtilities";
 import { handleReplayEvents } from "./Main/replay_functions";
 
@@ -40,6 +42,15 @@ app.whenReady().then(() => {
   globalShortcut.register("CommandOrControl+P", () => {
     toggleReplay();
   });
+
+  globalShortcut.register("CommandOrControl+S", () => {
+    saveTestCase();
+  });
+
+  globalShortcut.register("CommandOrControl+L", () => {
+    loadTestCase();
+  });
+
 
   // On OS X it's common to re-create a window in the app when the
   // dock icon is clicked and there are no other windows open.
