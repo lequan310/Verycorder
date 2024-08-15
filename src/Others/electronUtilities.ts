@@ -115,6 +115,10 @@ function updateEvent() {
   );
 }
 
+export function getCanvasTestCase() {
+  return canvasTestCase;
+}
+
 // Getter for win
 export function getWin(): BrowserWindow {
   return win;
@@ -397,7 +401,7 @@ export async function initBBox() {
   return await getBBoxes(image);
 }
 
-export async function capturePageReplay() {
+export async function getScreenshotBuffer() {
   const image = (await view.webContents.capturePage()).toPNG();
   return image;
 }
@@ -570,7 +574,8 @@ export async function toggleReplay() {
         testCase.events.length > 0)
     ) {
       // Send the appropriate test case to process for replay.
-      const replayTestCase = detectMode === "AI" ? canvasTestCase : testCase;
+      const replayTestCase =
+        detectMode === DetectMode.AI ? canvasTestCase : testCase;
       view.webContents.send(
         Channel.view.replay.SEND_EVENTS,
         replayTestCase,
@@ -581,6 +586,14 @@ export async function toggleReplay() {
       // If the appropriate test case is empty or not available
       currentMode = AppMode.normal;
       console.log("There are no test cases.");
+    }
+  }
+
+  if (detectMode === DetectMode.AI) {
+    if (currentMode === AppMode.replay) {
+      await createOnnxSession();
+    } else {
+      await releaseOnnxSession();
     }
   }
 

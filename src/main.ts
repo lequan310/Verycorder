@@ -9,8 +9,12 @@ import {
   toggleRecord,
   toggleReplay,
   toggleEdit,
+  getScreenshotBuffer,
+  getCanvasTestCase,
 } from "./Others/electronUtilities";
 import { handleReplayEvents } from "./Main/replay_functions";
+import { getReplayTargetBBox } from "./Others/openai";
+import { createOnnxSession, getImageBuffer } from "./Others/inference";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -45,6 +49,19 @@ app.whenReady().then(() => {
 
   win.once("ready-to-show", () => {
     win.show();
+  });
+
+  // Remember to add UI for playback later
+  globalShortcut.register("CommandOrControl+T", async () => {
+    await createOnnxSession();
+
+    const image = await getScreenshotBuffer();
+    const canvasTestCase = getCanvasTestCase();
+    const locator = canvasTestCase.events[0].target;
+    console.log(image);
+    console.log(locator);
+    const result = await getReplayTargetBBox(image, locator);
+    console.log(result);
   });
 
   // On OS X it's common to re-create a window in the app when the
