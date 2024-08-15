@@ -12,6 +12,8 @@ import {
   toggleEdit,
 } from "./Others/electronUtilities";
 import { handleReplayEvents } from "./Main/replay_functions";
+import { getReplayTargetBBox } from "./Others/openai";
+import { createOnnxSession, releaseOnnxSession } from "./Others/inference";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
@@ -39,6 +41,14 @@ app.whenReady().then(() => {
   // Remember to add UI for playback later
   globalShortcut.register("CommandOrControl+P", () => {
     toggleReplay();
+  });
+
+  globalShortcut.register("CommandOrControl+T", async () => {
+    await createOnnxSession();
+    const image = (await view.webContents.capturePage()).toPNG();
+    const result = await getReplayTargetBBox(image, '[button with text=Home", shape="rectangle"]');
+    console.log(result);
+    await releaseOnnxSession();
   });
 
   // On OS X it's common to re-create a window in the app when the
