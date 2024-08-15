@@ -378,7 +378,7 @@ export async function initBBox() {
 export async function elementScreenshot(
   boundingBox: BoundingBox
 ): Promise<string> {
-  const rect = {
+  const rect: Electron.Rectangle = {
     x: boundingBox.x,
     y: boundingBox.y,
     width: boundingBox.width,
