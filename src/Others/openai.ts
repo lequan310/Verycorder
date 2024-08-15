@@ -154,7 +154,7 @@ export async function getReplayTargetBBox(imageBuffer: Buffer, locator: string):
         console.log(newLocator);
         const similarity = await getSimilarity(locator, newLocator);
 
-        if (similarity >= 0.9) return result.bboxes[index];
+        if (similarity >= 0.95) return result.bboxes[index];
         return null;
     } catch (error) {
         console.error(error);
