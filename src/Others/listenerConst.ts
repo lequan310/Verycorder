@@ -22,7 +22,9 @@ export const Channel = {
     CLICK_REPLAY: "win-click-replay",
     // Handle when edit button is clicked
     CLICK_EDIT: "win-click-edit",
-    // Handle app resize
+    // Handle app resize begin
+    BEGIN_RESIZE: "win-begin-resize",
+    // Handle app resize end
     END_RESIZE: "win-end-resize",
     // Send updated target from main to win for edit mode
     SEND_TARGET: "win-send-target",

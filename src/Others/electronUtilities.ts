@@ -51,7 +51,7 @@ let editedTarget: Target = {
 };
 
 let win: BrowserWindow;
-let view: BrowserView;
+let view: BrowserWindow;
 let overlayWin: BrowserWindow | null = null;
 
 function initializeDOMTestCase() {
@@ -119,25 +119,32 @@ export function getWin(): BrowserWindow {
 }
 
 // Getter for view
-export function getView(): BrowserView {
+export function getView(): BrowserWindow {
   return view;
 }
 
 // Function to create the web view to load webs
 export function createBrowserView() {
-  view = new BrowserView({
+  view = new BrowserWindow({
     webPreferences: {
       preload: BROWSER_VIEW_PRELOAD_WEBPACK_ENTRY,
       nodeIntegration: false,
       contextIsolation: true,
     },
+    parent: win,
+    frame: false,
+    show: false,
   });
 
   view.webContents.loadURL(BLANK_PAGE); // Load blank page on start
 
   view.webContents.on("did-navigate", async (event, url) => {
-    if (url === BLANK_PAGE) return;
+    if (url === BLANK_PAGE) {
+      view.hide();
+      return;
+    }
     win.webContents.send(Channel.win.UPDATE_URL, url); // Update URL in search bar
+    view.show();
   });
 
   view.webContents.on("did-navigate-in-page", async (event, url) => {
@@ -171,7 +178,7 @@ export const createWindow = (): void => {
   });
 
   createBrowserView();
-  win.setBrowserView(view);
+  // win.setBrowserView(view);
 
   // Clear cache
   view.webContents.session.clearCache();
@@ -188,7 +195,7 @@ export const createWindow = (): void => {
   //win.webContents.openDevTools({ mode: "detach" });
 
   // Update overlay window position when app window is moved
-  win.on("move", () => handleOverlayUpdate());
+  win.on("move", () => updateViewBounds());
   // Handle resize app
   win.on("resize", () => updateViewBounds());
   // Handle window close
@@ -393,7 +400,7 @@ export async function elementScreenshot(
 // Handle URL change via search bar with abort controller
 function changeUrlWithAbort(
   url: string,
-  view: BrowserView,
+  view: BrowserWindow,
   signal: AbortSignal
 ): Promise<ChangeUrlResult> {
   if (!url) {
@@ -476,10 +483,10 @@ export function updateViewBounds() {
     if (view) {
       const { x, y, width, height } = bounds;
       const newBounds = {
-        x: leftPosition,
-        y: 40,
+        x: x + leftPosition,
+        y: y + 40,
         width: Math.floor(width - leftPosition),
-        height: Math.floor(height - 40),
+        height: Math.floor(height - 36),
       };
       view.setBounds(newBounds);
 
@@ -554,7 +561,7 @@ export function handleUIEvents() {
   handleClickReplay();
   handleClickEdit();
   updateTestSteps(win);
-  handleEndResize();
+  handleResize();
   ipcSetDetectMode();
   handleUpdateCanvasTestCase();
 }
@@ -591,28 +598,17 @@ export function handleViewEvents() {
 }
 
 // ------------------- IPC EVENT FUNCTIONS -------------------
-function handleEndResize() {
+function handleResize() {
+  ipcMain.on(Channel.win.BEGIN_RESIZE, () => {
+    view.resizable = true;
+  });
+
   //on ipcMain, hide browserview
   ipcMain.on(Channel.win.END_RESIZE, (event, leftX) => {
     // console.log(leftPosition);
-    if (win) {
-      const bounds = win.getContentBounds();
-      const view = win.getBrowserView();
-      const { x, y, width, height } = bounds;
-      leftPosition = leftX + 78 - 12;
-      if (view) {
-        const newBounds = {
-          x: leftPosition,
-          y: 40,
-          width: Math.floor(width - leftPosition),
-          height: Math.floor(height - 40),
-        };
-        view.setBounds(newBounds);
-
-        handleOverlayUpdate();
-      }
-    }
-    // console.log("On Start Resize");
+    leftPosition = leftX + 78 - 12;
+    updateViewBounds();
+    view.resizable = false;
   });
 }
 
@@ -638,7 +634,7 @@ export function getCurrentIndex() {
   );
 }
 
-export function handleNavigate(view: BrowserView) {
+export function handleNavigate(view: BrowserWindow) {
   view.webContents.on("did-finish-load", () => {
     if (getCurrentMode() === AppMode.replay) {
       console.log("Navigation finished during replay");

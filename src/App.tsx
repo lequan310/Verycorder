@@ -146,6 +146,7 @@ const App = () => {
     setIsDragging(true);
     document.addEventListener("mousemove", handleMouseMove);
     document.addEventListener("mouseup", handleMouseUp);
+    ipcRenderer.send(Channel.win.BEGIN_RESIZE);
     // ipcRenderer.invoke(Channel.BEGIN_RESIZE).catch((error: Error) => {
     //   console.log(error);
     // });
@@ -201,9 +202,8 @@ const App = () => {
               </div>
             </div>
             <button
-              className={`${"draggable_wrapper"} ${
-                isDragging ? "dragging" : ""
-              }`}
+              className={`${"draggable_wrapper"} ${isDragging ? "dragging" : ""
+                }`}
               onMouseDown={enableResize ? handleMouseDown : undefined}
               disabled={!enableResize}
             >
