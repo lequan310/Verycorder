@@ -69,126 +69,119 @@ export async function getImageBuffer(imagePath: string): Promise<Buffer> {
 }
 
 export async function getBBoxes(imageBuffer: Buffer) {
-    const startTime = performance.now();
+    let bboxes: BoundingBox[] = [];
 
-    const image = await Jimp.create(imageBuffer);
-    const originalWidth = image.getWidth(), originalHeight = image.getHeight();
+    try {
+        const startTime = performance.now();
 
-    image.resize(640, 640);
-    const imageTensor = imageBufferToTensor(image.bitmap.data, [1, 3, 640, 640]);
+        const image = await Jimp.create(imageBuffer);
+        const originalWidth = image.getWidth(), originalHeight = image.getHeight();
 
-    // Perform inference
-    const feeds = { [session.inputNames[0]]: imageTensor };
-    const results = await session.run(feeds);
-    const output = results[session.outputNames[0]].data;
+        image.resize(640, 640);
+        const imageTensor = imageBufferToTensor(image.bitmap.data, [1, 3, 640, 640]);
 
-    const bboxes: BoundingBox[] = [];
-    // Draw bounding boxes
-    for (let i = 0; i < output.length; i += 6) {
-        const x1 = output[i];
-        const y1 = output[i + 1];
-        const x2 = output[i + 2];
-        const y2 = output[i + 3];
-        const conf = output[i + 4];
-        //const classId = output[i + 5];
-        if (conf > 0.4) {  // Confidence threshold
-            // Rescale coordinates to the original image size
-            const rescaledX1 = Math.floor(x1 / 640 * originalWidth);
-            const rescaledY1 = Math.floor(y1 / 640 * originalHeight);
-            const rescaledX2 = Math.ceil(x2 / 640 * originalWidth);
-            const rescaledY2 = Math.ceil(y2 / 640 * originalHeight);
-            const bbox = BoundingBox.createNewBBox(rescaledX1, rescaledX2, rescaledY1, rescaledY2);
-            bboxes.push(bbox);
+        // Perform inference
+        const feeds = { [session.inputNames[0]]: imageTensor };
+        const results = await session.run(feeds);
+        const output = results[session.outputNames[0]].data;
+
+        // Draw bounding boxes
+        for (let i = 0; i < output.length; i += 6) {
+            const x1 = output[i];
+            const y1 = output[i + 1];
+            const x2 = output[i + 2];
+            const y2 = output[i + 3];
+            const conf = output[i + 4];
+            //const classId = output[i + 5];
+            if (conf > 0.4) {  // Confidence threshold
+                // Rescale coordinates to the original image size
+                const rescaledX1 = Math.floor(x1 / 640 * originalWidth);
+                const rescaledY1 = Math.floor(y1 / 640 * originalHeight);
+                const rescaledX2 = Math.ceil(x2 / 640 * originalWidth);
+                const rescaledY2 = Math.ceil(y2 / 640 * originalHeight);
+                const bbox = BoundingBox.createNewBBox(rescaledX1, rescaledX2, rescaledY1, rescaledY2);
+                bboxes.push(bbox);
+            }
         }
-    }
 
-    const endTime = performance.now();
-    const timeTaken = endTime - startTime;
-    console.log(`Time taken: ${timeTaken} milliseconds`);
-    return bboxes;
+        const endTime = performance.now();
+        const timeTaken = endTime - startTime;
+        console.log(`Time taken: ${timeTaken} milliseconds`);
+    } catch (error) {
+        console.error(error);
+    } finally {
+        return bboxes;
+    }
+}
+
+function setColor(buffer: Buffer, idx: number, colors: number[][], i: number) {
+    let color = colors[i % colors.length];
+
+    buffer[idx] = color[0];
+    buffer[idx + 1] = color[1];
+    buffer[idx + 2] = color[2];
+}
+
+function drawSingleBox(jimpImage: Jimp, boundingBox: BoundingBox, colors: number[][], i: number, thickness: number) {
+    const x1 = boundingBox.x;
+    const x2 = boundingBox.x + boundingBox.width;
+    const y1 = boundingBox.y;
+    const y2 = boundingBox.y + boundingBox.height;
+
+    jimpImage.scan(x1, y1, boundingBox.width, thickness, function (x, y, idx) { // Top border
+        setColor(this.bitmap.data, idx, colors, i);
+    });
+    jimpImage.scan(x1, y2, boundingBox.width, thickness, function (x, y, idx) { // Bottom border
+        setColor(this.bitmap.data, idx, colors, i);
+    });
+    jimpImage.scan(x1, y1, thickness, boundingBox.height, function (x, y, idx) { // Left border
+        setColor(this.bitmap.data, idx, colors, i);
+    });
+    jimpImage.scan(x2, y1, thickness, boundingBox.height, function (x, y, idx) { // Right border
+        setColor(this.bitmap.data, idx, colors, i);
+    });
 }
 
 export async function drawBoxes(imageBuffer: Buffer) {
     const boundingBoxes = await getBBoxes(imageBuffer);
     const jimpImage = await Jimp.create(imageBuffer);
 
-    let i = 1;
+    let i = 0;
 
     // determine font size to use: 
-    const imageSize = Math.min(jimpImage.bitmap.width, jimpImage.bitmap.height);
-    const fontSize: string = Jimp.FONT_SANS_14_BLACK;
+    const imageHeight = jimpImage.bitmap.height;
+    const imageWidth = jimpImage.bitmap.width;
+    const fontSize: string = Jimp.FONT_SANS_16_BLACK;
 
     const colors = [
         [255, 0, 0], [0, 255, 0], [0, 0, 255], [255, 255, 0], [255, 0, 255], [0, 255, 255],
     ]
-    const colorHex = [
-        0xFF0000FF, 0x00FF00FF, 0x0000FFFF, 0xFFFF00FF, 0xFF00FFFF, 0x00FFFFFF
-    ]
 
-    // if (imageSize < 100) {
-    //     fontSize = Jimp.FONT_SANS_10_BLACK;
-    // } else if (imageSize < 200) {
-    //     fontSize = Jimp.FONT_SANS_12_BLACK;
-    // } else if (imageSize < 300) {
-    //     fontSize = Jimp.FONT_SANS_14_BLACK;
-    // } else if (imageSize < 400) {
-    //     fontSize = Jimp.FONT_SANS_16_BLACK;
-    // } else if (imageSize < 500) {
-    //     fontSize = Jimp.FONT_SANS_32_BLACK;
-    // } else {
-    //     fontSize = Jimp.FONT_SANS_64_BLACK;
-    // }
+    try {
+        let font = await Jimp.loadFont(fontSize);
 
-    for (let boundingBox of boundingBoxes) {
-        // Draw rectangle and text
-        // Draw the border of the rectangle
-        const thickness = 1.5;
-        const x1 = boundingBox.x;
-        const x2 = boundingBox.x + boundingBox.width;
-        const y1 = boundingBox.y;
-        const y2 = boundingBox.y + boundingBox.height;
+        for (let boundingBox of boundingBoxes) {
+            // Draw bounding boxes
+            const thickness = 2;
+            drawSingleBox(jimpImage, boundingBox, colors, i, thickness);
 
-        jimpImage.scan(x1, y1, boundingBox.width, thickness, function (x, y, idx) { // Top border
-            this.bitmap.data.writeUInt32BE(colorHex[i % colorHex.length], idx);
-        });
-        jimpImage.scan(x1, y2, boundingBox.width, thickness, function (x, y, idx) { // Bottom border
-            this.bitmap.data.writeUInt32BE(colorHex[i % colorHex.length], idx);
-        });
-        jimpImage.scan(x1, y1, thickness, boundingBox.height, function (x, y, idx) { // Left border
-            this.bitmap.data.writeUInt32BE(colorHex[i % colorHex.length], idx);
-        });
-        jimpImage.scan(x2, y1, thickness, boundingBox.height, function (x, y, idx) { // Right border
-            this.bitmap.data.writeUInt32BE(colorHex[i % colorHex.length], idx);
-        });
-
-        await Jimp.loadFont(fontSize).then(font => {
+            // Draw text label
             const textLabel = `${i}`;
-
             const measureTextWidth = Jimp.measureText(font, textLabel);
             const measureTextHeight = Jimp.measureTextHeight(font, textLabel, measureTextWidth);
-
             let textImage = new Jimp(measureTextWidth, measureTextHeight, 0x0);
 
             textImage.print(font, 0, 0, textLabel);
-
             textImage.scan(0, 0, textImage.bitmap.width, textImage.bitmap.height, function (x, y, idx) {
-                // Get the original color values
-                const red = this.bitmap.data[idx + 0];
-                const green = this.bitmap.data[idx + 1];
-                const blue = this.bitmap.data[idx + 2];
-
-                // Apply XOR operation with 0xFF (255) to invert the color
-                let color = colors[i % colors.length];
-
-                this.bitmap.data[idx + 0] = red ^ color[0];
-                this.bitmap.data[idx + 1] = green ^ color[1];
-                this.bitmap.data[idx + 2] = blue ^ color[2];
+                setColor(this.bitmap.data, idx, colors, i);
             });
 
-            jimpImage.blit(textImage, x1, y1 - 18);
-        });
+            jimpImage.blit(textImage, boundingBox.x, boundingBox.y - 16);
 
-        i++;
+            i++;
+        }
+    } catch (error) {
+        console.log(error);
     }
 
     return { buffer: await jimpImage.getBufferAsync(Jimp.MIME_PNG), bboxes: boundingBoxes };
