@@ -134,6 +134,7 @@ export function createBrowserView() {
     parent: win,
     frame: false,
     show: false,
+    resizable: false,
   });
 
   view.webContents.loadURL(BLANK_PAGE); // Load blank page on start
@@ -195,9 +196,19 @@ export const createWindow = (): void => {
   //win.webContents.openDevTools({ mode: "detach" });
 
   // Update overlay window position when app window is moved
-  win.on("move", () => updateViewBounds());
+  win.on("will-move", () => view.setResizable(true));
+  win.on("move", () => {
+    updateViewBounds();
+    view.setResizable(false);
+  });
+
   // Handle resize app
-  win.on("resize", () => updateViewBounds());
+  win.on("will-resize", () => view.setResizable(true));
+  win.on("resize", () => {
+    updateViewBounds()
+    view.setResizable(false);
+  });
+
   // Handle window close
   win.on("closed", () => {
     disableOverlay();
