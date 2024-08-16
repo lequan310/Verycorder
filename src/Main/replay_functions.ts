@@ -86,7 +86,7 @@ function replayScrollEvent() {
         x: data.currentX,
         y: data.currentY,
         deltaX: 0,
-        deltaY: data.deltaY * -1,
+        deltaY: data.deltaY,
         canScroll: true,
       });
     } else if (data.type === "horizontal") {
@@ -94,7 +94,7 @@ function replayScrollEvent() {
         type: "mouseWheel",
         x: data.currentX,
         y: data.currentY,
-        deltaX: data.deltaX * -1,
+        deltaX: data.deltaX,
         deltaY: 0,
         canScroll: true,
       });

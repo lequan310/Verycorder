@@ -352,6 +352,7 @@ export function updateCanvasTestEventList(
   updatedCanvasEventList: CanvasEvent[]
 ) {
   canvasTestCase.events = updatedCanvasEventList;
+  //console.log(canvasTestCase.events);
 }
 
 // Export for Ctrl + R to toggle record

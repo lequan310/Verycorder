@@ -50,7 +50,11 @@ async function getEventBoundingBox(event: CanvasEvent) {
     Channel.view.replay.GET_TARGET_BBOX,
     locator
   );
-  ipcRenderer.send(Channel.all.TEST_LOG, result);
+  if (!result)
+    ipcRenderer.send(Channel.all.TEST_LOG, "Failed to get bounding box");
+  else {
+    ipcRenderer.send(Channel.all.TEST_LOG, result);
+  }
   return result;
 }
 
@@ -65,6 +69,15 @@ async function controlEventType(event: CanvasEvent) {
       const hoverEventBBox = await getEventBoundingBox(event);
       if (!hoverEventBBox) return false;
       else runCanvasHoverEvent(hoverEventBBox);
+      break;
+    case EventEnum.scroll:
+      runCanvasScrollEvent(event);
+      break;
+    case EventEnum.input:
+      const prevEvent = canvasTestCase.events[currentEventIndex - 1];
+      const inputEventBBox = await getEventBoundingBox(prevEvent);
+      if (!inputEventBBox) return false;
+      else runCanvasInputEvent(event, inputEventBBox);
       break;
   }
 
@@ -141,6 +154,48 @@ function runCanvasHoverEvent(boundingBox: BoundingBox) {
   const hoverY = box.y + box.height / 2;
 
   ipcRenderer.send(Channel.view.replay.REPLAY_HOVER, { x: hoverX, y: hoverY });
+}
+
+function runCanvasScrollEvent(event: CanvasEvent) {
+  if (event.type == EventEnum.scroll) {
+    const currentX = event.mousePosition.x;
+    const currentY = event.mousePosition.y;
+
+    const deltaX = event.scrollValue.x * -1;
+    const deltaY = event.scrollValue.y * -1;
+
+    if (deltaY !== 0) {
+      ipcRenderer.send(Channel.view.replay.REPLAY_SCROLL, {
+        type: "vertical",
+        deltaY,
+        currentX,
+        currentY,
+      });
+    }
+
+    if (deltaX !== 0) {
+      ipcRenderer.send(Channel.view.replay.REPLAY_SCROLL, {
+        type: "horizontal",
+        deltaX,
+        currentX,
+        currentY,
+      });
+    }
+  }
+}
+
+function runCanvasInputEvent(event: CanvasEvent, boundingBox: BoundingBox) {
+  const box = boundingBox;
+  const inputX = box.x + box.width / 2;
+  const inputY = box.y + box.height / 2;
+
+  const existingLength = 0;
+  ipcRenderer.send(Channel.view.replay.REPLAY_INPUT, {
+    x: inputX,
+    y: inputY,
+    value: event.value,
+    prevLength: existingLength,
+  });
 }
 
 export async function replayCanvas() {

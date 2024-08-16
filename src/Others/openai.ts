@@ -13,9 +13,9 @@ const Result = z.object({
 dotenv.config();
 
 const openai = new OpenAI();
-const caption_model = "gpt-4o-mini";
+const caption_model = "gpt-4-turbo";
 const locate_model = "gpt-4o-2024-08-06";
-const embed_model = "text-embedding-3-small";
+const embed_model = "text-embedding-3-large";
 
 const CAPTION_PROPMT = `You are an expert at captioning web element. You are given an image of a web element.
 Generate a single precise locator for the web element based on visual description.
@@ -158,13 +158,14 @@ export async function getReplayTargetBBox(
 
     if (index === -1) return null;
 
+    //return result.bboxes[index];
     // Check if the detected element matches the locator
     const screenshotElement = await elementScreenshot(result.bboxes[index]);
     const newLocator = await getCaption(screenshotElement);
     console.log(newLocator);
     const similarity = await getSimilarity(locator, newLocator);
     console.log(similarity);
-    if (similarity >= 0.9) return result.bboxes[index];
+    if (similarity >= 0.7) return result.bboxes[index];
     return null;
   } catch (error) {
     console.error(error);

@@ -197,13 +197,13 @@ export function handleRecordCanvasHover(win: BrowserWindow) {
 }
 
 export function handleRecordCanvasInput(win: BrowserWindow) {
-  ipcMain.on(Channel.view.record.CANVAS_INPUT, (event, value) => {
+  ipcMain.on(Channel.view.record.CANVAS_INPUT, (event, cssSelector, value) => {
     const eventId = getCurrentEventIndex();
 
     const inputEvent: CanvasEvent = {
       id: eventId,
       type: EventEnum.input,
-      target: "Target from previous event (Phy's job)",
+      target: cssSelector,
       value: value,
     };
 
