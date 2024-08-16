@@ -184,8 +184,8 @@ export async function drawBoxes(imageBuffer: Buffer) {
         console.log(error);
     }
 
-    Jimp.read(await jimpImage.getBufferAsync(Jimp.MIME_PNG)).then((image: Jimp) => {
-        image.write("image" + "_output.png");
-    });
+    // Jimp.read(await jimpImage.getBufferAsync(Jimp.MIME_PNG)).then((image: Jimp) => {
+    //     image.write("image" + "_output.png");
+    // });
     return { buffer: await jimpImage.getBufferAsync(Jimp.MIME_PNG), bboxes: boundingBoxes };
 };
