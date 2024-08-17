@@ -4,7 +4,6 @@ import {
   handleRecordCanvas,
   handleViewEvents,
   handleUIEvents,
-  getView,
   getWin,
   createWindow,
   toggleRecord,
@@ -12,8 +11,6 @@ import {
   toggleEdit,
 } from "./Others/electronUtilities";
 import { handleReplayEvents } from "./Main/replay_functions";
-import { getReplayTargetBBox } from "./Others/openai";
-import { createOnnxSession, releaseOnnxSession } from "./Others/inference";
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require("electron-squirrel-startup")) {
