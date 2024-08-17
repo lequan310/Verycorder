@@ -31,21 +31,8 @@ app.whenReady().then(() => {
   const registerShortcuts = () => {
     // May consider removing this feature in production
     globalShortcut.register("CommandOrControl+Shift+J", view.webContents.toggleDevTools);
-
-    // Remove this after Phy finish his recording button :skull:
     globalShortcut.register("CommandOrControl+R", toggleRecord);
-
-    // Remember to add UI for playback later
     globalShortcut.register("CommandOrControl+P", toggleReplay);
-
-    // Test gium
-    globalShortcut.register("CommandOrControl+T", async () => {
-      await createOnnxSession();
-      const image = (await view.webContents.capturePage()).toPNG();
-      const result = await getReplayTargetBBox(image, '[button with text="Home", background_color=#1a1a1a, shape="rectangle", icon="compass"]');
-      console.log(result);
-      await releaseOnnxSession();
-    });
   }
 
   win.once("ready-to-show", () => {
