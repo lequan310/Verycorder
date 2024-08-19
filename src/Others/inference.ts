@@ -10,9 +10,9 @@ const MODEL_PATH = "./src/Models/best.onnx";
 
 let session: InferenceSession | null = null;
 
-export async function createOnnxSession() {
-  if (!session) session = await ort.InferenceSession.create(MODEL_PATH);
-  console.log("Session created");
+export async function createOnnxSession(modelPath = MODEL_PATH) {
+    if (!session) session = await ort.InferenceSession.create(modelPath);
+    console.log("Session created");
 }
 
 export async function releaseOnnxSession() {
@@ -72,8 +72,8 @@ export async function getImageBuffer(imagePath: string): Promise<Buffer> {
   return imageBuffer;
 }
 
-export async function getBBoxes(imageBuffer: Buffer) {
-  let bboxes: BoundingBox[] = [];
+export async function getBBoxes(imageBuffer: Buffer): Promise<BoundingBox[]> {
+    let bboxes: BoundingBox[] = [];
 
   try {
     const startTime = performance.now();

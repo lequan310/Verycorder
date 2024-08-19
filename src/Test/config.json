@@ -1,0 +1,13 @@
+{
+    "tests": [
+        {
+            "name": "Test 1",
+            "imagePath": "Test 1/image.png",
+            "clickPosition": {
+                "x": 0,
+                "y": 0
+            },
+            "locator": "a white box"
+        }
+    ]
+}
