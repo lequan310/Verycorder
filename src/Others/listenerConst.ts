@@ -34,6 +34,8 @@ export const Channel = {
         UPDATE_CANVAS_EVENT_LIST: "win-update-canvas-event-list",
         // Update similarity parameter from win to main
         SET_SIMILARITY: "win-set-similarity",
+        // Update the test steps from main to win
+        BEGIN_RESIZE: "win-begin-resize",
     },
     view: {
         replay: {
