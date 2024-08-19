@@ -499,7 +499,7 @@ export function updateViewBounds() {
         x: x + leftPosition,
         y: y + 40,
         width: Math.floor(width - leftPosition),
-        height: Math.floor(height - 36),
+        height: Math.floor(height - 40),
       };
       view.setBounds(newBounds);
 
