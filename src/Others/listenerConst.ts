@@ -22,6 +22,8 @@ export const Channel = {
         CLICK_REPLAY: "win-click-replay",
         // Handle when edit button is clicked
         CLICK_EDIT: "win-click-edit",
+        // Update the test steps from main to win
+        BEGIN_RESIZE: "win-begin-resize",
         // Handle app resize
         END_RESIZE: "win-end-resize",
         // Send updated target from main to win for edit mode
@@ -34,8 +36,6 @@ export const Channel = {
         UPDATE_CANVAS_EVENT_LIST: "win-update-canvas-event-list",
         // Update similarity parameter from win to main
         SET_SIMILARITY: "win-set-similarity",
-        // Update the test steps from main to win
-        BEGIN_RESIZE: "win-begin-resize",
     },
     view: {
         replay: {
