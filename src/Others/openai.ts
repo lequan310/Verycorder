@@ -1,14 +1,20 @@
 import dotenv from 'dotenv';
 import OpenAI from "openai";
+import { zodResponseFormat } from "openai/helpers/zod";
+import { z } from "zod";
 import { drawBoxes } from './inference';
 import { elementScreenshot } from './electronUtilities';
 import { BoundingBox } from '../Types/bbox';
+
+const Result = z.object({
+    value: z.number(),
+});
 
 dotenv.config();
 
 const openai = new OpenAI();
 const caption_model = "gpt-4o-mini";
-const locate_model = "gpt-4o";
+const locate_model = "gpt-4o-2024-08-06";
 const embed_model = "text-embedding-3-small";
 
 const CAPTION_PROPMT = `You are an expert at captioning web element. You are given an image of a web element.
@@ -103,56 +109,55 @@ export async function getCaption(base64image: string) {
 }
 
 export async function getReplayTargetBBox(imageBuffer: Buffer, locator: string): Promise<BoundingBox> {
-    // Draw bounding boxes for this image
-    const result = await drawBoxes(imageBuffer);
-    let index = -1;
-
-    // Convert the image to base64
-    const annotatedImage = result.buffer.toString('base64');
-
-    const completion = await openai.chat.completions.create({
-        messages: [
-            { role: "system", content: LOCATE_PROMPT },
-            {
-                role: "user", content: [
-                    {
-                        type: "text",
-                        text: `Find the index of the web element with the same visual properties as following: ${locator}. Returns -1 if the element with similar visual properties is not found.`
-                    },
-                    {
-                        type: "image_url",
-                        image_url: {
-                            url: `data:image/png;base64,${annotatedImage}`,
-                            detail: "low"
-                        }
-                    }
-                ]
-            }
-        ],
-        model: locate_model,
-        seed: 0,
-        max_tokens: 50,
-        temperature: 0,
-    });
-
-    const repsonse = completion.choices[0].message.content;
-
-    // Return the bounding box down here
     try {
-        index = parseInt(repsonse);
-        // return result.bboxes[index];
+        // Draw bounding boxes for this image
+        const result = await drawBoxes(imageBuffer);
+        let index = -1;
+
+        // Convert the image to base64
+        const annotatedImage = result.buffer.toString('base64');
+
+        const completion = await openai.beta.chat.completions.parse({
+            messages: [
+                { role: "system", content: LOCATE_PROMPT },
+                {
+                    role: "user", content: [
+                        {
+                            type: "text",
+                            text: `Find the index of the web element with the same visual properties as following: ${locator}. Returns -1 if the element with similar visual properties is not found.`
+                        },
+                        {
+                            type: "image_url",
+                            image_url: {
+                                url: `data:image/png;base64,${annotatedImage}`,
+                            }
+                        }
+                    ]
+                }
+            ],
+            model: locate_model,
+            seed: 0,
+            max_tokens: 50,
+            temperature: 0,
+            response_format: zodResponseFormat(Result, "result"),
+        });
+
+        const response = completion.choices[0].message.parsed;
+        index = response.value;
+        console.log(index);
+
+        if (index === -1) return null;
+
+        // Check if the detected element matches the locator
+        const screenshotElement = await elementScreenshot(result.bboxes[index]);
+        const newLocator = await getCaption(screenshotElement);
+        console.log(newLocator);
+        const similarity = await getSimilarity(locator, newLocator);
+
+        if (similarity >= 0.9) return result.bboxes[index];
+        return null;
     } catch (error) {
-        index = repsonse.match(/\d+/g).map(Number)[0];
-        // return result.bboxes[index];
+        console.error(error);
+        return null;
     }
-
-    if (index === -1) return null;
-
-    // Check if the detected element matches the locator
-    const screenshotElement = await elementScreenshot(result.bboxes[index]);
-    const newLocator = await getCaption(screenshotElement);
-    const similarity = await getSimilarity(locator, newLocator);
-
-    if (similarity >= 0.95) return result.bboxes[index];
-    return null;
 }

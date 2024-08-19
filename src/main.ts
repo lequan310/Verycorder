@@ -1,10 +1,9 @@
-import { app, BrowserWindow, globalShortcut } from "electron";
+import { app, BrowserWindow, globalShortcut, Menu, MenuItem } from "electron";
 import {
   handleRecordEvents,
   handleRecordCanvas,
   handleViewEvents,
   handleUIEvents,
-  getView,
   getWin,
   createWindow,
   toggleRecord,
@@ -18,27 +17,34 @@ if (require("electron-squirrel-startup")) {
   app.quit();
 }
 
+// Set menu for local shortcuts
+const menu = new Menu();
+menu.append(new MenuItem({
+  label: 'Electron',
+  submenu: [
+    {
+      label: 'Record',
+      accelerator: 'CommandOrControl+R',
+      click: toggleRecord
+    },
+    {
+      label: 'Replay',
+      accelerator: 'CommandOrControl+P',
+      click: toggleReplay
+    },
+  ]
+}));
+Menu.setApplicationMenu(menu);
+
 // This method will be called when Electron has finished
 // initialization and is ready to create browser windows.
 // Some APIs can only be used after this event occurs.
 app.whenReady().then(() => {
   createWindow();
   const win = getWin();
-  const view = getView();
 
-  // May consider removing this feature in production
-  globalShortcut.register("CommandOrControl+Shift+J", () => {
-    view.webContents.toggleDevTools();
-  });
-
-  // Remove this after Phy finish his recording button :skull:
-  globalShortcut.register("CommandOrControl+R", () => {
-    toggleRecord();
-  });
-
-  // Remember to add UI for playback later
-  globalShortcut.register("CommandOrControl+P", () => {
-    toggleReplay();
+  win.once("ready-to-show", () => {
+    win.show();
   });
 
   // On OS X it's common to re-create a window in the app when the

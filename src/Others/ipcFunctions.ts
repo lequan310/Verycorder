@@ -90,7 +90,7 @@ export function handleClickReplay() {
   });
 }
 
-export function handleNavigateInPage(view: BrowserView) {
+export function handleNavigateInPage(view: BrowserWindow) {
   view.webContents.on("did-navigate-in-page", () => {
     if (getCurrentMode() === AppMode.replay) {
       console.log("Navigation started during replay");

@@ -77,7 +77,7 @@ export async function getBBoxes(imageBuffer: Buffer) {
         const image = await Jimp.create(imageBuffer);
         const originalWidth = image.getWidth(), originalHeight = image.getHeight();
 
-        image.resize(640, 640);
+        image.resize(640, 640, Jimp.RESIZE_BICUBIC);
         const imageTensor = imageBufferToTensor(image.bitmap.data, [1, 3, 640, 640]);
 
         // Perform inference
@@ -184,5 +184,8 @@ export async function drawBoxes(imageBuffer: Buffer) {
         console.log(error);
     }
 
+    // Jimp.read(await jimpImage.getBufferAsync(Jimp.MIME_PNG)).then((image: Jimp) => {
+    //     image.write("image" + "_output.png");
+    // });
     return { buffer: await jimpImage.getBufferAsync(Jimp.MIME_PNG), bboxes: boundingBoxes };
 };
