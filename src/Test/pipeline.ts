@@ -24,6 +24,11 @@ function saveBuffer(buffer: Buffer, name: string) {
     fs.writeFileSync(name, buffer);
 }
 
+type Result = {
+    boundingBoxes: BoundingBox[];
+    caption: string | null;
+}
+
 
 async function main() {
     await createOnnxSession("../Models/best.onnx");
@@ -45,6 +50,14 @@ async function main() {
         let { buffer: drawnBuffer, bboxes } = await drawBoxes(buffer);
         saveBuffer(drawnBuffer, `${outputDir}/drawn.png`);
         let targetBox = null;
+
+        let result: Result = {
+            boundingBoxes: [],
+            caption: null
+        }
+
+        result.boundingBoxes = bboxes;
+
         for (let box of bboxes) {
             if (box.contains(test.clickPosition.x, test.clickPosition.y)) {
                 targetBox = box;
@@ -52,17 +65,20 @@ async function main() {
             }
         }
 
-        if (!targetBox) {
-            console.error("Target box not found");
-            return;
+        if (targetBox) {
+            let targetBuffer = jimpImg.crop(targetBox.x, targetBox.y, targetBox.width, targetBox.height);
+            let caption = await openai.getCaption(await targetBuffer.getBase64Async(Jimp.MIME_PNG));
+            result.caption = caption;
+            let resultBox = await openai.getReplayTargetBBox(buffer, caption);
+            if (result) {
+                let resultImg = jimpImg.crop(resultBox.x, resultBox.y, resultBox.width, resultBox.height);
+                resultImg.write(`${outputDir}/result.png`);
+            }
+        } else {
+            console.log("Target box not found");
         }
-        let targetBuffer = jimpImg.crop(targetBox.x, targetBox.y, targetBox.width, targetBox.height);
-        let caption = await openai.getCaption(await targetBuffer.getBase64Async(Jimp.MIME_PNG));
-        let result = await openai.getReplayTargetBBox(buffer, caption);
-        if (result) {
-            let resultImg = jimpImg.crop(result.x, result.y, result.width, result.height);
-            await resultImg.write(`${outputDir}/result.png`);
-        }
+
+        fs.writeFileSync(`${outputDir}/result.json`, JSON.stringify(result, null, "\t"));
     }
 
     await releaseOnnxSession();
