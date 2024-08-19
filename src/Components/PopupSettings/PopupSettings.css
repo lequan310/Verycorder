@@ -6,13 +6,46 @@
   left: 20px;
   box-shadow: rgba(17, 17, 26, 0.1) 0px 4px 16px,
     rgba(17, 17, 26, 0.05) 0px 8px 32px;
-  border-radius: var(--border-radius);
-  padding: 12px;
+  border-radius: 8px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
   min-width: max-content;
-  min-width: 100px;
+  min-width: 150px;
+  max-width: 180px;
+  overflow: hidden;
+}
+
+.popup_button {
+  padding: 14px 12px;
+  border-radius: 0;
+  /* height: 42px; */
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  position: relative;
+}
+
+.popup_button label {
+  font-size: 13px;
+}
+
+.popup_button_col {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.popup_button_col p {
+  font-size: 11px;
+  color: gray;
+}
+
+.fixed_bottom {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 0.5px;
 }
 
 .popup_wrapper p {
@@ -46,10 +79,11 @@
 /* toggle switch */
 .toggle-switch {
   margin-top: 4px;
+  margin-left: 12px;
   position: relative;
   display: inline-block;
-  width: 45px;
-  height: 25px;
+  width: 35px;
+  height: 22px;
 }
 
 .toggle-input {
@@ -60,8 +94,8 @@
   position: absolute;
   top: 0;
   left: 0;
-  width: 45px;
-  height: 25px;
+  width: 35px;
+  height: 21px;
   border-radius: 17px;
   background-color: #ccc;
   cursor: pointer;
@@ -73,8 +107,8 @@
   position: absolute;
   top: 3px;
   left: 3px;
-  width: 20px;
-  height: 19px;
+  width: 14px;
+  height: 15px;
   border-radius: 50%;
   background-color: #fff;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2);
@@ -87,4 +121,39 @@
 
 .toggle-input:checked + .toggle-label:before {
   transform: translateX(18px);
+}
+
+.slidecontainer {
+  width: 100%; /* Width of the outside container */
+}
+
+/* The slider itself */
+.slider {
+  -webkit-appearance: none; /* Override default CSS styles */
+  appearance: none;
+  width: 100%; /* Full-width */
+  height: 6px; /* Specified height */
+  background: #dedede; /* Grey background */
+  outline: none; /* Remove outline */
+  -webkit-transition: 0.2s; /* 0.2 seconds transition on hover */
+  transition: opacity 0.2s;
+  border-radius: 10px;
+}
+
+/* The slider handle (use -webkit- (Chrome, Opera, Safari, Edge) and -moz- (Firefox) to override default look) */
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none; /* Override default look */
+  appearance: none;
+  width: 10px; /* Set a specific slider handle width */
+  height: 10px; /* Slider handle height */
+  background: var(--arc-palette-cutoutColor); /* Green background */
+  cursor: pointer; /* Cursor on hover */
+  border-radius: 100%;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px; /* Set a specific slider handle width */
+  height: 25px; /* Slider handle height */
+  background: #04aa6d; /* Green background */
+  cursor: pointer; /* Cursor on hover */
 }

@@ -122,6 +122,7 @@ textarea {
   flex: 1 0 auto;
   border-radius: var(--border-radius) 0 0 0;
   background-color: white;
+  overflow: hidden;
 }
 
 .main-content__wrapper {
