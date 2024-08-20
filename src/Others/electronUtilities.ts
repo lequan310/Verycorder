@@ -27,6 +27,7 @@ import {
   ipcSetDetectMode,
   handleUpdateCanvasTestCase,
   handleScreenshotForReplay,
+  handleSetSimilarity,
 } from "./ipcFunctions";
 import { BoundingBox } from "../Types/bbox";
 import { DetectMode } from "../Types/detectMode";
@@ -628,6 +629,7 @@ export function handleUIEvents() {
   handleResize();
   ipcSetDetectMode();
   handleUpdateCanvasTestCase();
+  handleSetSimilarity();
 }
 
 // Function to register events (click, input, etc.) into left panel

@@ -52,6 +52,7 @@ let similarityValue = 0.8;
 
 export function setSimilarity(sim: number) {
     similarityValue = sim;
+    console.log(similarityValue);
 }
 
 function cosine_similarity(a: number[], b: number[]) {
