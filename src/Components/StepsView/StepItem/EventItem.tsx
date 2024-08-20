@@ -13,6 +13,7 @@ import { LegacyRef } from "react";
 import { Channel } from "../../../Others/listenerConst";
 import HandleEventEditType from "./handleEventEditType";
 import { CanvasEvent } from "../../../Types/canvasEvent";
+import { DetectMode } from "../../../Types/detectMode";
 
 interface EventItemProps {
   itemKey: number;
@@ -109,7 +110,9 @@ const EventItem = forwardRef<HTMLDivElement, EventItemProps>(
     };
 
     const handleToggleEditMode = () => {
-      ipcRenderer.send(Channel.win.CLICK_EDIT);
+      if (targetContext.detectMode !== DetectMode.AI) {
+        ipcRenderer.send(Channel.win.CLICK_EDIT);
+      }
       setEditMode((prev) => !prev);
       selectedIndex(editMode ? -1 : itemKey);
     };
