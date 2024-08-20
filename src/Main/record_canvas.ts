@@ -47,8 +47,9 @@ function clickHandler(event: MouseEvent) {
             );
 
             handleAfterClick();
-            retakeBbox();
         }
+
+        retakeBbox();
     }
 }
 
