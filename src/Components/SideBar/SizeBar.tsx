@@ -13,7 +13,7 @@ import "tippy.js/themes/material.css";
 const SideBar = () => {
   const ipcRenderer = window.api;
   const [settingState, setSettingState] = useState(false);
-  const [folderState, setFolderState] = useState(true);
+  // const [folderState, setFolderState] = useState(true);
   const [similarity, setSimilarity] = useState(8);
 
   const toggleButtonRef = useRef<HTMLButtonElement>(null);
@@ -79,7 +79,7 @@ const SideBar = () => {
           theme="material"
         >
           <button>
-            <span className="material-symbols-rounded">upload</span>
+            <span className="material-symbols-rounded">upload_file</span>
           </button>
         </Tippy>
         <Tippy
