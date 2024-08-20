@@ -317,8 +317,8 @@ function runScrollEvent(event: RecordedEvent, element?: Element) {
     }
 
     // Calculate the distance to scroll using the provided destination and current scroll coordinates
-    const deltaY = scrollY - currentScrollY;
-    const deltaX = scrollX - currentScrollX;
+    const deltaY = (scrollY - currentScrollY) * -1;
+    const deltaX = (scrollX - currentScrollX) * -1;
 
     // Check for vertical scroll
     if (deltaY !== 0) {

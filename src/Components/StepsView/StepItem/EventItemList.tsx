@@ -195,6 +195,7 @@ const EventItemList = () => {
               setGlobalReplayingButtonEnable(false);
             }
           }
+
           break;
         case AppMode.record:
           //when going to record state, reset the test case list
