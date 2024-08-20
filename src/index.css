@@ -286,3 +286,7 @@ textarea {
   height: 30px;
   margin: 0px;
 }
+
+.tippy-box {
+  font-size: 0.7rem !important;
+}

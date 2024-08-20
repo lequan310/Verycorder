@@ -195,7 +195,7 @@ const App = () => {
                 <div className="commands__wrapper">
                   <div className="commands__wrapper__title">
                     <h4>Commands</h4>
-                    <span className="material-symbols-rounded">tune</span>
+                    {/* <span className="material-symbols-rounded">tune</span> */}
                   </div>
                   <EventItemList />
                 </div>

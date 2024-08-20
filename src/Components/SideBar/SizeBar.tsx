@@ -6,6 +6,10 @@ import {
 } from "../../Types/targetContext";
 import { Channel } from "../../Others/listenerConst";
 import PopupSettings from "../PopupSettings/PopupSettings";
+import Tippy from "@tippyjs/react";
+import "tippy.js/dist/tippy.css"; // optional
+import "tippy.js/themes/material.css";
+
 const SideBar = () => {
   const ipcRenderer = window.api;
   const [settingState, setSettingState] = useState(false);
@@ -30,24 +34,65 @@ const SideBar = () => {
   return (
     <div className="sizeBar__wrapper">
       <div className="top_sizeBar_wrapper">
-        <button
-          className={targetContext.addNewEventManually ? "active" : ""}
-          onClick={() => {
-            ipcRenderer.send(Channel.win.CLICK_EDIT);
-            setGlobalAddEventManually(!targetContext.addNewEventManually);
-          }}
-          disabled={!targetContext.editState}
+        <Tippy
+          content="Add new event"
+          placement="right"
+          arrow={false}
+          delay={500}
+          theme="material"
         >
-          <span className="material-symbols-rounded">add</span>
-        </button>
-        <button
+          <button
+            className={targetContext.addNewEventManually ? "active" : ""}
+            onClick={() => {
+              ipcRenderer.send(Channel.win.CLICK_EDIT);
+              setGlobalAddEventManually(!targetContext.addNewEventManually);
+            }}
+            disabled={!targetContext.editState}
+          >
+            <span className="material-symbols-rounded">add</span>
+          </button>
+        </Tippy>
+        {/* <button
           className={folderState ? "active" : ""}
           onClick={() => {
             setFolderState(!folderState);
           }}
         >
           <span className="material-symbols-rounded">folder</span>
-        </button>
+        </button> */}
+        <Tippy
+          content="Edit"
+          placement="right"
+          arrow={false}
+          delay={500}
+          theme="material"
+        >
+          <button>
+            <span className="material-symbols-rounded">edit</span>
+          </button>
+        </Tippy>
+        <Tippy
+          content="Upload test case"
+          placement="right"
+          arrow={false}
+          delay={500}
+          theme="material"
+        >
+          <button>
+            <span className="material-symbols-rounded">upload</span>
+          </button>
+        </Tippy>
+        <Tippy
+          content="Export test case"
+          placement="right"
+          arrow={false}
+          delay={500}
+          theme="material"
+        >
+          <button>
+            <span className="material-symbols-rounded">download</span>
+          </button>
+        </Tippy>
       </div>
 
       <div className="top_sizeBar_wrapper">
