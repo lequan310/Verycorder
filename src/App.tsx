@@ -202,8 +202,9 @@ const App = () => {
               </div>
             </div>
             <button
-              className={`${"draggable_wrapper"} ${isDragging ? "dragging" : ""
-                }`}
+              className={`${"draggable_wrapper"} ${
+                isDragging ? "dragging" : ""
+              }`}
               onMouseDown={enableResize ? handleMouseDown : undefined}
               disabled={!enableResize}
             >

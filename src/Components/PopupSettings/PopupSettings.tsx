@@ -1,4 +1,5 @@
 import {
+  ChangeEvent,
   Dispatch,
   SetStateAction,
   useContext,
@@ -18,13 +19,16 @@ import { DetectMode, DetectType } from "../../Types/detectMode";
 const PopupSettings = ({
   popupState,
   toggleButtonRef,
+  similarity,
+  setSimilarity,
 }: {
   popupState: Dispatch<SetStateAction<boolean>>;
   toggleButtonRef: React.RefObject<HTMLButtonElement>;
+  similarity: number;
+  setSimilarity: Dispatch<SetStateAction<number>>;
 }) => {
   const targetContext = useContext(TargetContext);
   const dispatch = useContext(TargetDispatchContext);
-  const [similarity, setSimilarity] = useState(0);
   const ipcRenderer = window.api;
 
   const setTarget = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -39,7 +43,6 @@ const PopupSettings = ({
     popupState(false);
     if (dispatch) {
       ipcRenderer.send(Channel.win.UPDATE_DETECT_MODE, detectMode);
-      ipcRenderer.send(Channel.all.TEST_LOG, detectMode);
       dispatch({ type: "SET_DETECT_MODE", payload: detectMode });
     }
   };
@@ -63,6 +66,12 @@ const PopupSettings = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+
+  const similarityHandler = (e: ChangeEvent<HTMLInputElement>) => {
+    setSimilarity(parseInt(e.target.value));
+    ipcRenderer.send(Channel.win.SET_SIMILARITY, Number(e.target.value) / 10);
+    console.log(e.target.value);
+  };
 
   return (
     <div className="popup_wrapper" ref={popupRef}>
@@ -98,15 +107,22 @@ const PopupSettings = ({
           <div className="popup_button_col">
             <label htmlFor="ai">Similarity</label>
             <p>The higher the similarity, the higher the accuracy</p>
-            <input
-              type="range"
-              min="1"
-              max="100"
-              value={similarity}
-              onChange={(e) => setSimilarity(parseInt(e.target.value))}
-              className="slider"
-              id="myRange"
-            ></input>
+            <div>
+              <input
+                type="range"
+                min="0"
+                max="10"
+                step="1"
+                value={similarity}
+                onChange={similarityHandler}
+                className="slider"
+                id="myRange"
+              ></input>
+              <div className="slider_label">
+                <p>0</p>
+                <p>10</p>
+              </div>
+            </div>
           </div>
         </div>
       ) : null}

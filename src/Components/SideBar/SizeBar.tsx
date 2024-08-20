@@ -6,11 +6,12 @@ import {
 } from "../../Types/targetContext";
 import { Channel } from "../../Others/listenerConst";
 import PopupSettings from "../PopupSettings/PopupSettings";
-import { DetectMode } from "../../Types/detectMode";
 const SideBar = () => {
   const ipcRenderer = window.api;
   const [settingState, setSettingState] = useState(false);
   const [folderState, setFolderState] = useState(true);
+  const [similarity, setSimilarity] = useState(8);
+
   const toggleButtonRef = useRef<HTMLButtonElement>(null);
   const dispatch = useContext(TargetDispatchContext);
   const targetContext = useContext(TargetContext);
@@ -54,6 +55,8 @@ const SideBar = () => {
           <PopupSettings
             popupState={setSettingState}
             toggleButtonRef={toggleButtonRef}
+            similarity={similarity}
+            setSimilarity={setSimilarity}
           />
         )}
         <button

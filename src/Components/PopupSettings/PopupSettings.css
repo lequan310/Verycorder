@@ -157,3 +157,9 @@
   background: #04aa6d; /* Green background */
   cursor: pointer; /* Cursor on hover */
 }
+
+.slider_label {
+  display: flex;
+  flex-direction: row;
+  justify-content: space-between;
+}
