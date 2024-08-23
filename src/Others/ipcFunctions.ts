@@ -2,7 +2,6 @@ import { AppMode } from "../Types/appMode";
 import { Channel } from "./listenerConst";
 import { BrowserView, BrowserWindow, ipcMain } from "electron";
 import {
-    elementScreenshot,
     getCurrentMode,
     initBBox,
     setMode,
@@ -16,13 +15,14 @@ import {
     setDetectMode,
     updateCanvasTestEventList,
     getScreenshotBuffer,
+    getScreenshot
 } from "./electronUtilities";
 import { getCaption, setSimilarity } from "./openai";
 import { EventEnum } from "../Types/eventComponents";
 import { BoundingBox } from "../Types/bbox";
 import { CanvasEvent } from "../Types/canvasEvent";
 import { DetectMode } from "../Types/detectMode";
-import { releaseOnnxSession } from "./inference";
+import { releaseOnnxSession, cropImageBuffer } from "./inference";
 
 // ------------------- IPC EVENT export functionS -------------------
 // export function to test log events
@@ -118,7 +118,9 @@ export function handleGetBBoxes() {
 }
 
 function handleGetCaption(win: BrowserWindow, bbox: BoundingBox, id: number) {
-    elementScreenshot(bbox).then(async (base64image) => {
+    const screenshot = getScreenshot();
+    cropImageBuffer(screenshot, bbox).then(async (croppedImage) => {
+        const base64image = croppedImage.toString("base64");
         const caption = await getCaption(base64image);
         win.webContents.send(Channel.win.UPDATE_EVENT_CAPTION, id, caption);
         console.log(`ID:${id} - ${caption}`);
