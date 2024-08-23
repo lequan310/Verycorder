@@ -98,8 +98,9 @@ python/*.pt
 python/*.onnx
 python/*.ipynb
 
-*.png
-*.jpg
-*.jpeg
+/*.png
+/*.jpg
+/*.jpeg
+**/output/*
 
 /src/models

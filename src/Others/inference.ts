@@ -10,9 +10,9 @@ const MODEL_PATH = "./src/Models/best.onnx";
 
 let session: InferenceSession | null = null;
 
-export async function createOnnxSession() {
-  if (!session) session = await ort.InferenceSession.create(MODEL_PATH);
-  console.log("Session created");
+export async function createOnnxSession(modelPath = MODEL_PATH) {
+    if (!session) session = await ort.InferenceSession.create(modelPath);
+    console.log("Session created");
 }
 
 export async function releaseOnnxSession() {
@@ -72,8 +72,8 @@ export async function getImageBuffer(imagePath: string): Promise<Buffer> {
   return imageBuffer;
 }
 
-export async function getBBoxes(imageBuffer: Buffer) {
-  let bboxes: BoundingBox[] = [];
+export async function getBBoxes(imageBuffer: Buffer): Promise<BoundingBox[]> {
+    let bboxes: BoundingBox[] = [];
 
   try {
     const startTime = performance.now();
@@ -123,9 +123,17 @@ export async function getBBoxes(imageBuffer: Buffer) {
     console.log(`Time taken: ${timeTaken} milliseconds`);
   } catch (error) {
     console.error(error);
-  } finally {
-    return bboxes;
+  } 
+
+  for (let bbox of bboxes) {
+    for (let bbox2 of bboxes) {
+      if (bbox !== bbox2 && bbox.containsBbox(bbox2)) {
+        ++bbox2.level;
+      }
+    }
   }
+
+  return bboxes;
 }
 
 function setColor(buffer: Buffer, idx: number, colors: number[][], i: number) {
@@ -175,7 +183,7 @@ export async function drawBoxes(imageBuffer: Buffer) {
   // determine font size to use:
   const imageHeight = jimpImage.bitmap.height;
   const imageWidth = jimpImage.bitmap.width;
-  const fontSize: string = Jimp.FONT_SANS_16_BLACK;
+  const fontSize: string = Jimp.FONT_SANS_32_BLACK;
 
   const colors = [
     [255, 0, 0],
@@ -215,7 +223,7 @@ export async function drawBoxes(imageBuffer: Buffer) {
         }
       );
 
-      jimpImage.blit(textImage, boundingBox.x, boundingBox.y - 16);
+      jimpImage.blit(textImage, boundingBox.x, boundingBox.y - 32);
 
       i++;
     }
