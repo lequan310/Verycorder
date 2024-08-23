@@ -6,6 +6,7 @@ export class BoundingBox {
     public area: number;
     public centerX: number;
     public centerY: number;
+    public level: number;
 
     public static createNewBBox(x1: number, x2: number, y1: number, y2: number): BoundingBox {
         const bbox = new BoundingBox();
@@ -16,6 +17,7 @@ export class BoundingBox {
         bbox.area = bbox.width * bbox.height;
         bbox.centerX = bbox.x + bbox.width / 2;
         bbox.centerY = bbox.y + bbox.height / 2;
+        bbox.level = 0;
         return bbox;
     }
 
@@ -28,6 +30,7 @@ export class BoundingBox {
         bbox.area = boundingBox.area;
         bbox.centerX = boundingBox.centerX;
         bbox.centerY = boundingBox.centerY;
+        bbox.level = boundingBox.level;
         return bbox;
     }
 
@@ -35,11 +38,15 @@ export class BoundingBox {
         return (mouseX >= this.x) && (mouseX <= this.x + this.width) && (mouseY >= this.y) && (mouseY <= this.y + this.height);
     }
 
+    containsBbox(bbox: BoundingBox): boolean {
+        return this.contains(bbox.x, bbox.y) && this.contains(bbox.x + bbox.width, bbox.y + bbox.height);
+    }
+
     entered(prevMouseX: number, prevMouseY: number, mouseX: number, mouseY: number): boolean {
         return !this.contains(prevMouseX, prevMouseY) && this.contains(mouseX, mouseY);
     }
 
     toString(): string {
-        return `BoundingBox(x: ${this.x}, y: ${this.y}, width: ${this.width}, height: ${this.height}, area: ${this.area}, centerX: ${this.centerX}, centerY: ${this.centerY})`;
+        return `BoundingBox(x: ${this.x}, y: ${this.y}, width: ${this.width}, height: ${this.height}, area: ${this.area}, centerX: ${this.centerX}, centerY: ${this.centerY}, level: ${this.level})`;
     }
 }

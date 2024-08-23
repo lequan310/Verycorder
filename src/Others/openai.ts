@@ -5,6 +5,7 @@ import { z } from "zod";
 import { drawBoxes } from "./inference";
 import { elementScreenshot } from "./electronUtilities";
 import { BoundingBox } from "../Types/bbox";
+import Jimp from "jimp";
 
 const Result = z.object({
     value: z.number(),
@@ -126,12 +127,32 @@ export async function getReplayTargetBBox(
     locator: string
 ): Promise<BoundingBox> {
     try {
+       let result = await drawBoxes(imageBuffer);
+
+       let bbox = await getReplayBoundingBox(result.buffer, result.bboxes, locator); 
+
+        //return result.bboxes[index];
+        // Check if the detected element matches the locator
+        let jimpImg = await Jimp.read(imageBuffer);
+        let element = (await jimpImg.getBufferAsync(Jimp.MIME_PNG)).toString("base64");
+        const newLocator = await getCaption(element);
+
+        const similarity = await getSimilarity(locator, newLocator);
+        if (similarity >= similarityValue) return bbox;
+        return null;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
+}
+
+export async function getReplayBoundingBox(drawnBuffer: Buffer, bboxes: BoundingBox[], locator: string): Promise<BoundingBox> {
+    try {
         // Draw bounding boxes for this image
-        const result = await drawBoxes(imageBuffer);
         let index = -1;
 
         // Convert the image to base64
-        const annotatedImage = result.buffer.toString("base64");
+        const annotatedImage = drawnBuffer.toString("base64");
 
         const completion = await openai.beta.chat.completions.parse({
             messages: [
@@ -161,19 +182,10 @@ export async function getReplayTargetBBox(
 
         const response = completion.choices[0].message.parsed;
         index = response.value;
-        console.log(index);
 
         if (index === -1) return null;
 
-        //return result.bboxes[index];
-        // Check if the detected element matches the locator
-        const screenshotElement = await elementScreenshot(result.bboxes[index]);
-        const newLocator = await getCaption(screenshotElement);
-        console.log(newLocator);
-        const similarity = await getSimilarity(locator, newLocator);
-        console.log(similarity);
-        if (similarity >= similarityValue) return result.bboxes[index];
-        return null;
+        return bboxes[index];
     } catch (error) {
         console.error(error);
         return null;
