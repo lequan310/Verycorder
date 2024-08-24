@@ -2,7 +2,6 @@ const ort = require("onnxruntime-node");
 import Jimp from "jimp";
 import sharp from "sharp";
 import { BoundingBox } from "../Types/bbox";
-import { getViewContentSize } from "./electronUtilities";
 
 type Tensor = typeof ort.Tensor;
 type InferenceSession = typeof ort.InferenceSession;
@@ -80,7 +79,8 @@ export async function getBBoxes(imageBuffer: Buffer): Promise<BoundingBox[]> {
     const startTime = performance.now();
 
     const image = await Jimp.create(imageBuffer);
-    const [originalWidth, originalHeight] = getViewContentSize();
+    const originalWidth = image.getWidth(),
+      originalHeight = image.getHeight();
 
     image.resize(640, 640, Jimp.RESIZE_BICUBIC);
     const imageTensor = imageBufferToTensor(
