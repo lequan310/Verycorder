@@ -2,7 +2,6 @@ import { AppMode } from "../Types/appMode";
 import { Channel } from "./listenerConst";
 import { BrowserView, BrowserWindow, ipcMain } from "electron";
 import {
-    elementScreenshot,
     getCurrentMode,
     initBBox,
     setMode,
@@ -15,14 +14,15 @@ import {
     getCurrentEventIndex,
     setDetectMode,
     updateCanvasTestEventList,
-    getScreenshotBuffer,
+    getScreenshot,
+    getViewScreenshotBuffer
 } from "./electronUtilities";
 import { getCaption, setSimilarity } from "./openai";
 import { EventEnum } from "../Types/eventComponents";
 import { BoundingBox } from "../Types/bbox";
 import { CanvasEvent } from "../Types/canvasEvent";
 import { DetectMode } from "../Types/detectMode";
-import { releaseOnnxSession } from "./inference";
+import { releaseOnnxSession, cropImageBuffer } from "./inference";
 
 // ------------------- IPC EVENT export functionS -------------------
 // export function to test log events
@@ -117,22 +117,23 @@ export function handleGetBBoxes() {
     });
 }
 
-function handleGetCaption(win: BrowserWindow, bbox: BoundingBox, id: number) {
-    elementScreenshot(bbox).then(async (base64image) => {
-        const caption = await getCaption(base64image);
+function handleGetCaption(win: BrowserWindow, buffer: Buffer, id: number) {
+    const base64image = buffer.toString("base64");
+    getCaption(base64image).then((caption) => {
         win.webContents.send(Channel.win.UPDATE_EVENT_CAPTION, id, caption);
-        console.log(`ID:${id} - ${caption}`);
     });
 }
 
 export function handleRecordCanvasClick(win: BrowserWindow) {
     ipcMain.on(
         Channel.view.record.CANVAS_CLICK,
-        (event, bbox: BoundingBox, mouseX: number, mouseY: number) => {
+        async (event, bbox: BoundingBox, mouseX: number, mouseY: number) => {
             const eventId = getCurrentEventIndex();
+            incrementCurrentEventIndex();
 
             // Screenshot and send caption later
-            handleGetCaption(win, bbox, eventId);
+            const croppedImageBuffer = await cropImageBuffer(getScreenshot(), bbox);
+            handleGetCaption(win, croppedImageBuffer, eventId);
 
             const clickEvent: CanvasEvent = {
                 id: eventId,
@@ -140,11 +141,11 @@ export function handleRecordCanvasClick(win: BrowserWindow) {
                 target: "Waiting for caption...",
                 value: null,
                 mousePosition: { x: mouseX, y: mouseY },
+                buffer: croppedImageBuffer,
             };
 
             win.webContents.send(Channel.win.ADD_EVENT_CANVAS, clickEvent);
             console.log(clickEvent);
-            incrementCurrentEventIndex();
         }
     );
 }
@@ -152,8 +153,9 @@ export function handleRecordCanvasClick(win: BrowserWindow) {
 export function handleRecordCanvasScroll(win: BrowserWindow) {
     ipcMain.on(
         Channel.view.record.CANVAS_SCROLL,
-        (event, deltaScrollX, deltaScrollY, mouseX, mouseY) => {
+        async (event, deltaScrollX, deltaScrollY, mouseX, mouseY) => {
             const eventId = getCurrentEventIndex();
+            incrementCurrentEventIndex();
 
             const scrollEvent: CanvasEvent = {
                 id: eventId,
@@ -162,11 +164,11 @@ export function handleRecordCanvasScroll(win: BrowserWindow) {
                 value: `${deltaScrollX} ${deltaScrollY}`,
                 scrollValue: { x: deltaScrollX, y: deltaScrollY },
                 mousePosition: { x: mouseX, y: mouseY },
+                buffer: null,
             };
 
             win.webContents.send(Channel.win.ADD_EVENT_CANVAS, scrollEvent);
             console.log(scrollEvent);
-            incrementCurrentEventIndex();
         }
     );
 }
@@ -174,11 +176,13 @@ export function handleRecordCanvasScroll(win: BrowserWindow) {
 export function handleRecordCanvasHover(win: BrowserWindow) {
     ipcMain.on(
         Channel.view.record.CANVAS_HOVER,
-        (event, bbox: BoundingBox, mouseX: number, mouseY: number) => {
+        async (event, bbox: BoundingBox, mouseX: number, mouseY: number) => {
             const eventId = getCurrentEventIndex();
+            incrementCurrentEventIndex();
 
             // Screenshot and send caption later
-            handleGetCaption(win, bbox, eventId);
+            const croppedImageBuffer = await cropImageBuffer(getScreenshot(), bbox);
+            handleGetCaption(win, croppedImageBuffer, eventId);
 
             const hoverEvent: CanvasEvent = {
                 id: eventId,
@@ -186,11 +190,11 @@ export function handleRecordCanvasHover(win: BrowserWindow) {
                 target: "Waiting for caption...",
                 value: null,
                 mousePosition: { x: mouseX, y: mouseY },
+                buffer: croppedImageBuffer,
             };
 
             win.webContents.send(Channel.win.ADD_EVENT_CANVAS, hoverEvent);
             console.log(hoverEvent);
-            incrementCurrentEventIndex();
         }
     );
 }
@@ -198,26 +202,28 @@ export function handleRecordCanvasHover(win: BrowserWindow) {
 export function handleRecordCanvasInput(win: BrowserWindow) {
     ipcMain.on(
         Channel.view.record.CANVAS_INPUT,
-        (event, cssSelector, value) => {
+        async (event, cssSelector, value) => {
             const eventId = getCurrentEventIndex();
+            incrementCurrentEventIndex();
 
             const inputEvent: CanvasEvent = {
                 id: eventId,
                 type: EventEnum.input,
                 target: cssSelector,
                 value: value,
+                mousePosition: null,
+                buffer: null,
             };
 
             win.webContents.send(Channel.win.ADD_EVENT_CANVAS, inputEvent);
             console.log(inputEvent);
-            incrementCurrentEventIndex();
         }
     );
 }
 
 export function handleScreenshotForReplay() {
     ipcMain.handle(Channel.view.replay.GET_SCREENSHOT, async (event) => {
-        return (await getScreenshotBuffer()) as Buffer;
+        return (await getViewScreenshotBuffer()) as Buffer;
     });
 }
 

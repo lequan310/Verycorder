@@ -29,7 +29,6 @@ import {
   handleScreenshotForReplay,
   handleSetSimilarity,
 } from "./ipcFunctions";
-import { BoundingBox } from "../Types/bbox";
 import { DetectMode } from "../Types/detectMode";
 import { getReplayTargetBBox } from "./openai";
 
@@ -52,6 +51,7 @@ let editedTarget: Target = {
   css: "",
   xpath: "",
 };
+let screenshot: Buffer;
 
 let win: BrowserWindow;
 let view: BrowserWindow;
@@ -334,6 +334,10 @@ function toggleMode(mode: AppMode) {
   }
 }
 
+export function getScreenshot() {
+  return screenshot;
+}
+
 export function getCurrentEventIndex() {
   return currentEventIndex;
 }
@@ -398,12 +402,14 @@ export async function toggleRecord() {
 }
 
 export async function initBBox() {
-  const image = (await view.webContents.capturePage()).toPNG();
-  return await getBBoxes(image);
+  const image = await getViewScreenshotBuffer();
+  const bboxes = await getBBoxes(image);
+  return bboxes;
 }
 
-export async function getScreenshotBuffer() {
+export async function getViewScreenshotBuffer() {
   const image = (await view.webContents.capturePage()).toPNG();
+  screenshot = image;
   return image;
 }
 
@@ -411,7 +417,7 @@ export function handleFindCanvasReplayTarget() {
   ipcMain.handle(
     Channel.view.replay.GET_TARGET_BBOX,
     async (event, locator) => {
-      const image = await getScreenshotBuffer();
+      const image = await getViewScreenshotBuffer();
       console.log(image);
       console.log(locator);
 
@@ -419,21 +425,6 @@ export function handleFindCanvasReplayTarget() {
       return result;
     }
   );
-}
-
-export async function elementScreenshot(
-  boundingBox: BoundingBox
-): Promise<string> {
-  const rect: Electron.Rectangle = {
-    x: boundingBox.x,
-    y: boundingBox.y,
-    width: boundingBox.width,
-    height: boundingBox.height,
-  };
-
-  const image = await view.webContents.capturePage(rect);
-  const base64image = image.toPNG().toString("base64");
-  return base64image;
 }
 
 // Handle URL change via search bar with abort controller
@@ -533,6 +524,7 @@ export function updateViewBounds() {
     }
   }
 }
+
 async function goToUrlReplay() {
   const isReplayMode = getCurrentMode() === AppMode.replay;
   const isAIMode = detectMode === DetectMode.AI;

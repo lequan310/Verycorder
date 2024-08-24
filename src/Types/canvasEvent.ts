@@ -7,6 +7,7 @@ interface BaseCanvasEvent<T extends EventEnum, V = null, M = null> {
   target: string;
   value?: V;
   mousePosition?: M;
+  buffer?: Buffer | null;
 }
 
 export type CanvasClickEvent = BaseCanvasEvent<

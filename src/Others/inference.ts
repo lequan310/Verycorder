@@ -11,8 +11,8 @@ const MODEL_PATH = "./src/Models/best.onnx";
 let session: InferenceSession | null = null;
 
 export async function createOnnxSession(modelPath = MODEL_PATH) {
-    if (!session) session = await ort.InferenceSession.create(modelPath);
-    console.log("Session created");
+  if (!session) session = await ort.InferenceSession.create(modelPath);
+  console.log("Session created");
 }
 
 export async function releaseOnnxSession() {
@@ -73,7 +73,7 @@ export async function getImageBuffer(imagePath: string): Promise<Buffer> {
 }
 
 export async function getBBoxes(imageBuffer: Buffer): Promise<BoundingBox[]> {
-    let bboxes: BoundingBox[] = [];
+  let bboxes: BoundingBox[] = [];
 
   try {
     const startTime = performance.now();
@@ -123,7 +123,7 @@ export async function getBBoxes(imageBuffer: Buffer): Promise<BoundingBox[]> {
     console.log(`Time taken: ${timeTaken} milliseconds`);
   } catch (error) {
     console.error(error);
-  } 
+  }
 
   for (let bbox of bboxes) {
     for (let bbox2 of bboxes) {
@@ -239,4 +239,9 @@ export async function drawBoxes(imageBuffer: Buffer) {
     buffer: await jimpImage.getBufferAsync(Jimp.MIME_PNG),
     bboxes: boundingBoxes,
   };
+}
+
+export async function cropImageBuffer(imageBuffer: Buffer, bbox: BoundingBox): Promise<Buffer> {
+  const croppedImageBuffer = await sharp(imageBuffer).extract({ width: bbox.width, height: bbox.height, left: bbox.x, top: bbox.y }).toBuffer();
+  return croppedImageBuffer;
 }

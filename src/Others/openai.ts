@@ -3,7 +3,6 @@ import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 import { drawBoxes } from "./inference";
-import { elementScreenshot } from "./electronUtilities";
 import { BoundingBox } from "../Types/bbox";
 import Jimp from "jimp";
 
@@ -26,7 +25,7 @@ If the visual description includes the icon, you can describe the icon with its 
 If the element includes or is an icon, you can assume it is a button.
 
 Locator format: [<Element> with description based on visual]. Element can only be button, text, input field, or image.
-Element description example: [button with text="Sign in", background_color=#0b0b0b, shape="rectangle"]
+Element description example: [button with text="Sign in", background_color="Light Purple", shape="rectangle"]
 For image elements, if you recognize the image, say the name of the image and the visual description. Locator format for image elements: [image of <image name> with description based on visual]
 If you don't recognize the image, describe the image. Locator format for image elements: [image description based on visual]
 Answer should be within 50 words.`;
@@ -127,9 +126,9 @@ export async function getReplayTargetBBox(
     locator: string
 ): Promise<BoundingBox> {
     try {
-       let result = await drawBoxes(imageBuffer);
+        let result = await drawBoxes(imageBuffer);
 
-       let bbox = await getReplayBoundingBox(result.buffer, result.bboxes, locator); 
+        let bbox = await getReplayBoundingBox(result.buffer, result.bboxes, locator);
 
         //return result.bboxes[index];
         // Check if the detected element matches the locator
