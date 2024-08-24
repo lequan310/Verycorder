@@ -84,6 +84,7 @@ function mouseTracker(event: MouseEvent) {
     prevMouseX = mouseX;
     prevMouseY = mouseY;
 
+    ipcRenderer.send(Channel.all.TEST_LOG, `Mouse position: ${event.clientX}, ${event.clientY}, ${event.clientX * dpr}, ${event.clientY * dpr}`);
     mouseX = event.clientX * dpr;
     mouseY = event.clientY * dpr;
 

@@ -4,7 +4,8 @@ import cv, { Mat } from 'opencv-ts';
 
 async function loadImage(image: Buffer): Promise<Mat> {
     try {
-        const jimpImage = await Jimp.read(image);
+        let clone = Buffer.from(image);
+        const jimpImage = await Jimp.read(clone);
         const { data, width, height } = jimpImage.bitmap;
 
         // Convert the Jimp image to OpenCV.js Mat
@@ -22,7 +23,7 @@ export async function compareImages(image1: Buffer, image2: Buffer): Promise<num
     // Convert the Buffer to OpenCV Mat format
     const matImage1 = await loadImage(image1);
     const matImage2 = await loadImage(image2);
-
+    
     if (matImage1 === null || matImage2 === null) {
         console.error('Failed to load images');
         return 10000;  // Returning 10000 as failure value if images are not loaded
@@ -69,18 +70,18 @@ export async function compareImages(image1: Buffer, image2: Buffer): Promise<num
     const commutativeImageDiff = (imgHistDiff / 10) + imgTemplateProbabilityMatch;
 
     // Clean up
-    // matImage1.delete();
-    // matImage2.delete();
+    matImage1.delete();
+    matImage2.delete();
     // resizedImage1.delete();
     // resizedImage2.delete();
     // grayImage1.delete();
     // grayImage2.delete();
-    // vector1.delete();
-    // vector2.delete();
-    // histImage1.delete();
-    // histImage2.delete();
-    // mask.delete();
-    // templateMatch.delete();
+    vector1.delete();
+    vector2.delete();
+    histImage1.delete();
+    histImage2.delete();
+    mask.delete();
+    templateMatch.delete();
 
     // Return the commutative image difference
     return commutativeImageDiff < 1 ? commutativeImageDiff : 10000; // Returning 10000 as failure value if difference is too high

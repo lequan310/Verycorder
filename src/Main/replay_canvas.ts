@@ -5,6 +5,8 @@ import { CanvasTestCase } from "../Types/testCase";
 import { CanvasEvent } from "../Types/canvasEvent";
 import { EventEnum } from "../Types/eventComponents";
 import { BoundingBox } from "../Types/bbox";
+import Jimp from "jimp";
+import { run } from "node:test";
 
 let abortController: AbortController;
 let isReplaying = true; // Flag to control the replay
@@ -44,10 +46,10 @@ async function delayWithAbort(ms: number, signal: AbortSignal) {
   });
 }
 
-async function getEventBoundingBox(event: CanvasEvent) {
+async function getEventBoundingBox(event: CanvasEvent): Promise<BoundingBox> {
   const clickedBuffer = event.buffer;
   const locator = event.target;
-  const result = await ipcRenderer.invoke(
+  const result: BoundingBox = await ipcRenderer.invoke(
     Channel.view.replay.GET_TARGET_BBOX,
     clickedBuffer,
     locator,
@@ -55,32 +57,37 @@ async function getEventBoundingBox(event: CanvasEvent) {
   if (!result)
     ipcRenderer.send(Channel.all.TEST_LOG, "Failed to get bounding box");
   else {
+    ipcRenderer.send(Channel.all.TEST_LOG, `bounding box:`);
     ipcRenderer.send(Channel.all.TEST_LOG, result);
   }
   return result;
 }
 
 async function controlEventType(event: CanvasEvent) {
-  switch (event.type) {
-    case EventEnum.click:
-      const clickEventBBox = await getEventBoundingBox(event);
-      if (!clickEventBBox) return false;
-      else runCanvasClickEvent(clickEventBBox);
-      break;
-    case EventEnum.hover:
-      const hoverEventBBox = await getEventBoundingBox(event);
-      if (!hoverEventBBox) return false;
-      else runCanvasHoverEvent(hoverEventBBox);
-      break;
-    case EventEnum.scroll:
-      runCanvasScrollEvent(event);
-      break;
-    case EventEnum.input:
-      const prevEvent = canvasTestCase.events[currentEventIndex - 1];
-      const inputEventBBox = await getEventBoundingBox(prevEvent);
-      if (!inputEventBBox) return false;
-      else runCanvasInputEvent(event, inputEventBBox);
-      break;
+  let pdr = window.devicePixelRatio || 1;
+  ipcRenderer.send(Channel.all.TEST_LOG, `pdr: ${pdr}`);
+
+
+  ipcRenderer.send(Channel.all.TEST_LOG, `event: ${event.mousePosition.x}, ${event.mousePosition.y}`);
+
+  if (event.type == EventEnum.scroll) {
+    event.mousePosition.x = event.mousePosition.x / pdr;
+    event.mousePosition.y = event.mousePosition.y / pdr;
+    runCanvasScrollEvent(event);
+  } else {
+    const eventBBox = await getEventBoundingBox(event);
+    if (!eventBBox) return false;
+    else {
+      const scaledBbox = BoundingBox.createNewBBox(
+        eventBBox.x / pdr,
+        (eventBBox.x + eventBBox.width) / pdr,
+        eventBBox.y / pdr,
+        (eventBBox.y + eventBBox.height) / pdr
+      ); 
+      if (event.type == EventEnum.click) runCanvasClickEvent(scaledBbox);
+      else if (event.type == EventEnum.hover) runCanvasHoverEvent(scaledBbox);
+      else runCanvasInputEvent(event, scaledBbox);
+    }
   }
 
   return true;
@@ -163,8 +170,10 @@ function runCanvasScrollEvent(event: CanvasEvent) {
     const currentX = event.mousePosition.x;
     const currentY = event.mousePosition.y;
 
-    const deltaX = event.scrollValue.x * -1;
-    const deltaY = event.scrollValue.y * -1;
+    let pdr = window.devicePixelRatio || 1;
+
+    const deltaX = event.scrollValue.x * -1 / pdr;
+    const deltaY = event.scrollValue.y * -1 / pdr;
 
     if (deltaY !== 0) {
       ipcRenderer.send(Channel.view.replay.REPLAY_SCROLL, {

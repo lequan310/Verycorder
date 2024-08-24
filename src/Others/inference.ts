@@ -253,6 +253,6 @@ export async function getAndDrawBoxes(imageBuffer: Buffer, withPosition: boolean
 }
 
 export async function cropImageBuffer(imageBuffer: Buffer, bbox: BoundingBox): Promise<Buffer> {
-  const croppedImageBuffer = await sharp(imageBuffer).extract({ width: bbox.width, height: bbox.height, left: bbox.x, top: bbox.y }).toBuffer();
+  const croppedImageBuffer = (await Jimp.read(imageBuffer)).crop(bbox.x, bbox.y, bbox.width, bbox.height).getBufferAsync(Jimp.MIME_PNG);
   return croppedImageBuffer;
 }

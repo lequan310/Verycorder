@@ -132,8 +132,14 @@ export async function getReplayTargetBBox(
     try {
         console.log("Getting target bounding box");
         const jimp = await Jimp.read(imageBuffer);
-        jimp.resize(1024, Jimp.AUTO);
-
+        let width = 1248;
+        let factor = jimp.getWidth() / width;
+        jimp.resize(width, Jimp.AUTO);
+        
+        let clickedJimp = await Jimp.read(Buffer.from(clickedBuffer));
+        clickedJimp.resize(clickedJimp.getWidth() / factor, Jimp.AUTO);
+        clickedJimp.writeAsync("./logs/clickedImage.png");
+        
         let result = await getAndDrawBoxes(await jimp.getBufferAsync(Jimp.MIME_PNG));
 
         fs.writeFileSync("./logs/drawnForReplay.png", result.buffer);
@@ -155,13 +161,24 @@ export async function getReplayTargetBBox(
 
             const similarity = await getSimilarity(locator, newLocator);
             if (similarity >= similarityValue) return bbox;
-            if (similarity >= similarityValue) return bbox;
         } else {
+            jimpImg.writeAsync("./logs/foundImage.png");
             let resultBuffer = await jimpImg.getBufferAsync(Jimp.MIME_PNG);
-            let score = await compareImages(clickedBuffer, resultBuffer);
+            let score = await compareImages(await clickedJimp.getBufferAsync(Jimp.MIME_PNG), resultBuffer);
             console.log("score:", score);
-            if (score < 1) return bbox;
+            if (score < 1) {
+                let res = BoundingBox.createNewBBox(
+                    bbox.x * factor,
+                    (bbox.x + bbox.width) * factor,
+                    bbox.y * factor,
+                    (bbox.y + bbox.height) * factor
+                );
+                res.level = bbox.level;
+
+                return res;
+            }
         }
+        
         return null;
     } catch (error) {
         console.error(error);

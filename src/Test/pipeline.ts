@@ -47,6 +47,7 @@ type Result = {
     resultBox: BoundingBox | null;
     caption: string | null;
     correct: boolean | null;
+    score: number | null;
 }
 
 type OutputResult = {
@@ -79,6 +80,7 @@ async function main() {
         let result: Result = {
             resultBox: null,
             correct: null,
+            score: null,
             caption: null,
         }
 
@@ -131,8 +133,9 @@ async function main() {
 
                     let score = await compareImages(clickedBuffer, resultBuffer);
 
-                    console.log("compare score", score);
+                    console.log("difference score", score);
 
+                    result.score = score;
                     result.correct = score < 1;
 
                     clickedJimp.write(`${outputDir}/click${i}/clicked.png`);
