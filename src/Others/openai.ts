@@ -4,7 +4,7 @@ import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 import { drawBoxes } from "./inference";
 import { BoundingBox } from "../Types/bbox";
-import Jimp from "jimp";
+import { cropImageBuffer } from "./inference";
 
 const Result = z.object({
     value: z.number(),
@@ -132,8 +132,8 @@ export async function getReplayTargetBBox(
 
         //return result.bboxes[index];
         // Check if the detected element matches the locator
-        let jimpImg = await Jimp.read(imageBuffer);
-        let element = (await jimpImg.getBufferAsync(Jimp.MIME_PNG)).toString("base64");
+        let croppedImageBuffer = await cropImageBuffer(imageBuffer, bbox);
+        let element = croppedImageBuffer.toString("base64");
         const newLocator = await getCaption(element);
 
         const similarity = await getSimilarity(locator, newLocator);
