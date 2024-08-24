@@ -1,4 +1,4 @@
-import React, { forwardRef, useContext, useEffect, useState } from "react";
+import React, { forwardRef, useContext, useState } from "react";
 import "./EventItem.css";
 import { RecordedEvent } from "../../../Types/recordedEvent";
 import {
@@ -24,7 +24,7 @@ interface EventItemProps {
   selectedIndex: (index: number) => void;
   doneEditing: (
     type: EventEnum,
-    target: string | Target | null,
+    target: string | Target,
     value: Value | null,
     inputValue: string | null
   ) => void;
@@ -48,15 +48,6 @@ const EventItem = forwardRef<HTMLDivElement, EventItemProps>(
   ) => {
     const ipcRenderer = window.api;
     const [editMode, setEditMode] = useState(false);
-
-    //Edit data
-    const [selectedEvent, setSelectedEvent] = useState<string>(data.type); // Default selected option
-    const [editedScrollValue, setEditedScrollValue] = useState(
-      data.type === EventEnum.scroll ? data.scrollValue : { x: 0, y: 0 }
-    ); // Default edited target
-    const [editedInputValue, setEditedInputValue] = useState(
-      data.type === EventEnum.input ? data.value : ""
-    );
 
     const targetContext = useContext(TargetContext);
     if (!targetContext) {
@@ -117,14 +108,16 @@ const EventItem = forwardRef<HTMLDivElement, EventItemProps>(
       selectedIndex(editMode ? -1 : itemKey);
     };
 
-    const handleSave = () => {
+    const handleSave = (
+      data: {
+        type: EventEnum;
+        target: string | Target | null;
+        value: Value | null;
+        inputValue: string | null;
+      } | null
+    ) => {
       handleToggleEditMode();
-      doneEditing(
-        EventEnum[selectedEvent.toLowerCase() as keyof typeof EventEnum],
-        data.target,
-        selectedEvent === EventEnum.scroll ? editedScrollValue : null,
-        selectedEvent === EventEnum.input ? editedInputValue : null
-      );
+      doneEditing(data.type, data.target, data.value, data.inputValue);
     };
 
     const handleEditMode = () => {
@@ -132,14 +125,8 @@ const EventItem = forwardRef<HTMLDivElement, EventItemProps>(
         return (
           <HandleEventEditType
             ref={ref}
-            selectedEvent={selectedEvent}
-            setSelectedEvent={setSelectedEvent}
-            editedScrollValue={editedScrollValue}
-            setEditedScrollValue={setEditedScrollValue}
-            editedInputValue={editedInputValue}
-            setEditedInputValue={setEditedInputValue}
             handleSave={handleSave}
-            data={data.target}
+            dataPacket={data}
           />
         );
       } else {

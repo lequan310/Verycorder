@@ -16,7 +16,7 @@
 }
 
 .popup_button {
-  padding: 14px 12px;
+  padding: 12px 10px !important;
   border-radius: 0;
   /* height: 42px; */
   display: flex;

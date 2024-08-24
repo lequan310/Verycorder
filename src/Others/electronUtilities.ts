@@ -144,7 +144,9 @@ export function createBrowserView() {
     resizable: false,
   });
 
-  view.webContents.setWindowOpenHandler(() => { return { action: 'deny' }; });
+  view.webContents.setWindowOpenHandler(() => {
+    return { action: "deny" };
+  });
   view.webContents.loadURL(BLANK_PAGE); // Load blank page on start
 
   view.webContents.on("did-navigate", async (event, url) => {
@@ -202,7 +204,7 @@ export const createWindow = (): void => {
   win.loadURL(MAIN_WINDOW_WEBPACK_ENTRY);
 
   // Open the DevTools.
-  //win.webContents.openDevTools({ mode: "detach" });
+  win.webContents.openDevTools({ mode: "detach" });
 
   // Update overlay window position when app window is moved
   win.on("will-move", () => view.setResizable(true));
@@ -214,7 +216,7 @@ export const createWindow = (): void => {
   // Handle resize app
   win.on("will-resize", () => view.setResizable(true));
   win.on("resize", () => {
-    updateViewBounds()
+    updateViewBounds();
     view.setResizable(false);
   });
 

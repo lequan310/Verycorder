@@ -124,8 +124,10 @@ const PopupSettings = ({
               </div>
             </div>
           </div>
+          <div className="divider fixed_bottom"></div>
         </div>
       ) : null}
+      <button className="popup_button">About</button>
     </div>
   );
 };

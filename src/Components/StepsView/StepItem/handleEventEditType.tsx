@@ -1,38 +1,47 @@
-import React, { LegacyRef, useContext } from "react";
+import React, { LegacyRef, useContext, useRef, useState } from "react";
 import {
   EventEnum,
   getEnumValues,
   Target,
   TargetEnum,
+  Value,
 } from "../../../Types/eventComponents";
 import { TargetContext } from "../../../Types/targetContext";
+import { DetectMode } from "../../../Types/detectMode";
+import { RecordedEvent } from "../../../Types/recordedEvent";
+import { CanvasEvent } from "../../../Types/canvasEvent";
 
 interface HandleEventEditTypeProps {
   ref: LegacyRef<HTMLDivElement>;
-  selectedEvent: string; //Drop down box for event type
-  setSelectedEvent: React.Dispatch<React.SetStateAction<string>>; //Drop down box for event type
-  editedScrollValue: { x: number; y: number };
-  setEditedScrollValue: React.Dispatch<
-    React.SetStateAction<{ x: number; y: number }>
-  >;
-  editedInputValue: string;
-  setEditedInputValue: React.Dispatch<React.SetStateAction<string>>;
-  handleSave: () => void;
-  data: string | Target;
+  handleSave: (
+    data: {
+      type: EventEnum;
+      target: string | Target;
+      value: Value | null;
+      inputValue: string | null;
+    } | null
+  ) => void;
+  dataPacket: RecordedEvent | CanvasEvent;
 }
 
 const HandleEventEditType: React.FC<HandleEventEditTypeProps> = ({
   ref,
-  selectedEvent,
-  setSelectedEvent,
-  editedScrollValue,
-  setEditedScrollValue,
-  editedInputValue,
-  setEditedInputValue,
   handleSave,
-  data,
+  dataPacket,
 }) => {
   const eventOptions = getEnumValues(EventEnum);
+  const [eventType, setEventType] = useState(dataPacket.type);
+  const [scrollValue, setScrollValue] = useState(
+    dataPacket.type === EventEnum.scroll
+      ? dataPacket.scrollValue
+      : { x: 0, y: 0 }
+  );
+  const [inputValue, setInputValue] = useState(
+    dataPacket.type === EventEnum.input ? dataPacket.value : ""
+  );
+  const [targetAI, setTargetAI] = useState(
+    typeof dataPacket.target === "string" ? dataPacket.target : ""
+  );
 
   const targetContext = useContext(TargetContext);
   if (!targetContext) {
@@ -41,21 +50,28 @@ const HandleEventEditType: React.FC<HandleEventEditTypeProps> = ({
 
   const preferedTarget = () => {
     //Check type for only Target
-    if (typeof data !== "string" && "css" in data) {
+    if (typeof dataPacket.target !== "string" && "css" in dataPacket.target) {
       switch (targetContext.target) {
         case TargetEnum.css:
-          return data.css;
+          return dataPacket.target.css;
         case TargetEnum["x-path"]:
-          return data.xpath;
+          return dataPacket.target.xpath;
         default:
-          return data.css;
+          return dataPacket.target.css;
       }
-    } else if (typeof data === "string") {
-      return data;
+    } else if (typeof dataPacket.target === "string") {
+      return dataPacket.target;
     }
 
     //Fail safe
     return "";
+  };
+
+  const editableDivRef = useRef<HTMLDivElement>(null);
+  const handleInput = () => {
+    if (editableDivRef.current) {
+      setTargetAI(editableDivRef.current.innerText);
+    }
   };
 
   const commonContent = (
@@ -63,8 +79,12 @@ const HandleEventEditType: React.FC<HandleEventEditTypeProps> = ({
       <div className="event_type_wrapper">
         <h5>Event type</h5>
         <select
-          value={selectedEvent}
-          onChange={(e) => setSelectedEvent(e.target.value)}
+          value={eventType}
+          onChange={(e) =>
+            setEventType(
+              EventEnum[e.target.value.toLowerCase() as keyof typeof EventEnum]
+            )
+          }
         >
           {eventOptions.map((event: string, index) => (
             <option key={index} value={event}>
@@ -76,25 +96,50 @@ const HandleEventEditType: React.FC<HandleEventEditTypeProps> = ({
 
       <div className="content_type_wrapper">
         <h5>Target</h5>
-        <div
-          suppressContentEditableWarning={true}
-          className="stepitem_target_location"
-        >
-          <p>{preferedTarget()}</p>
-        </div>
+        {targetContext.detectMode === DetectMode.DOM ? (
+          <div
+            suppressContentEditableWarning={true}
+            className="stepitem_target_location"
+          >
+            <p>{preferedTarget()}</p>
+          </div>
+        ) : (
+          <div
+            ref={editableDivRef}
+            contentEditable
+            suppressContentEditableWarning={true}
+            className="stepitem_target_location"
+            onInput={handleInput}
+          >
+            <p>{targetAI}</p>
+          </div>
+        )}
       </div>
     </>
   );
 
+  const saveFuncHandler = () => {
+    const data = {
+      type: eventType,
+      target:
+        targetContext.detectMode === DetectMode.DOM
+          ? dataPacket.target
+          : targetAI, //Get a string or css/x-path
+      value: scrollValue,
+      inputValue: inputValue,
+    };
+    handleSave(data);
+  };
+
   const commonFooter = (
     <div className="stepitem_flex_col">
       {targetContext.addNewEventManually ? (
-        <button onClick={handleSave} className="close_save_button">
+        <button onClick={() => handleSave(null)} className="close_save_button">
           <span className="material-symbols-rounded">close</span>
           Close
         </button>
       ) : null}
-      <button onClick={handleSave} className="edit_save_button">
+      <button onClick={saveFuncHandler} className="edit_save_button">
         <span className="material-symbols-rounded">
           {targetContext.addNewEventManually ? "add" : "save"}
         </span>
@@ -103,7 +148,7 @@ const HandleEventEditType: React.FC<HandleEventEditTypeProps> = ({
     </div>
   );
 
-  switch (selectedEvent) {
+  switch (eventType) {
     case EventEnum.click:
     case EventEnum.hover:
       return (
@@ -126,11 +171,11 @@ const HandleEventEditType: React.FC<HandleEventEditTypeProps> = ({
                   <input
                     className="stepitem_target_location"
                     type="number"
-                    value={editedScrollValue.x}
+                    value={scrollValue.x}
                     onChange={(e) =>
-                      setEditedScrollValue({
+                      setScrollValue({
                         x: parseInt(e.target.value),
-                        y: editedScrollValue.y,
+                        y: scrollValue.y,
                       })
                     }
                   />
@@ -140,10 +185,10 @@ const HandleEventEditType: React.FC<HandleEventEditTypeProps> = ({
                   <input
                     className="stepitem_target_location"
                     type="number"
-                    value={editedScrollValue.y}
+                    value={scrollValue.y}
                     onChange={(e) =>
-                      setEditedScrollValue({
-                        x: editedScrollValue.x,
+                      setScrollValue({
+                        x: scrollValue.x,
                         y: parseInt(e.target.value),
                       })
                     }
@@ -165,8 +210,8 @@ const HandleEventEditType: React.FC<HandleEventEditTypeProps> = ({
               <h5>Input Data</h5>
               <input
                 className="stepitem_target_location"
-                value={editedInputValue}
-                onChange={(e) => setEditedInputValue(e.target.value)}
+                value={inputValue}
+                onChange={(e) => setInputValue(e.target.value)}
               />
             </div>
           </div>

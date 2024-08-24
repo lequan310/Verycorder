@@ -261,7 +261,7 @@ const EventItemList = () => {
   //This func handle the edited event and sent to electron
   const sentEditedEvents = (
     type: EventEnum,
-    target: Target,
+    target: string | Target,
     scrollValue?: Value,
     inputValue?: string
   ) => {
@@ -286,8 +286,8 @@ const EventItemList = () => {
             type: type,
             scrollValue: scrollValue,
             target: {
-              css: target.css,
-              xpath: target.xpath,
+              css: typeof target !== "string" ? target.css : "",
+              xpath: typeof target !== "string" ? target.xpath : "",
             },
           } as ScrollEvent;
           break;
@@ -297,8 +297,8 @@ const EventItemList = () => {
             ...currentEvent,
             type: type,
             target: {
-              css: target.css,
-              xpath: target.xpath,
+              css: typeof target !== "string" ? target.css : "",
+              xpath: typeof target !== "string" ? target.xpath : "",
             },
           } as ClickEvent | HoverEvent;
           break;

@@ -194,7 +194,7 @@ const App = () => {
               <div className="controller__content">
                 <div className="commands__wrapper">
                   <div className="commands__wrapper__title">
-                    <h4>Commands</h4>
+                    <h4>Test case</h4>
                     {/* <span className="material-symbols-rounded">tune</span> */}
                   </div>
                   <EventItemList />

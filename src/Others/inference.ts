@@ -81,7 +81,8 @@ export async function getBBoxes(imageBuffer: Buffer): Promise<BoundingBox[]> {
     const image = await Jimp.create(imageBuffer);
     const originalWidth = image.getWidth(),
       originalHeight = image.getHeight();
-
+    console.log(originalWidth);
+    console.log(originalHeight);
     image.resize(640, 640, Jimp.RESIZE_BICUBIC);
     const imageTensor = imageBufferToTensor(
       image.bitmap.data,
@@ -241,7 +242,17 @@ export async function drawBoxes(imageBuffer: Buffer) {
   };
 }
 
-export async function cropImageBuffer(imageBuffer: Buffer, bbox: BoundingBox): Promise<Buffer> {
-  const croppedImageBuffer = await sharp(imageBuffer).extract({ width: bbox.width, height: bbox.height, left: bbox.x, top: bbox.y }).toBuffer();
+export async function cropImageBuffer(
+  imageBuffer: Buffer,
+  bbox: BoundingBox
+): Promise<Buffer> {
+  const croppedImageBuffer = await sharp(imageBuffer)
+    .extract({
+      width: bbox.width,
+      height: bbox.height,
+      left: bbox.x,
+      top: bbox.y,
+    })
+    .toBuffer();
   return croppedImageBuffer;
 }
