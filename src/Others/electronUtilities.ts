@@ -52,10 +52,14 @@ let editedTarget: Target = {
   xpath: "",
 };
 let screenshot: Buffer;
-
 let win: BrowserWindow;
 let view: BrowserWindow;
 let overlayWin: BrowserWindow | null = null;
+let viewContentSize: number[] = [0, 0];
+
+export function getViewContentSize() {
+  return viewContentSize;
+}
 
 function initializeDOMTestCase() {
   const { x, y, width, height } = view.getBounds();
@@ -519,7 +523,7 @@ export function updateViewBounds() {
         height: Math.floor(height - 40),
       };
       view.setBounds(newBounds);
-
+      viewContentSize = [newBounds.width, newBounds.height];
       handleOverlayUpdate();
     }
   }
