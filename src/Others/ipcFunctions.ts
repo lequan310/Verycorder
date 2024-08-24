@@ -23,6 +23,7 @@ import { BoundingBox } from "../Types/bbox";
 import { CanvasEvent } from "../Types/canvasEvent";
 import { DetectMode } from "../Types/detectMode";
 import { releaseOnnxSession, cropImageBuffer } from "./inference";
+import * as fs from "fs";
 
 // ------------------- IPC EVENT export functionS -------------------
 // export function to test log events
@@ -182,6 +183,7 @@ export function handleRecordCanvasHover(win: BrowserWindow) {
 
             // Screenshot and send caption later
             const croppedImageBuffer = await cropImageBuffer(getScreenshot(), bbox);
+            fs.writeFileSync("./logs/hover.png", croppedImageBuffer);
             handleGetCaption(win, croppedImageBuffer, eventId);
 
             const hoverEvent: CanvasEvent = {
@@ -222,8 +224,8 @@ export function handleRecordCanvasInput(win: BrowserWindow) {
 }
 
 export function handleScreenshotForReplay() {
-    ipcMain.handle(Channel.view.replay.GET_SCREENSHOT, async (event) => {
-        return (await getViewScreenshotBuffer()) as Buffer;
+    ipcMain.handle(Channel.view.replay.GET_SCREENSHOT, async () => {
+        return (await getViewScreenshotBuffer());
     });
 }
 

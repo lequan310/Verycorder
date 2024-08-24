@@ -45,10 +45,12 @@ async function delayWithAbort(ms: number, signal: AbortSignal) {
 }
 
 async function getEventBoundingBox(event: CanvasEvent) {
+  const clickedBuffer = event.buffer;
   const locator = event.target;
   const result = await ipcRenderer.invoke(
     Channel.view.replay.GET_TARGET_BBOX,
-    locator
+    clickedBuffer,
+    locator,
   );
   if (!result)
     ipcRenderer.send(Channel.all.TEST_LOG, "Failed to get bounding box");

@@ -5,8 +5,18 @@
             "imagePath": "Test 1/image.png",
             "testClicks": [
                 {
-                    "x": 490,
-                    "y": 971
+                    "x": 196,
+                    "y": 389
+                }
+            ]
+        },
+        {
+            "name": "Test 2",
+            "imagePath": "Test 2/image.png",
+            "testClicks": [
+                {
+                    "x": 122,
+                    "y": 290
                 }
             ]
         }

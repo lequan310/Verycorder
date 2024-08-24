@@ -3,20 +3,30 @@ import Jimp from 'jimp';
 import cv, { Mat } from 'opencv-ts';
 
 async function loadImage(image: Buffer): Promise<Mat> {
-    const jimpImage = await Jimp.read(image);
-    const { data, width, height } = jimpImage.bitmap;
+    try {
+        const jimpImage = await Jimp.read(image);
+        const { data, width, height } = jimpImage.bitmap;
 
-    // Convert the Jimp image to OpenCV.js Mat
-    const mat = new cv.Mat(height, width, cv.CV_8UC4);  // Assuming a 4-channel (RGBA) image
-    mat.data.set(data);  // Copy data into the Mat
+        // Convert the Jimp image to OpenCV.js Mat
+        const mat = new cv.Mat(height, width, cv.CV_8UC4);  // Assuming a 4-channel (RGBA) image
+        mat.data.set(data);  // Copy data into the Mat
 
-    return mat;
+        return mat;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
 }
 
 export async function compareImages(image1: Buffer, image2: Buffer): Promise<number> {
     // Convert the Buffer to OpenCV Mat format
     const matImage1 = await loadImage(image1);
     const matImage2 = await loadImage(image2);
+
+    if (matImage1 === null || matImage2 === null) {
+        console.error('Failed to load images');
+        return 10000;  // Returning 10000 as failure value if images are not loaded
+    }
 
     // resize images
     // const resizedImage1 = new cv.Mat();

@@ -1,7 +1,7 @@
 import 'dotenv/config'
 
 import Jimp from "jimp";
-import { getImageBuffer, getBBoxes, createOnnxSession, releaseOnnxSession, drawBoxes } from "../Others/inference";
+import { createOnnxSession, releaseOnnxSession, getAndDrawBoxes, drawBoxes } from "../Others/inference";
 import * as openai from "../Others/openai"
 import * as fs from "fs";
 import { BoundingBox } from "../Types/bbox";
@@ -29,14 +29,17 @@ type Config = {
     tests: Test[];
 }
 
-function saveBuffer(buffer: Buffer, name: string) {
+function createFolderRecursive(name: string) {
     let folders = name.split("/");
-    for (let i = 1; i < folders.length - 1; i++) {
+    for (let i = 0; i < folders.length; i++) {
         let folder = folders.slice(0, i + 1).join("/");
         if (!fs.existsSync(folder)) {
             fs.mkdirSync(folder);
         }
     }
+}
+
+function saveBuffer(buffer: Buffer, name: string) {
     fs.writeFileSync(name, buffer);
 }
 
@@ -64,11 +67,14 @@ async function main() {
 
     for (let test of config.tests) {
         let outputDir = `${test.name}/output`;
+        createFolderRecursive(outputDir);
         console.log("Running Test:", test.name);
         let jimpImg = await Jimp.read(test.imagePath);
+        jimpImg.resize(1248, Jimp.AUTO);
         let buffer = await jimpImg.getBufferAsync(Jimp.MIME_PNG);
-        let { buffer: drawnBuffer, bboxes } = await drawBoxes(buffer);
-        saveBuffer(drawnBuffer, `${outputDir}/drawn.png`);
+        let { buffer: drawnBuffer, bboxes } = await getAndDrawBoxes(buffer);
+        let logDrawnBuffer = await drawBoxes(buffer, bboxes, true);
+        saveBuffer(logDrawnBuffer, `${outputDir}/drawn.png`);
 
         let result: Result = {
             resultBox: null,
@@ -87,11 +93,13 @@ async function main() {
         for (let j = 0; j < bboxes.length; j++) {
             let box = bboxes[j];
             let img = jimpImg.clone().crop(box.x, box.y, box.width, box.height);
+            createFolderRecursive(`${outputDir}/boxes`);
             saveBuffer(await img.getBufferAsync(Jimp.MIME_PNG), `${outputDir}/boxes/${j}_${box.centerX}_${box.centerY}.png`);
         }
 
         for (let i = 1; i <= test.testClicks.length; ++i) {
             let clickedBox = null, topLevel = -1;
+            createFolderRecursive(`${outputDir}/click${i}`);
             console.log("performing test click:", i);
             let clickPosition = test.testClicks[i - 1];
 
