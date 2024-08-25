@@ -16,7 +16,13 @@ import { EventEnum, Target, Value } from "../../../Types/eventComponents";
 import AddEvent from "../NewItem/AddEvent";
 import EventItem from "./EventItem";
 import { DetectMode } from "../../../Types/detectMode";
-import { CanvasEvent } from "../../../Types/canvasEvent";
+import {
+  CanvasClickEvent,
+  CanvasEvent,
+  CanvasHoverEvent,
+  CanvasInputEvent,
+  CanvasScrollEvent,
+} from "../../../Types/canvasEvent";
 
 const EventItemList = () => {
   const initState: { index: number; state: boolean } = {
@@ -265,10 +271,7 @@ const EventItemList = () => {
     scrollValue?: Value,
     inputValue?: string
   ) => {
-    if (
-      editEventIndexRef.current >= 0 &&
-      editEventIndexRef.current < eventList.length
-    ) {
+    const sendDomEventList = () => {
       const updatedEventList = [...eventList];
       const currentEvent =
         updatedEventList[
@@ -322,8 +325,66 @@ const EventItemList = () => {
         .then((data: RecordedEvent[]) => {
           setEventList(data);
         });
+    };
+
+    const sentCanvasEventList = () => {
+      const updatedCanvasEventList = [...canvasEventList];
+      const currentEvent =
+        updatedCanvasEventList[
+          targetContext.addNewEventManually
+            ? eventList.length
+            : editEventIndexRef.current
+        ];
+      let updatedEvent: CanvasEvent;
+
+      // Handle specific properties for each event type
+      switch (type) {
+        case EventEnum.scroll:
+          updatedEvent = {
+            ...currentEvent,
+            type: type,
+            scrollValue: scrollValue,
+            target: target,
+          } as CanvasScrollEvent;
+          break;
+        case EventEnum.click:
+        case EventEnum.hover:
+          updatedEvent = {
+            ...currentEvent,
+            type: type,
+            target: target,
+          } as CanvasClickEvent | CanvasHoverEvent;
+          break;
+        case EventEnum.input:
+          updatedEvent = {
+            ...currentEvent,
+            type: type,
+            value: inputValue,
+          } as CanvasInputEvent;
+          break;
+        default:
+          throw new Error(`Unknown event type: ${type}`);
+      }
+
+      updatedCanvasEventList[editEventIndexRef.current] = updatedEvent;
+
+      setCanvasEventList(updatedCanvasEventList);
+
+      ipcRenderer
+        .invoke(Channel.win.UPDATE_CANVAS_EVENT_LIST, updatedCanvasEventList)
+        .then((data: RecordedEvent[]) => {
+          setEventList(data);
+        });
+    };
+
+    if (
+      editEventIndexRef.current >= 0 &&
+      editEventIndexRef.current < eventList.length
+    ) {
+      targetContext.detectMode === DetectMode.DOM
+        ? sendDomEventList
+        : sentCanvasEventList;
     }
-    // }
   };
 
   const deleteItem = (index: number) => {
