@@ -1,14 +1,11 @@
-const ort = require("onnxruntime-node");
+import * as ort from "onnxruntime-node";
 import Jimp from "jimp";
 import sharp from "sharp";
 import { BoundingBox } from "../Types/bbox";
 
-type Tensor = typeof ort.Tensor;
-type InferenceSession = typeof ort.InferenceSession;
-
 const MODEL_PATH = "./src/Models/best.onnx";
 
-let session: InferenceSession | null = null;
+let session: ort.InferenceSession | null = null;
 
 export async function createOnnxSession(modelPath = MODEL_PATH) {
   if (!session) session = await ort.InferenceSession.create(modelPath);
@@ -21,7 +18,7 @@ export async function releaseOnnxSession() {
   console.log("Session released");
 }
 
-function imageBufferToTensor(imageBufferData: Buffer, dims: number[]): Tensor {
+function imageBufferToTensor(imageBufferData: Buffer, dims: number[]): ort.Tensor {
   // 1. Get buffer data from image and create R, G, and B arrays.
   const redArray = new Array<number>();
   const greenArray = new Array<number>();
@@ -96,11 +93,11 @@ export async function getBBoxes(imageBuffer: Buffer): Promise<BoundingBox[]> {
 
     // Draw bounding boxes
     for (let i = 0; i < output.length; i += 6) {
-      const x1 = output[i];
-      const y1 = output[i + 1];
-      const x2 = output[i + 2];
-      const y2 = output[i + 3];
-      const conf = output[i + 4];
+      const x1 = Number(output[i]);
+      const y1 = Number(output[i + 1]);
+      const x2 = Number(output[i + 2]);
+      const y2 = Number(output[i + 3]);
+      const conf = Number(output[i + 4]);
       //const classId = output[i + 5];
       if (conf > 0.6) {
         // Confidence threshold
