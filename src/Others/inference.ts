@@ -115,10 +115,10 @@ export async function getBBoxes(imageBuffer: Buffer): Promise<BoundingBox[]> {
           rescaledY1,
           rescaledY2
         );
+        bbox.idx = i;
         bboxes.push(bbox);
       }
     }
-
     const endTime = performance.now();
     const timeTaken = endTime - startTime;
     console.log(`Time taken: ${timeTaken} milliseconds`);
@@ -175,16 +175,15 @@ function drawSingleBox(
   });
 }
 
-export async function drawBoxes(imageBuffer: Buffer) {
-  const boundingBoxes = await getBBoxes(imageBuffer);
-  const jimpImage = await Jimp.create(imageBuffer);
+export async function drawBoxes(imageBuffer: Buffer, boundingBoxes: BoundingBox[], withPosition: boolean = false): Promise<Buffer> {
+  let jimpImage = await Jimp.create(imageBuffer);
 
   let i = 0;
 
   // determine font size to use:
   const imageHeight = jimpImage.bitmap.height;
   const imageWidth = jimpImage.bitmap.width;
-  const fontSize: string = Jimp.FONT_SANS_32_BLACK;
+  const fontSize: string = Jimp.FONT_SANS_16_BLACK;
 
   const colors = [
     [255, 0, 0],
@@ -204,7 +203,12 @@ export async function drawBoxes(imageBuffer: Buffer) {
       drawSingleBox(jimpImage, boundingBox, colors, i, thickness);
 
       // Draw text label
-      const textLabel = `${i}`;
+      let textLabel;
+      if (withPosition) {
+        textLabel = `${i}_${boundingBox.centerX}_${boundingBox.centerY}`;
+      } else {
+        textLabel = `${i}`;
+      }
       const measureTextWidth = Jimp.measureText(font, textLabel);
       const measureTextHeight = Jimp.measureTextHeight(
         font,
@@ -224,7 +228,7 @@ export async function drawBoxes(imageBuffer: Buffer) {
         }
       );
 
-      jimpImage.blit(textImage, boundingBox.x, boundingBox.y - 32);
+      jimpImage.blit(textImage, boundingBox.x, boundingBox.y - 16);
 
       i++;
     }
@@ -235,24 +239,21 @@ export async function drawBoxes(imageBuffer: Buffer) {
   // Jimp.read(await jimpImage.getBufferAsync(Jimp.MIME_PNG)).then((image: Jimp) => {
   //     image.write("image" + "_output.png");
   // });
+  return await jimpImage.getBufferAsync(Jimp.MIME_PNG);
+}
+
+export async function getAndDrawBoxes(imageBuffer: Buffer, withPosition: boolean = false) {
+  const boundingBoxes = await getBBoxes(imageBuffer);
+
+  let drawnBuffer = await drawBoxes(imageBuffer, boundingBoxes, withPosition);
 
   return {
-    buffer: await jimpImage.getBufferAsync(Jimp.MIME_PNG),
+    buffer: drawnBuffer,
     bboxes: boundingBoxes,
   };
 }
 
-export async function cropImageBuffer(
-  imageBuffer: Buffer,
-  bbox: BoundingBox
-): Promise<Buffer> {
-  const croppedImageBuffer = await sharp(imageBuffer)
-    .extract({
-      width: bbox.width,
-      height: bbox.height,
-      left: bbox.x,
-      top: bbox.y,
-    })
-    .toBuffer();
+export async function cropImageBuffer(imageBuffer: Buffer, bbox: BoundingBox): Promise<Buffer> {
+  const croppedImageBuffer = (await Jimp.read(imageBuffer)).crop(bbox.x, bbox.y, bbox.width, bbox.height).getBufferAsync(Jimp.MIME_PNG);
   return croppedImageBuffer;
 }

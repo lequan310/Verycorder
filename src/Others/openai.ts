@@ -2,9 +2,12 @@ import dotenv from "dotenv";
 import OpenAI from "openai";
 import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
-import { drawBoxes } from "./inference";
+import { getAndDrawBoxes } from "./inference";
 import { BoundingBox } from "../Types/bbox";
 import { cropImageBuffer } from "./inference";
+import Jimp from "jimp";
+import { compareImages } from "./opencv";
+import { saveData } from "./file";
 
 const Result = z.object({
     value: z.number(),
@@ -123,21 +126,59 @@ export async function getCaption(base64image: string) {
 
 export async function getReplayTargetBBox(
     imageBuffer: Buffer,
-    locator: string
+    locator: string,
+    clickedBuffer: Buffer = null,
 ): Promise<BoundingBox> {
     try {
-        let result = await drawBoxes(imageBuffer);
+        console.log("Getting target bounding box");
+        const jimp = await Jimp.read(imageBuffer);
+        let width = 1248;
+        let factor = jimp.getWidth() / width;
+        jimp.resize(width, Jimp.AUTO);
+        
+        let clickedJimp = await Jimp.read(Buffer.from(clickedBuffer));
+        clickedJimp.resize(clickedJimp.getWidth() / factor, Jimp.AUTO);
+        clickedJimp.writeAsync("./logs/clickedImage.png");
+        
+        let result = await getAndDrawBoxes(await jimp.getBufferAsync(Jimp.MIME_PNG));
+
+        saveData("./logs/drawnForReplay.png", result.buffer);
 
         let bbox = await getReplayBoundingBox(result.buffer, result.bboxes, locator);
 
+        if (bbox == null) {
+            console.log("Element not found");
+            return null;
+        }
+
+        let jimpImg = jimp.clone().crop(bbox.x, bbox.y, bbox.width, bbox.height);
         //return result.bboxes[index];
         // Check if the detected element matches the locator
-        let croppedImageBuffer = await cropImageBuffer(imageBuffer, bbox);
-        let element = croppedImageBuffer.toString("base64");
-        const newLocator = await getCaption(element);
+        if (clickedBuffer == null) {
+            let croppedImageBuffer = await cropImageBuffer(imageBuffer, bbox);
+            let element = croppedImageBuffer.toString("base64");
+            const newLocator = await getCaption(element);
 
-        const similarity = await getSimilarity(locator, newLocator);
-        if (similarity >= similarityValue) return bbox;
+            const similarity = await getSimilarity(locator, newLocator);
+            if (similarity >= similarityValue) return bbox;
+        } else {
+            jimpImg.writeAsync("./logs/foundImage.png");
+            let resultBuffer = await jimpImg.getBufferAsync(Jimp.MIME_PNG);
+            let score = await compareImages(await clickedJimp.getBufferAsync(Jimp.MIME_PNG), resultBuffer);
+            console.log("score:", score);
+            if (score < 1) {
+                let res = BoundingBox.createNewBBox(
+                    bbox.x * factor,
+                    (bbox.x + bbox.width) * factor,
+                    bbox.y * factor,
+                    (bbox.y + bbox.height) * factor
+                );
+                res.level = bbox.level;
+
+                return res;
+            }
+        }
+        
         return null;
     } catch (error) {
         console.error(error);
