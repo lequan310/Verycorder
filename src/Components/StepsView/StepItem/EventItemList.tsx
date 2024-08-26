@@ -371,7 +371,7 @@ const EventItemList = () => {
       setCanvasEventList(updatedCanvasEventList);
 
       ipcRenderer
-        .invoke(Channel.win.UPDATE_CANVAS_EVENT_LIST, updatedCanvasEventList)
+        .send(Channel.win.UPDATE_CANVAS_EVENT_LIST, updatedCanvasEventList)
         .then((data: RecordedEvent[]) => {
           setEventList(data);
         });
