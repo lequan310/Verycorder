@@ -1,4 +1,10 @@
-import React, { LegacyRef, useContext, useRef, useState } from "react";
+import React, {
+  LegacyRef,
+  useContext,
+  useEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   EventEnum,
   getEnumValues,
@@ -50,6 +56,15 @@ const HandleEventEditType: React.FC<HandleEventEditTypeProps> = ({
     throw new Error("UserContext must be used within UserProvider");
   }
 
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      textarea.style.height = "auto"; // Reset height to auto to calculate the new height
+      textarea.style.height = `${textarea.scrollHeight}px`; // Set height based on scroll height
+    }
+  }, [targetAI]); // Adjust height whenever content changes
+
   const preferedTarget = () => {
     //Check type for only Target
     if (typeof dataPacket.target !== "string" && "css" in dataPacket.target) {
@@ -69,11 +84,9 @@ const HandleEventEditType: React.FC<HandleEventEditTypeProps> = ({
     return "";
   };
 
-  const editableDivRef = useRef<HTMLDivElement>(null);
-  const handleInput = () => {
-    if (editableDivRef.current) {
-      setTargetAI(editableDivRef.current.innerText);
-    }
+  const setContent = (data: string) => {
+    console.log(data);
+    setTargetAI(data);
   };
 
   const commonContent = (
@@ -106,15 +119,18 @@ const HandleEventEditType: React.FC<HandleEventEditTypeProps> = ({
             <p>{preferedTarget()}</p>
           </div>
         ) : (
-          <div
-            ref={editableDivRef}
-            contentEditable
-            suppressContentEditableWarning={true}
+          <textarea
+            ref={textareaRef}
             className="stepitem_target_location"
-            onInput={handleInput}
-          >
-            <p>{targetAI}</p>
-          </div>
+            onChange={(e) => setContent(e.target.value)}
+            value={targetAI}
+            style={{
+              width: "100%",
+              overflow: "hidden", // Hide scrollbars
+              resize: "none", // Disable manual resizing
+              boxSizing: "border-box", // Include padding in the width/height
+            }}
+          />
         )}
       </div>
     </>
