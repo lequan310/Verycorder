@@ -7,7 +7,7 @@ import { BoundingBox } from "../Types/bbox";
 import { cropImageBuffer } from "./inference";
 import Jimp from "jimp";
 import { compareImages } from "./opencv";
-import * as fs from "fs";
+import { saveData } from "./file";
 
 const Result = z.object({
     value: z.number(),
@@ -142,7 +142,7 @@ export async function getReplayTargetBBox(
         
         let result = await getAndDrawBoxes(await jimp.getBufferAsync(Jimp.MIME_PNG));
 
-        fs.writeFileSync("./logs/drawnForReplay.png", result.buffer);
+        saveData("./logs/drawnForReplay.png", result.buffer);
 
         let bbox = await getReplayBoundingBox(result.buffer, result.bboxes, locator);
 

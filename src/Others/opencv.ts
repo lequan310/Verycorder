@@ -4,7 +4,7 @@ import cv, { Mat } from 'opencv-ts';
 
 async function loadImage(image: Buffer): Promise<Mat> {
     try {
-        let clone = Buffer.from(image);
+        const clone = Buffer.from(image);
         const jimpImage = await Jimp.read(clone);
         const { data, width, height } = jimpImage.bitmap;
 
@@ -61,7 +61,7 @@ export async function compareImages(image1: Buffer, image2: Buffer): Promise<num
     const imgHistDiff = cv.compareHist(histImage1, histImage2, cv.HISTCMP_BHATTACHARYYA);
 
     // Template matching
-    let templateMatch = new cv.Mat();
+    const templateMatch = new cv.Mat();
     cv.matchTemplate(histImage1, histImage2, templateMatch, cv.TM_CCOEFF_NORMED);
     const imgTemplateProbabilityMatch = 1 - cv.minMaxLoc(templateMatch).maxVal;
 
