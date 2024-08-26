@@ -13,16 +13,15 @@ import {
   RecordedEvent,
   ScrollEvent,
 } from "../../../Types/recordedEvent";
+import { CanvasEvent } from "../../../Types/canvasEvent";
 
 interface AddEventProps {
   addEvent: (event: RecordedEvent) => void;
+  addCanvasEvent: (event: CanvasEvent) => void;
 }
 
-const AddEvent: React.FC<AddEventProps> = ({ addEvent }) => {
+const AddEvent: React.FC<AddEventProps> = ({ addEvent, addCanvasEvent }) => {
   const ipcRenderer = window.api;
-  const [selectedEvent, setSelectedEvent] = useState<string>(EventEnum.click); // Default to "click"
-  const [editedScrollValue, setEditedScrollValue] = useState({ x: 0, y: 0 });
-  const [editedInputValue, setEditedInputValue] = useState("");
   const [target, setTarget] = useState<Target>({ css: "", xpath: "" });
 
   const dispatch = useContext(TargetDispatchContext);
@@ -40,21 +39,28 @@ const AddEvent: React.FC<AddEventProps> = ({ addEvent }) => {
     }
   };
 
-  const handleSave = () => {
+  const handleSave = (
+    data: {
+      type: EventEnum;
+      target: string | Target;
+      value: Value | null;
+      inputValue: string | null;
+    } | null
+  ) => {
     ipcRenderer.send(Channel.win.CLICK_EDIT);
     setGlobalAddEventManually(!targetContext.addNewEventManually);
 
-    if (target.css === "" || target.xpath === "") {
+    if (target.css === "" || target.xpath === "" || data === null) {
       return;
     }
 
     let event: RecordedEvent;
 
-    switch (selectedEvent) {
+    switch (data.type) {
       case EventEnum.click:
       case EventEnum.hover:
         event = {
-          type: selectedEvent,
+          type: data.type,
           target: target,
           mousePosition: null,
         } as ClickEvent | HoverEvent;
@@ -63,7 +69,7 @@ const AddEvent: React.FC<AddEventProps> = ({ addEvent }) => {
         event = {
           type: EventEnum.scroll,
           target: target,
-          scrollValue: editedScrollValue,
+          scrollValue: data.value,
           value: null,
           mousePosition: null,
         } as ScrollEvent;
@@ -72,7 +78,7 @@ const AddEvent: React.FC<AddEventProps> = ({ addEvent }) => {
         event = {
           type: EventEnum.input,
           target: target,
-          value: editedInputValue,
+          value: data.inputValue,
         } as InputEvent;
         break;
       default:
@@ -83,7 +89,14 @@ const AddEvent: React.FC<AddEventProps> = ({ addEvent }) => {
   };
 
   useEffect(() => {
-    const updateTarget = ipcRenderer.on(Channel.win.SEND_TARGET, setTarget);
+    const handleSaveTarget = (value: Target) => {
+      // setGlobalAddEventManually(true);
+      setTarget(value);
+    };
+    const updateTarget = ipcRenderer.on(
+      Channel.win.SEND_TARGET,
+      handleSaveTarget
+    );
     return () => {
       updateTarget;
     };
@@ -91,15 +104,9 @@ const AddEvent: React.FC<AddEventProps> = ({ addEvent }) => {
 
   return (
     <HandleEventEditType
-      ref={null}
-      selectedEvent={selectedEvent}
-      setSelectedEvent={setSelectedEvent}
-      editedScrollValue={editedScrollValue}
-      setEditedScrollValue={setEditedScrollValue}
-      editedInputValue={editedInputValue}
-      setEditedInputValue={setEditedInputValue}
+      // ref={null}
       handleSave={handleSave}
-      data={target}
+      dataPacket={{ type: EventEnum.click, target: target }}
     />
   );
 };

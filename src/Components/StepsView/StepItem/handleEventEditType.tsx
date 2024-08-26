@@ -12,7 +12,7 @@ import { RecordedEvent } from "../../../Types/recordedEvent";
 import { CanvasEvent } from "../../../Types/canvasEvent";
 
 interface HandleEventEditTypeProps {
-  ref: LegacyRef<HTMLDivElement>;
+  // ref: LegacyRef<HTMLDivElement>;
   handleSave: (
     data: {
       type: EventEnum;
@@ -21,16 +21,18 @@ interface HandleEventEditTypeProps {
       inputValue: string | null;
     } | null
   ) => void;
-  dataPacket: RecordedEvent | CanvasEvent;
+  dataPacket: RecordedEvent | CanvasEvent | null;
 }
 
 const HandleEventEditType: React.FC<HandleEventEditTypeProps> = ({
-  ref,
+  // ref,
   handleSave,
   dataPacket,
 }) => {
   const eventOptions = getEnumValues(EventEnum);
-  const [eventType, setEventType] = useState(dataPacket.type);
+  const [eventType, setEventType] = useState(
+    dataPacket.type ?? EventEnum.click
+  );
   const [scrollValue, setScrollValue] = useState(
     dataPacket.type === EventEnum.scroll
       ? dataPacket.scrollValue
@@ -152,7 +154,7 @@ const HandleEventEditType: React.FC<HandleEventEditTypeProps> = ({
     case EventEnum.click:
     case EventEnum.hover:
       return (
-        <div ref={ref} className={`stepitem__wrapper grey`}>
+        <div className={`stepitem__wrapper grey`}>
           <div className={`stepitem__container`}>{commonContent}</div>
           {commonFooter}
           <div className="divider fixed_bottom"></div>
@@ -160,7 +162,7 @@ const HandleEventEditType: React.FC<HandleEventEditTypeProps> = ({
       );
     case EventEnum.scroll:
       return (
-        <div ref={ref} className={`stepitem__wrapper grey`}>
+        <div className={`stepitem__wrapper grey`}>
           <div className={`stepitem__container`}>
             {commonContent}
             <div className="content_type_wrapper">
@@ -203,7 +205,7 @@ const HandleEventEditType: React.FC<HandleEventEditTypeProps> = ({
       );
     case EventEnum.input:
       return (
-        <div ref={ref} className={`stepitem__wrapper grey`}>
+        <div className={`stepitem__wrapper grey`}>
           <div className={`stepitem__container`}>
             {commonContent}
             <div className="content_type_wrapper">

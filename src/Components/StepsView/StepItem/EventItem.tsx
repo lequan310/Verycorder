@@ -116,6 +116,7 @@ const EventItem = forwardRef<HTMLDivElement, EventItemProps>(
         inputValue: string | null;
       } | null
     ) => {
+      if (data === null) return;
       handleToggleEditMode();
       doneEditing(data.type, data.target, data.value, data.inputValue);
     };
@@ -124,7 +125,7 @@ const EventItem = forwardRef<HTMLDivElement, EventItemProps>(
       if (editMode) {
         return (
           <HandleEventEditType
-            ref={ref}
+            // ref={ref}
             handleSave={handleSave}
             dataPacket={data}
           />

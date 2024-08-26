@@ -37,7 +37,12 @@ const EventItemList = () => {
   const editEventIndexRef = useRef(editEventIndex);
   const [captionNumber, setCaptionNumber] = useState(0);
   const [captionCounter, setCaptionCounter] = useState(0);
-  let currentMode = AppMode.normal;
+  const [currentMode, setCurrentMode] = useState(AppMode.normal);
+
+  const [editingTarget, setEditingTarget] = useState<Target>({
+    css: "",
+    xpath: "",
+  });
 
   const listRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -58,8 +63,14 @@ const EventItemList = () => {
 
   //This func handle event cases
   const addRecordedEvent = (event: RecordedEvent) => {
+    console.log("trigger___________________________addRecordedEvent");
+    if (currentMode === AppMode.normal) return;
     setEventList([...eventList, event]);
     setCurrentReplayIndex(initState);
+    setEditingTarget({
+      css: "",
+      xpath: "",
+    });
   };
   const addCanvasEvent = (event: CanvasEvent) => {
     ipcRenderer.send(Channel.all.TEST_LOG, "Current canvas event: " + event.id);
@@ -109,7 +120,7 @@ const EventItemList = () => {
 
   // Clean up stuff
   useEffect(() => {
-    const removeAddEvent = ipcRenderer.on(
+    const addEventIpc = ipcRenderer.on(
       targetContext.detectMode === DetectMode.DOM
         ? Channel.win.ADD_EVENT
         : Channel.win.ADD_EVENT_CANVAS,
@@ -171,19 +182,13 @@ const EventItemList = () => {
 
     //handle state change --------------
     const updateStateHandler = (mode: AppMode) => {
-      ipcRenderer.send(Channel.all.TEST_LOG, mode);
-      currentMode = mode; // Update currentMode to mode
-      ipcRenderer.send(Channel.all.TEST_LOG, currentMode);
+      setCurrentMode(mode); // Update currentMode to mode
 
       switch (mode) {
         case AppMode.normal:
           //This is where we handle if replay button is shown or not
           if (eventList.length > 0) {
-            ipcRenderer
-              .invoke(Channel.win.UPDATE_TEST_CASE, eventList)
-              .then((data: RecordedEvent[]) => {
-                setEventList(data);
-              });
+            ipcRenderer.invoke(Channel.win.UPDATE_TEST_CASE, eventList);
             setGlobalReplayingButtonEnable(true);
           } else {
             setGlobalReplayingButtonEnable(false);
@@ -232,6 +237,7 @@ const EventItemList = () => {
 
     // Handle edit event
     const handleUpdateTarget = (value: Target) => {
+      console.log("trigger___________________________handleUpdateTarget");
       if (!targetContext.addNewEventManually) {
         if (
           editEventIndexRef.current >= 0 &&
@@ -247,6 +253,7 @@ const EventItemList = () => {
           };
           setEventList(updatedEventList);
         }
+        setEditingTarget(value);
       }
     };
 
@@ -256,7 +263,7 @@ const EventItemList = () => {
     );
 
     return () => {
-      removeAddEvent();
+      addEventIpc();
       handleCurrentReplay();
       updateState();
       updateTarget();
@@ -370,11 +377,10 @@ const EventItemList = () => {
 
       setCanvasEventList(updatedCanvasEventList);
 
-      ipcRenderer
-        .send(Channel.win.UPDATE_CANVAS_EVENT_LIST, updatedCanvasEventList)
-        .then((data: RecordedEvent[]) => {
-          setEventList(data);
-        });
+      ipcRenderer.send(
+        Channel.win.UPDATE_CANVAS_EVENT_LIST,
+        updatedCanvasEventList
+      );
     };
 
     if (
@@ -388,6 +394,7 @@ const EventItemList = () => {
   };
 
   const deleteItem = (index: number) => {
+    setCurrentReplayIndex(initState);
     const newArray = eventList
       .slice(0, index)
       .concat(eventList.slice(index + 1));
@@ -425,7 +432,11 @@ const EventItemList = () => {
         );
       })}
       {targetContext.addNewEventManually && (
-        <AddEvent addEvent={(event) => addRecordedEvent(event)} />
+        <AddEvent
+          addEvent={(event) => addRecordedEvent(event)}
+          addCanvasEvent={(event) => addCanvasEvent(event)}
+          // editingTarget={editingTarget}
+        />
       )}
       <div ref={bottomRef} />
     </div>
