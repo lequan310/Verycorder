@@ -1,6 +1,6 @@
 import { AppMode } from "../Types/appMode";
 import { Channel } from "./listenerConst";
-import { BrowserView, BrowserWindow, ipcMain } from "electron";
+import { BrowserWindow, ipcMain } from "electron";
 import {
     getCurrentMode,
     initBBox,
@@ -20,7 +20,7 @@ import {
 import { getCaption, setSimilarity } from "./openai";
 import { EventEnum } from "../Types/eventComponents";
 import { BoundingBox } from "../Types/bbox";
-import { CanvasEvent } from "../Types/canvasEvent";
+import { CanvasClickEvent, CanvasHoverEvent, CanvasInputEvent, CanvasScrollEvent } from "../Types/canvasEvent";
 import { DetectMode } from "../Types/detectMode";
 import { releaseOnnxSession, cropImageBuffer } from "./inference";
 
@@ -135,7 +135,7 @@ export function handleRecordCanvasClick(win: BrowserWindow) {
             const croppedImageBuffer = await cropImageBuffer(getScreenshot(), bbox);
             handleGetCaption(win, croppedImageBuffer, eventId);
 
-            const clickEvent: CanvasEvent = {
+            const clickEvent: CanvasClickEvent = {
                 id: eventId,
                 type: EventEnum.click,
                 target: "Waiting for caption...",
@@ -157,7 +157,7 @@ export function handleRecordCanvasScroll(win: BrowserWindow) {
             const eventId = getCurrentEventIndex();
             incrementCurrentEventIndex();
 
-            const scrollEvent: CanvasEvent = {
+            const scrollEvent: CanvasScrollEvent = {
                 id: eventId,
                 type: EventEnum.scroll,
                 target: "window",
@@ -184,7 +184,7 @@ export function handleRecordCanvasHover(win: BrowserWindow) {
             const croppedImageBuffer = await cropImageBuffer(getScreenshot(), bbox);
             handleGetCaption(win, croppedImageBuffer, eventId);
 
-            const hoverEvent: CanvasEvent = {
+            const hoverEvent: CanvasHoverEvent = {
                 id: eventId,
                 type: EventEnum.hover,
                 target: "Waiting for caption...",
@@ -206,7 +206,7 @@ export function handleRecordCanvasInput(win: BrowserWindow) {
             const eventId = getCurrentEventIndex();
             incrementCurrentEventIndex();
 
-            const inputEvent: CanvasEvent = {
+            const inputEvent: CanvasInputEvent = {
                 id: eventId,
                 type: EventEnum.input,
                 target: cssSelector,
@@ -222,8 +222,8 @@ export function handleRecordCanvasInput(win: BrowserWindow) {
 }
 
 export function handleScreenshotForReplay() {
-    ipcMain.handle(Channel.view.replay.GET_SCREENSHOT, async (event) => {
-        return (await getViewScreenshotBuffer()) as Buffer;
+    ipcMain.handle(Channel.view.replay.GET_SCREENSHOT, async () => {
+        return (await getViewScreenshotBuffer());
     });
 }
 

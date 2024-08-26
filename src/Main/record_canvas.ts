@@ -7,6 +7,7 @@ import {
     hasEditableContent,
     hasValueProperty,
 } from "../Others/utilities";
+import { View } from "electron/main";
 
 let bboxes: BoundingBox[] = [];
 let mouseX: number = 0;
@@ -79,10 +80,13 @@ function wheelHandler(event: WheelEvent) {
 }
 
 function mouseTracker(event: MouseEvent) {
+    const dpr = window.devicePixelRatio || 1;
     prevMouseX = mouseX;
     prevMouseY = mouseY;
-    mouseX = event.clientX;
-    mouseY = event.clientY;
+
+    // ipcRenderer.send(Channel.all.TEST_LOG, `Mouse position: ${event.clientX}, ${event.clientY}, ${event.clientX * dpr}, ${event.clientY * dpr}`);
+    mouseX = event.clientX * dpr;
+    mouseY = event.clientY * dpr;
 
     // Hover detection
     if (event.isTrusted) {
@@ -90,23 +94,23 @@ function mouseTracker(event: MouseEvent) {
         if (enteredBbox) {
             clearTimeout(hoverTimer);
 
-            hoverTimer = setTimeout(() => {
-                if (enteredBbox.contains(mouseX, mouseY)) {
+            hoverTimer = setTimeout((box: BoundingBox) => {
+                if (box.contains(mouseX, mouseY)) {
                     ipcRenderer.send(
                         Channel.all.TEST_LOG,
-                        `Entered object: ${enteredBbox}`
+                        `Entered object: ${box}`
                     );
 
                     // Send the clicked element to main process
                     ipcRenderer.send(
                         Channel.view.record.CANVAS_HOVER,
-                        enteredBbox,
+                        box,
                         mouseX,
                         mouseY
                     );
                     retakeBbox();
                 }
-            }, TIMEOUT);
+            }, TIMEOUT, enteredBbox);
         }
     }
 }
@@ -155,20 +159,28 @@ function changeHandler(event: Event) {
 }
 
 function findClickedBox() {
+    let clickedBbox = null;
+    let topLevel = -1;
     for (let i = 0; i < bboxes.length; i++) {
-        if (bboxes[i].contains(mouseX, mouseY)) {
-            return bboxes[i];
+        if (bboxes[i].contains(mouseX, mouseY) && bboxes[i].level > topLevel) {
+            clickedBbox = bboxes[i];
+            topLevel = bboxes[i].level;
         }
     }
-    return null;
+    return clickedBbox;
 }
 
 function findHoveredBox() {
+    let topLevel = -1;
+    let hoveredBbox = null;
     for (let i = 0; i < bboxes.length; i++) {
-        if (bboxes[i].entered(prevMouseX, prevMouseY, mouseX, mouseY))
-            return bboxes[i];
+        if (bboxes[i].entered(prevMouseX, prevMouseY, mouseX, mouseY) && bboxes[i].level > topLevel) {
+            hoveredBbox = bboxes[i];
+            topLevel = bboxes[i].level;
+        }
+
     }
-    return null;
+    return hoveredBbox;
 }
 
 function handleAfterClick() {

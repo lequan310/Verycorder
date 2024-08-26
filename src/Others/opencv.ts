@@ -3,20 +3,31 @@ import Jimp from 'jimp';
 import cv, { Mat } from 'opencv-ts';
 
 async function loadImage(image: Buffer): Promise<Mat> {
-    const jimpImage = await Jimp.read(image);
-    const { data, width, height } = jimpImage.bitmap;
+    try {
+        const clone = Buffer.from(image);
+        const jimpImage = await Jimp.read(clone);
+        const { data, width, height } = jimpImage.bitmap;
 
-    // Convert the Jimp image to OpenCV.js Mat
-    const mat = new cv.Mat(height, width, cv.CV_8UC4);  // Assuming a 4-channel (RGBA) image
-    mat.data.set(data);  // Copy data into the Mat
+        // Convert the Jimp image to OpenCV.js Mat
+        const mat = new cv.Mat(height, width, cv.CV_8UC4);  // Assuming a 4-channel (RGBA) image
+        mat.data.set(data);  // Copy data into the Mat
 
-    return mat;
+        return mat;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
 }
 
 export async function compareImages(image1: Buffer, image2: Buffer): Promise<number> {
     // Convert the Buffer to OpenCV Mat format
     const matImage1 = await loadImage(image1);
     const matImage2 = await loadImage(image2);
+    
+    if (matImage1 === null || matImage2 === null) {
+        console.error('Failed to load images');
+        return 10000;  // Returning 10000 as failure value if images are not loaded
+    }
 
     // resize images
     // const resizedImage1 = new cv.Mat();
@@ -50,7 +61,7 @@ export async function compareImages(image1: Buffer, image2: Buffer): Promise<num
     const imgHistDiff = cv.compareHist(histImage1, histImage2, cv.HISTCMP_BHATTACHARYYA);
 
     // Template matching
-    let templateMatch = new cv.Mat();
+    const templateMatch = new cv.Mat();
     cv.matchTemplate(histImage1, histImage2, templateMatch, cv.TM_CCOEFF_NORMED);
     const imgTemplateProbabilityMatch = 1 - cv.minMaxLoc(templateMatch).maxVal;
 
@@ -59,18 +70,18 @@ export async function compareImages(image1: Buffer, image2: Buffer): Promise<num
     const commutativeImageDiff = (imgHistDiff / 10) + imgTemplateProbabilityMatch;
 
     // Clean up
-    // matImage1.delete();
-    // matImage2.delete();
+    matImage1.delete();
+    matImage2.delete();
     // resizedImage1.delete();
     // resizedImage2.delete();
     // grayImage1.delete();
     // grayImage2.delete();
-    // vector1.delete();
-    // vector2.delete();
-    // histImage1.delete();
-    // histImage2.delete();
-    // mask.delete();
-    // templateMatch.delete();
+    vector1.delete();
+    vector2.delete();
+    histImage1.delete();
+    histImage2.delete();
+    mask.delete();
+    templateMatch.delete();
 
     // Return the commutative image difference
     return commutativeImageDiff < 1 ? commutativeImageDiff : 10000; // Returning 10000 as failure value if difference is too high

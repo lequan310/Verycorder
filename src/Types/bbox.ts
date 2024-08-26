@@ -1,4 +1,5 @@
 export class BoundingBox {
+    public idx: number;
     public x: number;
     public y: number;
     public width: number;

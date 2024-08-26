@@ -272,9 +272,9 @@ const EventItemList = () => {
       const updatedEventList = [...eventList];
       const currentEvent =
         updatedEventList[
-          targetContext.addNewEventManually
-            ? eventList.length
-            : editEventIndexRef.current
+        targetContext.addNewEventManually
+          ? eventList.length
+          : editEventIndexRef.current
         ];
       let updatedEvent: RecordedEvent;
 
