@@ -67,14 +67,14 @@ async function controlEventType(event: CanvasEvent) {
   let pdr = window.devicePixelRatio || 1;
   ipcRenderer.send(Channel.all.TEST_LOG, `pdr: ${pdr}`);
 
-
-  ipcRenderer.send(Channel.all.TEST_LOG, `event: ${event.mousePosition.x}, ${event.mousePosition.y}`);
-
   if (event.type == EventEnum.scroll) {
     event.mousePosition.x = event.mousePosition.x / pdr;
     event.mousePosition.y = event.mousePosition.y / pdr;
     runCanvasScrollEvent(event);
-  } else {
+  } else if (event.type == EventEnum.input) {
+      runCanvasInputEvent(event);
+  }
+  else {
     const eventBBox = await getEventBoundingBox(event);
     if (!eventBBox) return false;
     else {
@@ -86,7 +86,6 @@ async function controlEventType(event: CanvasEvent) {
       ); 
       if (event.type == EventEnum.click) runCanvasClickEvent(scaledBbox);
       else if (event.type == EventEnum.hover) runCanvasHoverEvent(scaledBbox);
-      else runCanvasInputEvent(event, scaledBbox);
     }
   }
 
@@ -195,15 +194,10 @@ function runCanvasScrollEvent(event: CanvasEvent) {
   }
 }
 
-function runCanvasInputEvent(event: CanvasEvent, boundingBox: BoundingBox) {
-  const box = boundingBox;
-  const inputX = box.x + box.width / 2;
-  const inputY = box.y + box.height / 2;
+function runCanvasInputEvent(event: CanvasEvent) {
 
   const existingLength = 0;
   ipcRenderer.send(Channel.view.replay.REPLAY_INPUT, {
-    x: inputX,
-    y: inputY,
     value: event.value,
     prevLength: existingLength,
   });

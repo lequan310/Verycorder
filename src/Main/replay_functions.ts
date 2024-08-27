@@ -39,7 +39,7 @@ function replayInputEvent() {
     for (const char of data.value) {
       view.webContents.sendInputEvent({ type: "char", keyCode: char });
     }
-    console.log("Inputed " + data.value + " at ", data.x, data.y);
+    console.log("Inputed " + data.value);
   });
 }
 
