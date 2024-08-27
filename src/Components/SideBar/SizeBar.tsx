@@ -9,6 +9,7 @@ import PopupSettings from "../PopupSettings/PopupSettings";
 import Tippy from "@tippyjs/react";
 import "tippy.js/dist/tippy.css"; // optional
 import "tippy.js/themes/material.css";
+import { DetectMode } from "../../Types/detectMode";
 
 const SideBar = () => {
   const ipcRenderer = window.api;
@@ -44,7 +45,9 @@ const SideBar = () => {
           <button
             className={targetContext.addNewEventManually ? "active" : ""}
             onClick={() => {
-              ipcRenderer.send(Channel.win.CLICK_EDIT);
+              targetContext.detectMode === DetectMode.DOM
+                ? ipcRenderer.send(Channel.win.CLICK_EDIT)
+                : null;
               setGlobalAddEventManually(!targetContext.addNewEventManually);
             }}
             disabled={!targetContext.editState}

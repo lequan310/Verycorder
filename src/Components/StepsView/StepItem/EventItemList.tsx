@@ -73,6 +73,7 @@ const EventItemList = () => {
     });
   };
   const addCanvasEvent = (event: CanvasEvent) => {
+    console.log(event);
     ipcRenderer.send(Channel.all.TEST_LOG, "Current canvas event: " + event.id);
     if (event.id == 0) {
       setCaptionNumber(0); // Reset captionNumber
@@ -189,6 +190,12 @@ const EventItemList = () => {
           //This is where we handle if replay button is shown or not
           if (eventList.length > 0) {
             ipcRenderer.invoke(Channel.win.UPDATE_TEST_CASE, eventList);
+            setGlobalReplayingButtonEnable(true);
+          } else if (canvasEventList.length > 0) {
+            ipcRenderer.send(
+              Channel.win.UPDATE_CANVAS_EVENT_LIST,
+              canvasEventList
+            );
             setGlobalReplayingButtonEnable(true);
           } else {
             setGlobalReplayingButtonEnable(false);
@@ -446,7 +453,9 @@ const EventItemList = () => {
       })}
       {targetContext.addNewEventManually && (
         <AddEvent
-          addEvent={(event) => addRecordedEvent(event)}
+          addEvent={(event) => {
+            addRecordedEvent(event);
+          }}
           addCanvasEvent={(event) => addCanvasEvent(event)}
           // editingTarget={editingTarget}
         />

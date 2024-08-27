@@ -147,6 +147,7 @@ const HandleEventEditType: React.FC<HandleEventEditTypeProps> = ({
       value: scrollValue,
       inputValue: inputValue,
     };
+    console.log(data);
     handleSave(data);
   };
 

@@ -13,7 +13,14 @@ import {
   RecordedEvent,
   ScrollEvent,
 } from "../../../Types/recordedEvent";
-import { CanvasEvent } from "../../../Types/canvasEvent";
+import {
+  CanvasClickEvent,
+  CanvasEvent,
+  CanvasHoverEvent,
+  CanvasInputEvent,
+  CanvasScrollEvent,
+} from "../../../Types/canvasEvent";
+import { DetectMode } from "../../../Types/detectMode";
 
 interface AddEventProps {
   addEvent: (event: RecordedEvent) => void;
@@ -39,6 +46,107 @@ const AddEvent: React.FC<AddEventProps> = ({ addEvent, addCanvasEvent }) => {
     }
   };
 
+  const handleRecordedEventSave = (data: {
+    type: EventEnum;
+    target: Target;
+    value: Value | null;
+    inputValue: string | null;
+  }) => {
+    let event: RecordedEvent;
+
+    switch (data.type) {
+      case EventEnum.click:
+        event = {
+          type: data.type,
+          target: data.target,
+          mousePosition: null,
+        } as ClickEvent;
+        break;
+      case EventEnum.hover:
+        event = {
+          type: data.type,
+          target: data.target,
+          mousePosition: null,
+        } as HoverEvent;
+        break;
+      case EventEnum.scroll:
+        event = {
+          type: EventEnum.scroll,
+          target: data.target,
+          scrollValue: data.value,
+          value: null,
+          mousePosition: null,
+        } as ScrollEvent;
+        break;
+      case EventEnum.input:
+        event = {
+          type: EventEnum.input,
+          target: data.target,
+          value: data.inputValue,
+        } as InputEvent;
+        break;
+      default:
+        throw new Error("Unknown event type");
+    }
+
+    addEvent(event);
+  };
+
+  // Separate function to handle CanvasEvent
+  const handleCanvasEventSave = (data: {
+    type: EventEnum;
+    target: string;
+    value: Value | null;
+    inputValue: string | null;
+  }) => {
+    let event: CanvasEvent;
+
+    ipcRenderer.send(Channel.win.CLICK_EDIT);
+    setGlobalAddEventManually(!targetContext.addNewEventManually);
+
+    switch (data.type) {
+      case EventEnum.click:
+        event = {
+          id: Date.now(),
+          type: data.type,
+          target: data.target,
+          mousePosition: null,
+        } as CanvasClickEvent;
+        break;
+      case EventEnum.hover:
+        event = {
+          id: Date.now(),
+          type: data.type,
+          target: data.target,
+          mousePosition: null,
+        } as CanvasHoverEvent;
+        break;
+      case EventEnum.scroll:
+        event = {
+          id: Date.now(),
+          type: EventEnum.scroll,
+          target: data.target,
+          scrollValue: data.value,
+          value: null,
+          mousePosition: null,
+        } as CanvasScrollEvent;
+        break;
+      case EventEnum.input:
+        event = {
+          id: Date.now(),
+          type: EventEnum.input,
+          target: data.target,
+          value: data.inputValue,
+        } as CanvasInputEvent;
+        break;
+      default:
+        throw new Error("Unknown event type");
+    }
+
+    console.log(event + "------------------handleCanvasEventSave");
+    addCanvasEvent(event);
+  };
+
   const handleSave = (
     data: {
       type: EventEnum;
@@ -50,42 +158,29 @@ const AddEvent: React.FC<AddEventProps> = ({ addEvent, addCanvasEvent }) => {
     ipcRenderer.send(Channel.win.CLICK_EDIT);
     setGlobalAddEventManually(!targetContext.addNewEventManually);
 
-    if (target.css === "" || target.xpath === "" || data === null) {
+    if (
+      !data ||
+      (targetContext.detectMode === DetectMode.DOM &&
+        (target.css === "" || target.xpath === ""))
+    ) {
       return;
     }
 
-    let event: RecordedEvent;
-
-    switch (data.type) {
-      case EventEnum.click:
-      case EventEnum.hover:
-        event = {
-          type: data.type,
-          target: target,
-          mousePosition: null,
-        } as ClickEvent | HoverEvent;
-        break;
-      case EventEnum.scroll:
-        event = {
-          type: EventEnum.scroll,
-          target: target,
-          scrollValue: data.value,
-          value: null,
-          mousePosition: null,
-        } as ScrollEvent;
-        break;
-      case EventEnum.input:
-        event = {
-          type: EventEnum.input,
-          target: target,
-          value: data.inputValue,
-        } as InputEvent;
-        break;
-      default:
-        throw new Error("Unknown event type");
+    if (targetContext.detectMode === DetectMode.DOM) {
+      handleRecordedEventSave({
+        ...data,
+        target: target,
+      });
+    } else {
+      let canvasTarget: string | Target = "";
+      if (typeof data.target === "string") {
+        canvasTarget = data.target;
+      }
+      handleCanvasEventSave({
+        ...data,
+        target: canvasTarget,
+      });
     }
-
-    addEvent(event);
   };
 
   useEffect(() => {
