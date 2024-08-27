@@ -278,6 +278,7 @@ const EventItemList = () => {
     scrollValue?: Value,
     inputValue?: string
   ) => {
+    console.log("inside-------------");
     const sendDomEventList = () => {
       const updatedEventList = [...eventList];
       const currentEvent =
@@ -335,6 +336,7 @@ const EventItemList = () => {
     };
 
     const sentCanvasEventList = () => {
+      console.log("inside-------------");
       const updatedCanvasEventList = [...canvasEventList];
       const currentEvent =
         updatedCanvasEventList[
@@ -385,25 +387,36 @@ const EventItemList = () => {
 
     if (
       editEventIndexRef.current >= 0 &&
-      editEventIndexRef.current < eventList.length
+      (editEventIndexRef.current < eventList.length ||
+        editEventIndexRef.current < canvasEventList.length)
     ) {
-      targetContext.detectMode === DetectMode.DOM
-        ? sendDomEventList
-        : sentCanvasEventList;
+      if (targetContext.detectMode === DetectMode.DOM) {
+        sendDomEventList();
+      } else {
+        sentCanvasEventList();
+      }
     }
   };
 
   const deleteItem = (index: number) => {
     setCurrentReplayIndex(initState);
-    const newArray = eventList
-      .slice(0, index)
-      .concat(eventList.slice(index + 1));
-    setEventList(newArray);
-    ipcRenderer
-      .invoke(Channel.win.UPDATE_TEST_CASE, newArray)
-      .then((data: RecordedEvent[]) => {
-        setEventList(data);
-      });
+    if (targetContext.detectMode === DetectMode.DOM) {
+      const newArray = eventList
+        .slice(0, index)
+        .concat(eventList.slice(index + 1));
+      setEventList(newArray);
+      ipcRenderer
+        .invoke(Channel.win.UPDATE_TEST_CASE, newArray)
+        .then((data: RecordedEvent[]) => {
+          setEventList(data);
+        });
+    } else {
+      const newArray = canvasEventList
+        .slice(0, index)
+        .concat(canvasEventList.slice(index + 1));
+      setCanvasEventList(newArray);
+      ipcRenderer.send(Channel.win.UPDATE_CANVAS_EVENT_LIST, newArray);
+    }
   };
 
   return (

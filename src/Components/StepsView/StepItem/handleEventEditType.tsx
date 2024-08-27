@@ -56,6 +56,7 @@ const HandleEventEditType: React.FC<HandleEventEditTypeProps> = ({
     throw new Error("UserContext must be used within UserProvider");
   }
 
+  //handle auto height for the text area
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   useEffect(() => {
     const textarea = textareaRef.current;
