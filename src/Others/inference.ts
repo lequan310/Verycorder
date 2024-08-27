@@ -98,7 +98,7 @@ export async function getBBoxes(imageBuffer: Buffer): Promise<BoundingBox[]> {
       const y2 = Number(output[i + 3]);
       const conf = Number(output[i + 4]);
       //const classId = output[i + 5];
-      if (conf > 0.6) {
+      if (conf > 0.5) {
         // Confidence threshold
         // Rescale coordinates to the original image size
         const rescaledX1 = Math.floor((x1 / 640) * originalWidth);
