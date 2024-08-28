@@ -101,17 +101,21 @@ export async function getBBoxes(imageBuffer: Buffer): Promise<BoundingBox[]> {
       if (conf > 0.5) {
         // Confidence threshold
         // Rescale coordinates to the original image size
-        const rescaledX1 = Math.floor((x1 / 640) * originalWidth);
-        const rescaledY1 = Math.floor((y1 / 640) * originalHeight);
-        const rescaledX2 = Math.ceil((x2 / 640) * originalWidth);
-        const rescaledY2 = Math.ceil((y2 / 640) * originalHeight);
+        let rescaledX1 = Math.floor((x1 / 640) * originalWidth);
+        let rescaledY1 = Math.floor((y1 / 640) * originalHeight);
+        let rescaledX2 = Math.ceil((x2 / 640) * originalWidth);
+        let rescaledY2 = Math.ceil((y2 / 640) * originalHeight);
+        if (rescaledX1 < 0) rescaledX1 = 0;
+        if (rescaledY1 < 0) rescaledY1 = 0;
+        if (rescaledX2 > originalWidth) rescaledX2 = originalWidth;
+        if (rescaledY2 > originalHeight) rescaledY2 = originalHeight;
         const bbox = BoundingBox.createNewBBox(
           rescaledX1,
           rescaledX2,
           rescaledY1,
           rescaledY2
         );
-        bbox.idx = i;
+        bbox.idx = i / 6;
         bboxes.push(bbox);
       }
     }

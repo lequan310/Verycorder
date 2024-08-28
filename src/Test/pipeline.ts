@@ -39,12 +39,14 @@ type OutputResult = {
     boundingBoxes: BoundingBox[];
 }
 
+const pathPrefix = "./src/Test";
+
 async function main() {
-    await createOnnxSession("../Models/best.onnx");
+    await createOnnxSession("./src/Models/best.onnx");
 
     let config: Config;
     try {
-        const response = fs.readFileSync("config.json");
+        const response = fs.readFileSync(`${pathPrefix}/config.json`);
         config = await JSON.parse(response.toString());
     } catch (error) {
         console.error(error);
@@ -52,9 +54,9 @@ async function main() {
     }
 
     for (const test of config.tests) {
-        const outputDir = `${test.name}/output`;
+        const outputDir = `${pathPrefix}/${test.name}/output`;
         console.log("Running Test:", test.name);
-        const jimpImg = await Jimp.read(test.imagePath);
+        const jimpImg = await Jimp.read(`${pathPrefix}/${test.imagePath}`);
         jimpImg.resize(1248, Jimp.AUTO);
         const buffer = await jimpImg.getBufferAsync(Jimp.MIME_PNG);
         const { buffer: drawnBuffer, bboxes } = await getAndDrawBoxes(buffer);
@@ -119,7 +121,7 @@ async function main() {
                     const resultCaption = await openai.getCaption((await resultJimp.getBufferAsync(Jimp.MIME_PNG)).toString("base64"));
                     const score = await getSimilarityScoreFrom2Locator(caption, resultCaption);
 
-                    console.log("simularity score", score);
+                    console.log("simularity score:", score);
 
                     result.score = score;
                     result.correct = score > 0.8;

@@ -14,8 +14,8 @@ async function preprocessImage(imageBuffer: Buffer) {
 
 export async function getSimilarityScoreFrom2Locator(locator1: string, locator2: string): Promise<number> {
     console.log("comparing two locators:");
-    console.log("locator1:", locator1);
-    console.log("locator2:", locator2);
+    console.log(locator1);
+    console.log(locator2);
 
     const extractor = await pipeline('feature-extraction', 'Xenova/all-MiniLM-L12-v2', { dtype: 'fp16' });
 

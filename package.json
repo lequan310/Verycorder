@@ -6,7 +6,7 @@
   "main": ".webpack/main",
   "scripts": {
     "start": "electron-forge start",
-    "test": "cd ./src/Test && ts-node ./pipeline.ts",
+    "test": "ts-node ./src/Test/pipeline.ts",
     "package": "electron-forge package",
     "make": "electron-forge make",
     "publish": "electron-forge publish",

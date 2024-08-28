@@ -17,10 +17,16 @@
       ]
     },
     "jsx": "react-jsx", // or "react" depending on your setup
-    "typeRoots": ["./node_modules/@types", "./src/Declarations"],
+    "typeRoots": [
+      "./node_modules/@types",
+      "./src/Declarations"
+    ],
+  },
+  "ts-node": {
+    "files": true
   },
   "include": [
     "src/**/*",
     "src/Declarations/**/*.d.ts"
-  ],  
+  ],
 }
