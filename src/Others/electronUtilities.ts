@@ -359,6 +359,9 @@ export function updateCanvasTestEventList(
   updatedCanvasEventList: CanvasEvent[]
 ) {
   canvasTestCase.events = updatedCanvasEventList;
+  if (canvasTestCase.events.length === 0) {
+    win.webContents.send(Channel.win.UPDATE_STATE, getCurrentMode());
+  }
   //console.log(canvasTestCase.events);
 }
 

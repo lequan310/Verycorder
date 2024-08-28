@@ -142,7 +142,7 @@ const EventItemList = () => {
       setCaptionCounter((prev) => {
         ipcRenderer.send(Channel.all.TEST_LOG, "captionCounter: " + prev);
         ipcRenderer.send(Channel.all.TEST_LOG, currentMode);
-        if (captionNumber === prev && currentMode === AppMode.normal) {
+        if (captionNumber === prev) {
           ipcRenderer.send(
             Channel.win.UPDATE_CANVAS_EVENT_LIST,
             updatedEventList
@@ -184,14 +184,14 @@ const EventItemList = () => {
     //handle state change --------------
     const updateStateHandler = (mode: AppMode) => {
       setCurrentMode(mode); // Update currentMode to mode
-
       switch (mode) {
         case AppMode.normal:
           //This is where we handle if replay button is shown or not
           if (eventList.length > 0) {
             ipcRenderer.invoke(Channel.win.UPDATE_TEST_CASE, eventList);
             setGlobalReplayingButtonEnable(true);
-          } else if (canvasEventList.length > 0) {
+          } else if (canvasEventList.length > 0 &&
+            captionCounter === captionNumber) {
             ipcRenderer.send(
               Channel.win.UPDATE_CANVAS_EVENT_LIST,
               canvasEventList
@@ -199,19 +199,6 @@ const EventItemList = () => {
             setGlobalReplayingButtonEnable(true);
           } else {
             setGlobalReplayingButtonEnable(false);
-            // Additional condition to check if canvasEventList has items
-            if (
-              canvasEventList.length > 0 &&
-              captionCounter === captionNumber
-            ) {
-              ipcRenderer.send(
-                Channel.win.UPDATE_CANVAS_EVENT_LIST,
-                canvasEventList
-              );
-              setGlobalReplayingButtonEnable(true);
-            } else {
-              setGlobalReplayingButtonEnable(false);
-            }
           }
 
           break;
