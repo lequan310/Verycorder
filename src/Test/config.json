@@ -6,7 +6,11 @@
             "testClicks": [
                 {
                     "x": 196,
-                    "y": 389
+                    "y": 389,
+                    "offsetX": -10,
+                    "offsetY": -10,
+                    "offsetWidth": 20,
+                    "offsetHeight": 20
                 }
             ]
         },
@@ -15,8 +19,8 @@
             "imagePath": "Test 2/image.png",
             "testClicks": [
                 {
-                    "x": 122,
-                    "y": 290
+                    "x": 113,
+                    "y": 438.5
                 }
             ]
         }

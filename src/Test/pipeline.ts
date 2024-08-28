@@ -5,8 +5,8 @@ import { createOnnxSession, releaseOnnxSession, getAndDrawBoxes, drawBoxes } fro
 import * as openai from "../Others/openai"
 import * as fs from "fs";
 import { BoundingBox } from "../Types/bbox";
-import { compareImages } from '../Others/opencv';
 import { saveData } from '../Others/file';
+import { getSimilarityScoreFrom2Locator } from '../Others/transformers';
 
 type Test = {
     name: string;
@@ -97,6 +97,8 @@ async function main() {
 
             if (clickedBox) {
                 const clickedJimp = jimpImg.clone().crop(clickedBox.x, clickedBox.y, clickedBox.width, clickedBox.height);
+                const clickedBuffer = await clickedJimp.getBufferAsync(Jimp.MIME_PNG);
+                saveData(`${outputDir}/click${i}/clicked.png`, clickedBuffer);
 
                 const caption = await openai.getCaption((await clickedJimp.getBufferAsync(Jimp.MIME_PNG)).toString("base64"));
                 result.caption = caption;
@@ -105,7 +107,6 @@ async function main() {
                 result.resultBox = resultBox;
 
                 if (resultBox) {
-                    const clickedBuffer = await clickedJimp.getBufferAsync(Jimp.MIME_PNG);
                     const offsetX = clickPosition.offsetX ? clickPosition.offsetX : 0;
                     const offsetY = clickPosition.offsetY ? clickPosition.offsetY : 0;
                     const offsetWidth = clickPosition.offsetHeight ? clickPosition.offsetHeight : 0;
@@ -113,14 +114,16 @@ async function main() {
                     const resultJimp = jimpImg.clone().crop(resultBox.x + offsetX, resultBox.y + offsetY, resultBox.width + offsetWidth, resultBox.height + offsetHeight);
                     const resultBuffer = await resultJimp.getBufferAsync(Jimp.MIME_PNG);
 
-                    const score = await compareImages(clickedBuffer, resultBuffer);
+                    // const score = await compareImages(clickedBuffer, resultBuffer);
+                    // const score = await getSimilarityScoreFromLocator(caption, resultBuffer);
+                    const resultCaption = await openai.getCaption((await resultJimp.getBufferAsync(Jimp.MIME_PNG)).toString("base64"));
+                    const score = await getSimilarityScoreFrom2Locator(caption, resultCaption);
 
-                    console.log("difference score", score);
+                    console.log("simularity score", score);
 
                     result.score = score;
-                    result.correct = score < 1;
+                    result.correct = score > 0.8;
 
-                    saveData(`${outputDir}/click${i}/clicked.png`, clickedBuffer);
                     saveData(`${outputDir}/click${i}/result.png`, resultBuffer);
                 } else {
                     console.log("result box not found");
