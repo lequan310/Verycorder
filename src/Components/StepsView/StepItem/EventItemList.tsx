@@ -39,10 +39,10 @@ const EventItemList = () => {
   const [captionCounter, setCaptionCounter] = useState(0);
   const [currentMode, setCurrentMode] = useState(AppMode.normal);
 
-  const [editingTarget, setEditingTarget] = useState<Target>({
-    css: "",
-    xpath: "",
-  });
+  // const [editingTarget, setEditingTarget] = useState<Target>({
+  //   css: "",
+  //   xpath: "",
+  // });
 
   const listRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
@@ -67,10 +67,10 @@ const EventItemList = () => {
     if (currentMode === AppMode.normal) return;
     setEventList([...eventList, event]);
     setCurrentReplayIndex(initState);
-    setEditingTarget({
-      css: "",
-      xpath: "",
-    });
+    // setEditingTarget({
+    //   css: "",
+    //   xpath: "",
+    // });
   };
   const addCanvasEvent = (event: CanvasEvent) => {
     console.log(event);
@@ -190,14 +190,17 @@ const EventItemList = () => {
           if (eventList.length > 0) {
             ipcRenderer.invoke(Channel.win.UPDATE_TEST_CASE, eventList);
             setGlobalReplayingButtonEnable(true);
-          } else if (canvasEventList.length > 0 &&
-            captionCounter === captionNumber) {
+          } else if (
+            canvasEventList.length > 0 &&
+            captionCounter === captionNumber
+          ) {
             ipcRenderer.send(
               Channel.win.UPDATE_CANVAS_EVENT_LIST,
               canvasEventList
             );
             setGlobalReplayingButtonEnable(true);
           } else {
+            // console.log("adjnkasdjaksda---------");
             setGlobalReplayingButtonEnable(false);
           }
 
@@ -247,7 +250,7 @@ const EventItemList = () => {
           };
           setEventList(updatedEventList);
         }
-        setEditingTarget(value);
+        // setEditingTarget(value);
       }
     };
 
