@@ -20,7 +20,7 @@ const embed_model = "text-embedding-3-large";
 const CAPTION_PROPMT = `You are an expert at captioning web element. You are given an image of a web element. \
 Generate a single precise locator for the web element based on visual description. \
 Visual Description should contains all details available from the web element. \
-Example attributes of details include but not limited to text, background color, shape, icon, etc. \
+Example attributes of details include but not limited to text content, background color, shape, icon, etc. \
 If the visual description includes an icon, you can describe the icon with its name if you know. Example: icon="hamburger" or icon="youtube". If you don't know the icon name, describe the icon. \
 If the element contains an icon, you can assume it is button.
 
