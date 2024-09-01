@@ -34,7 +34,7 @@ const EventItemList = () => {
   const [canvasEventList, setCanvasEventList] = useState<CanvasEvent[]>([]);
   const [currentReplayIndex, setCurrentReplayIndex] = useState(initState);
   const [editEventIndex, setEditEventIndex] = useState(-1);
-  const editEventIndexRef = useRef(editEventIndex);
+  const editEventIndexRef = useRef(editEventIndex); //maintain a reference to the editEventIndex state
   const [captionNumber, setCaptionNumber] = useState(0);
   const [captionCounter, setCaptionCounter] = useState(0);
   const [currentMode, setCurrentMode] = useState(AppMode.normal);
@@ -82,27 +82,37 @@ const EventItemList = () => {
     setCurrentReplayIndex(initState);
   };
 
+  //Maintain the editEventIndex ref
+  useEffect(() => {
+    editEventIndexRef.current = editEventIndex;
+  }, [editEventIndex]);
+
   // Combined useEffect hook for scroll to the bottom
-  const listRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
 
+  //Handle scroll when replay
+  useEffect(() => {
+    // Scroll to the current item when the currentReplayIndex changes
+    if (
+      currentReplayIndex.index >= 0 &&
+      stepRefs.current[currentReplayIndex.index]
+    ) {
+      stepRefs.current[currentReplayIndex.index]?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [currentReplayIndex]);
+
+  //Handle scroll when recording and add new event
   useEffect(() => {
     if (bottomRef.current) {
       if (targetContext.recordState || targetContext.addNewEventManually) {
         bottomRef.current.scrollIntoView({ behavior: "smooth" });
       }
     }
-    editEventIndexRef.current = editEventIndex;
-  }, [
-    eventList,
-    canvasEventList,
-    editEventIndex,
-    targetContext.recordState,
-    targetContext.addNewEventManually,
-    targetContext.replayState,
-    targetContext.editState,
-  ]);
+  }, [eventList, canvasEventList, targetContext]);
 
   //Reset index when switch betwen modes
   useEffect(() => {
@@ -174,7 +184,7 @@ const EventItemList = () => {
       handleReplay
     );
 
-    //handle state change --------------
+    //handle app mode change --------------
     const updateStateHandler = (mode: AppMode) => {
       setCurrentMode(mode); // Update currentMode to mode
       switch (mode) {
@@ -409,7 +419,7 @@ const EventItemList = () => {
   };
 
   return (
-    <div ref={listRef} className="stepView__container">
+    <div className="stepView__container">
       {(targetContext.detectMode === DetectMode.DOM
         ? eventList
         : canvasEventList
@@ -429,12 +439,11 @@ const EventItemList = () => {
       })}
       {targetContext.addNewEventManually && (
         <AddEvent
-          ref={listRef}
+          ref={bottomRef}
           addEvent={(event) => {
             addRecordedEvent(event);
           }}
           addCanvasEvent={(event) => addCanvasEvent(event)}
-          // editingTarget={editingTarget}
         />
       )}
       <div ref={bottomRef} />
