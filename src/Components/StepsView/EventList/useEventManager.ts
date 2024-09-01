@@ -98,8 +98,10 @@ const useEventManager = () => {
       const updatedEventList = [...canvasEventList];
       updatedEventList[id] = { ...updatedEventList[id], target: caption };
       setCanvasEventList(updatedEventList);
+      setCaptionCounter((prev) => prev + 1);
       setCaptionCounter((prev) => {
         ipcRenderer.send(Channel.all.TEST_LOG, "captionCounter: " + prev);
+        ipcRenderer.send(Channel.all.TEST_LOG, "captionNumber: " + captionNumber);
         if (captionNumber === prev) {
           ipcRenderer.send(
             Channel.win.UPDATE_CANVAS_EVENT_LIST,
