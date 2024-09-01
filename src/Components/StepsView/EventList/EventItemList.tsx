@@ -15,7 +15,7 @@ const EventItemList = () => {
     bottomRef,
     stepRefs,
     addRecordedEvent,
-    addCanvasEvent,
+    addCanvasEventManually,
     deleteItem,
     sentEditedEvents,
   } = useEventManager();
@@ -41,7 +41,7 @@ const EventItemList = () => {
         <AddEvent
           ref={bottomRef}
           addEvent={(event) => addRecordedEvent(event)}
-          addCanvasEvent={(event) => addCanvasEvent(event)}
+          addCanvasEvent={(event) => addCanvasEventManually(event, true)}
         />
       )}
       <div ref={bottomRef} />

@@ -103,9 +103,6 @@ const AddEvent = React.forwardRef<HTMLDivElement, AddEventProps>(
     }) => {
       let event: CanvasEvent;
 
-      // ipcRenderer.send(Channel.win.CLICK_EDIT);
-      setGlobalAddEventManually(false);
-
       switch (data.type) {
         case EventEnum.click:
           event = {
@@ -187,7 +184,6 @@ const AddEvent = React.forwardRef<HTMLDivElement, AddEventProps>(
 
     useEffect(() => {
       const handleSaveTarget = (value: Target) => {
-        // setGlobalAddEventManually(true);
         setTarget(value);
       };
       const updateTarget = ipcRenderer.on(

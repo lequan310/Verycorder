@@ -32,7 +32,6 @@ const useEventManager = () => {
   const [editEventIndex, setEditEventIndex] = useState(-1);
   const [captionNumber, setCaptionNumber] = useState(0);
   const [captionCounter, setCaptionCounter] = useState(0);
-  const [currentMode, setCurrentMode] = useState(AppMode.normal);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -53,11 +52,10 @@ const useEventManager = () => {
 
   const addRecordedEvent = useCallback(
     (event: RecordedEvent) => {
-      if (currentMode === AppMode.normal) return;
       setEventList((prevList) => [...prevList, event]);
       setCurrentReplayIndex(initState);
     },
-    [currentMode]
+    [targetContext.editState]
   );
 
   const addCanvasEvent = useCallback(
@@ -80,6 +78,17 @@ const useEventManager = () => {
 
       setCanvasEventList((prevList) => [...prevList, event]);
       setCurrentReplayIndex(initState);
+    },
+    [targetContext.detectMode]
+  );
+
+  const addCanvasEventManually = useCallback(
+    (event: CanvasEvent, manually: boolean) => {
+      console.log("addCanvasEventManually");
+      addCanvasEvent(event);
+      if (manually) {
+        setCaptionCounter((prev) => prev + 1);
+      }
     },
     [targetContext.detectMode]
   );
@@ -157,7 +166,6 @@ const useEventManager = () => {
     };
 
     const updateStateHandler = (mode: AppMode) => {
-      setCurrentMode(mode);
       const isEventListNotEmpty = eventList.length > 0;
       const isCanvasEventListNotEmpty =
         canvasEventList.length > 0 && captionCounter === captionNumber;
@@ -252,6 +260,7 @@ const useEventManager = () => {
     captionCounter,
     addRecordedEvent,
     addCanvasEvent,
+    addCanvasEventManually,
     targetContext.detectMode,
     targetContext.replayState,
     setGlobalReplayingButtonEnable,
@@ -407,7 +416,7 @@ const useEventManager = () => {
     bottomRef,
     stepRefs,
     addRecordedEvent,
-    addCanvasEvent,
+    addCanvasEventManually,
     deleteItem,
     sentEditedEvents,
   };
