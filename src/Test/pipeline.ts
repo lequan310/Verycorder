@@ -6,7 +6,7 @@ import * as openai from "../Others/openai"
 import * as fs from "fs";
 import { BoundingBox } from "../Types/bbox";
 import { saveData } from '../Others/file';
-import { getSimilarityScoreFrom2Locator } from '../Others/transformers';
+import { getSimilarity } from '../Others/openai';
 
 type Test = {
     name: string;
@@ -119,7 +119,7 @@ async function main() {
                     // const score = await compareImages(clickedBuffer, resultBuffer);
                     // const score = await getSimilarityScoreFromLocator(caption, resultBuffer);
                     const resultCaption = await openai.getCaption((await resultJimp.getBufferAsync(Jimp.MIME_PNG)).toString("base64"));
-                    const score = await getSimilarityScoreFrom2Locator(caption, resultCaption);
+                    const score = await getSimilarity(caption, resultCaption);
 
                     console.log("simularity score:", score);
 

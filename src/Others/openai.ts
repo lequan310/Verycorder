@@ -7,7 +7,6 @@ import { BoundingBox } from "../Types/bbox";
 import { cropImageBuffer } from "./inference";
 import Jimp from "jimp";
 import { saveData } from "./file";
-import { getSimilarityScoreFrom2Locator } from "./transformers";
 
 const Result = z.object({
     value: z.number(),
@@ -72,10 +71,7 @@ function cosine_similarity(a: number[], b: number[]) {
     return similarity;
 }
 
-async function getSimilarity(
-    locator: string,
-    newLocator: string
-): Promise<number> {
+export async function getSimilarity(locator: string, newLocator: string): Promise<number> {
     const [embeddingObject, newEmbeddingObject] = await Promise.all([
         openai.embeddings.create({
             model: embed_model,
@@ -157,12 +153,12 @@ export async function getReplayTargetBBox(
         const resultJimp = jimp.clone().crop(bbox.x, bbox.y, bbox.width, bbox.height);
         let croppedImageBuffer = await resultJimp.getBufferAsync(Jimp.MIME_PNG);
 
-        saveData("./logs/croppedForReplay.png", croppedImageBuffer); 
+        saveData("./logs/croppedForReplay.png", croppedImageBuffer);
 
         let element = croppedImageBuffer.toString("base64");
         const newLocator = await getCaption(element);
 
-        const similarity = await getSimilarityScoreFrom2Locator(locator, newLocator);
+        const similarity = await getSimilarity(locator, newLocator);
         if (similarity >= similarityValue) {
             let res = BoundingBox.createNewBBox(
                 bbox.x * factor,

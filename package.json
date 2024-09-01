@@ -48,7 +48,6 @@
   },
   "license": "MIT",
   "dependencies": {
-    "@huggingface/transformers": "^3.0.0-alpha.9",
     "@tippyjs/react": "^4.2.6",
     "@types/jest": "^29.5.12",
     "@types/node": "^20.12.12",
