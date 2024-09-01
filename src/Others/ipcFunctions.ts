@@ -17,6 +17,7 @@ import {
   getScreenshot,
   getViewScreenshotBuffer,
   saveTestCase,
+  loadTestCase,
 } from "./electronUtilities";
 import { getCaption, setSimilarity } from "./openai";
 import { EventEnum } from "../Types/eventComponents";
@@ -240,7 +241,13 @@ export function handleSetSimilarity() {
 }
 
 export function handleSaveFile() {
-  ipcMain.on(Channel.win.SAVE_File, () => {
+  ipcMain.on(Channel.win.SAVE_FILE, () => {
     saveTestCase();
+  });
+}
+
+export function handleUploadFile() {
+  ipcMain.on(Channel.win.UPLOAD_FILE, () => {
+    loadTestCase();
   });
 }

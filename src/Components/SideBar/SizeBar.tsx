@@ -81,7 +81,11 @@ const SideBar = () => {
           delay={500}
           theme="material"
         >
-          <button>
+          <button
+            onClick={() => {
+              ipcRenderer.send(Channel.win.UPLOAD_FILE);
+            }}
+          >
             <span className="material-symbols-rounded">upload_file</span>
           </button>
         </Tippy>
@@ -95,7 +99,7 @@ const SideBar = () => {
           <button
             disabled={!targetContext.replayingButtonEnable}
             onClick={() => {
-              ipcRenderer.send(Channel.win.SAVE_File);
+              ipcRenderer.send(Channel.win.SAVE_FILE);
             }}
           >
             <span className="material-symbols-rounded">download</span>

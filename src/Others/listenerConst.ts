@@ -37,7 +37,9 @@ export const Channel = {
     // Update similarity parameter from win to main
     SET_SIMILARITY: "win-set-similarity",
     //Save file to local
-    SAVE_File: "win-save-file",
+    SAVE_FILE: "win-save-file",
+    //Upload file from local
+    UPLOAD_FILE: "win-upload-file",
   },
   view: {
     replay: {
