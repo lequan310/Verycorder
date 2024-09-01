@@ -52,6 +52,7 @@ const useEventManager = () => {
 
   const reorderEventList = useCallback(
     (newEventList: RecordedEvent[]) => {
+      setCurrentReplayIndex(initState);
       setEventList(newEventList);
       ipcRenderer
         .invoke(Channel.win.UPDATE_TEST_CASE, newEventList)
