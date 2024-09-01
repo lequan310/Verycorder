@@ -130,7 +130,9 @@ const useEventManager = () => {
             Channel.win.UPDATE_CANVAS_EVENT_LIST,
             updatedEventList
           );
-          setGlobalReplayingButtonEnable(true);
+          if (!targetContext.recordState) {
+            setGlobalReplayingButtonEnable(true);
+          }
         } else {
           setGlobalReplayingButtonEnable(false);
         }
@@ -165,11 +167,14 @@ const useEventManager = () => {
           if (isEventListNotEmpty) {
             ipcRenderer.invoke(Channel.win.UPDATE_TEST_CASE, eventList);
             setGlobalReplayingButtonEnable(true);
+            console.log("eventlist not empty");
           } else if (isCanvasEventListNotEmpty) {
             ipcRenderer.send(
               Channel.win.UPDATE_CANVAS_EVENT_LIST,
               canvasEventList
             );
+            console.log("canvas list not empty");
+
             setGlobalReplayingButtonEnable(true);
           } else {
             setGlobalReplayingButtonEnable(false);
