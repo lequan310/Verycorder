@@ -18,9 +18,6 @@ import { DetectMode } from "../../../Types/detectMode";
 interface EventItemProps {
   itemKey: number;
   data: RecordedEvent | CanvasEvent;
-  state: boolean;
-  current: boolean;
-  prevState: boolean;
   selectedIndex: (index: number) => void;
   doneEditing: (
     type: EventEnum,
@@ -30,6 +27,10 @@ interface EventItemProps {
   ) => void;
   ref: LegacyRef<HTMLDivElement>;
   deleteItem: (index: number) => void;
+  currentReplayState: {
+    index: number;
+    state: boolean;
+  };
 }
 
 const EventItem = forwardRef<HTMLDivElement, EventItemProps>(
@@ -37,12 +38,13 @@ const EventItem = forwardRef<HTMLDivElement, EventItemProps>(
     {
       itemKey,
       data,
-      state,
-      current,
-      prevState,
+      // state,
+      // current,
+      // prevState,
       selectedIndex,
       doneEditing,
       deleteItem,
+      currentReplayState,
     },
     ref
   ) => {
@@ -91,11 +93,14 @@ const EventItem = forwardRef<HTMLDivElement, EventItemProps>(
     };
 
     const handleCaseState = () => {
-      if (current && targetContext.replayState) {
+      if (currentReplayState.index == itemKey && targetContext.replayState) {
         return "grey";
-      } else if (prevState) {
+      } else if (currentReplayState.index > itemKey) {
         return "green";
-      } else if (state == false) {
+      } else if (
+        currentReplayState.index == itemKey &&
+        !currentReplayState.state
+      ) {
         return "red_background";
       } else return "";
     };

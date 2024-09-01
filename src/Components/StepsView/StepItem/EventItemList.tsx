@@ -427,14 +427,8 @@ const EventItemList = () => {
             key={index}
             itemKey={index}
             data={event}
-            ref={(el) => (stepRefs.current[currentReplayIndex.index] = el)}
-            state={
-              currentReplayIndex.index == index && !currentReplayIndex.state
-                ? false
-                : null
-            }
-            current={currentReplayIndex.index == index ? true : false}
-            prevState={currentReplayIndex.index > index ? true : false}
+            ref={(el) => (stepRefs.current[index] = el)}
+            currentReplayState={currentReplayIndex}
             selectedIndex={setEditEventIndex}
             doneEditing={sentEditedEvents}
             deleteItem={deleteItem}
