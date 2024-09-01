@@ -79,6 +79,14 @@ const App = () => {
       dispatch({ type: "SET_EDIT_STATE", payload: newEditState });
     }
   };
+  const setGlobalReorderMode = (newRecordState: boolean) => {
+    if (dispatch) {
+      dispatch({
+        type: "SET_REORDER_MODE",
+        payload: newRecordState,
+      });
+    }
+  };
 
   useEffect(() => {
     //handle state change --------------
@@ -105,12 +113,14 @@ const App = () => {
           setRecordState(!targetContext.recordState);
           disableAll();
           setRecordingButtonEnable(true);
+          setGlobalReorderMode(false);
           break;
 
         case AppMode.replay:
           setReplayState(!targetContext.replayState);
           disableAll();
           setReplayingButtonEnable(true);
+          setGlobalReorderMode(false);
           break;
 
         case AppMode.edit:
