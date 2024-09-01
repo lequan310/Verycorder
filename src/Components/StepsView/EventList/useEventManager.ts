@@ -93,6 +93,26 @@ const useEventManager = () => {
   }, [targetContext.detectMode]);
 
   useEffect(() => {
+    if (
+      currentReplayIndex.index >= 0 &&
+      stepRefs.current[currentReplayIndex.index]
+    ) {
+      stepRefs.current[currentReplayIndex.index]?.scrollIntoView({
+        behavior: "smooth",
+        block: "center",
+      });
+    }
+  }, [currentReplayIndex]);
+
+  useEffect(() => {
+    if (bottomRef.current) {
+      if (targetContext.recordState || targetContext.addNewEventManually) {
+        bottomRef.current.scrollIntoView({ behavior: "smooth" });
+      }
+    }
+  }, [eventList, canvasEventList, targetContext]);
+
+  useEffect(() => {
     const handleUpdateCaptionCanvasEvent = (id: number, caption: string) => {
       if (id >= canvasEventList.length) return;
       const updatedEventList = [...canvasEventList];
@@ -101,7 +121,10 @@ const useEventManager = () => {
       setCaptionCounter((prev) => prev + 1);
       setCaptionCounter((prev) => {
         ipcRenderer.send(Channel.all.TEST_LOG, "captionCounter: " + prev);
-        ipcRenderer.send(Channel.all.TEST_LOG, "captionNumber: " + captionNumber);
+        ipcRenderer.send(
+          Channel.all.TEST_LOG,
+          "captionNumber: " + captionNumber
+        );
         if (captionNumber === prev) {
           ipcRenderer.send(
             Channel.win.UPDATE_CANVAS_EVENT_LIST,
