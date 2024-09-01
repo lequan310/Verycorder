@@ -337,7 +337,15 @@ const useEventManager = () => {
       ) => {
         const newArray = list.slice(0, index).concat(list.slice(index + 1));
         setter(newArray);
-        ipcRenderer.send(channel, newArray);
+        if (channel === Channel.win.UPDATE_TEST_CASE) {
+          ipcRenderer
+            .invoke(Channel.win.UPDATE_TEST_CASE, newArray)
+            .then((data: RecordedEvent[]) => {
+              setEventList(data);
+            });
+        } else {
+          ipcRenderer.send(channel, newArray);
+        }
       };
 
       if (targetContext.detectMode === DetectMode.DOM) {
