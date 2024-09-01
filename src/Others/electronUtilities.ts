@@ -99,9 +99,16 @@ export function toggleEdit() {
   if (!testCase || !testCase.events) {
     testCase = initializeDOMTestCase();
   }
+
+  if (!canvasTestCase || !canvasTestCase.events) {
+    canvasTestCase = initializeCanvasTestCase();
+  }
+
   toggleMode(AppMode.edit);
   win.webContents.send(Channel.win.UPDATE_STATE, currentMode);
-  view.webContents.send(Channel.view.edit.TOGGLE_EDIT, currentMode);
+  if (detectMode === DetectMode.DOM) {
+    view.webContents.send(Channel.view.edit.TOGGLE_EDIT, currentMode);
+  }
 }
 
 function updateEvent() {
