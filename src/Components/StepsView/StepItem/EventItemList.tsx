@@ -39,11 +39,6 @@ const EventItemList = () => {
   const [captionCounter, setCaptionCounter] = useState(0);
   const [currentMode, setCurrentMode] = useState(AppMode.normal);
 
-  // const [editingTarget, setEditingTarget] = useState<Target>({
-  //   css: "",
-  //   xpath: "",
-  // });
-
   const listRef = useRef<HTMLDivElement>(null);
   const bottomRef = useRef<HTMLDivElement>(null);
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -67,10 +62,6 @@ const EventItemList = () => {
     if (currentMode === AppMode.normal) return;
     setEventList([...eventList, event]);
     setCurrentReplayIndex(initState);
-    // setEditingTarget({
-    //   css: "",
-    //   xpath: "",
-    // });
   };
   const addCanvasEvent = (event: CanvasEvent) => {
     console.log(event);
@@ -250,7 +241,6 @@ const EventItemList = () => {
           };
           setEventList(updatedEventList);
         }
-        // setEditingTarget(value);
       }
     };
 
