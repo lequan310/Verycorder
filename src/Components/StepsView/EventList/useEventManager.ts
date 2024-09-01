@@ -84,6 +84,14 @@ const useEventManager = () => {
     [targetContext.detectMode]
   );
 
+  //reset list when change mode
+  useEffect(() => {
+    setCurrentReplayIndex(initState);
+    setEventList([]);
+    setCanvasEventList([]);
+    setGlobalReplayingButtonEnable(false);
+  }, [targetContext.detectMode]);
+
   useEffect(() => {
     const handleUpdateCaptionCanvasEvent = (id: number, caption: string) => {
       if (id >= canvasEventList.length) return;

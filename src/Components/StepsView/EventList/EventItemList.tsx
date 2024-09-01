@@ -3,6 +3,7 @@ import AddEvent from "../NewItem/AddEvent";
 import useEventManager from "./useEventManager";
 import EventItem from "../EventItem/EventItem";
 import { TargetContext } from "../../../Types/targetContext";
+import { DetectMode } from "../../../Types/detectMode";
 
 const EventItemList = () => {
   const targetContext = useContext(TargetContext);
@@ -21,7 +22,10 @@ const EventItemList = () => {
 
   return (
     <div className="stepView__container">
-      {(eventList || canvasEventList).map((event, index) => (
+      {(targetContext.detectMode === DetectMode.DOM
+        ? eventList
+        : canvasEventList
+      ).map((event, index) => (
         <EventItem
           key={index}
           itemKey={index}
