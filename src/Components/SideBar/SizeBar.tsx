@@ -92,7 +92,12 @@ const SideBar = () => {
           delay={500}
           theme="material"
         >
-          <button>
+          <button
+            disabled={!targetContext.replayingButtonEnable}
+            onClick={() => {
+              ipcRenderer.send(Channel.win.SAVE_File);
+            }}
+          >
             <span className="material-symbols-rounded">download</span>
           </button>
         </Tippy>
