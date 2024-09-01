@@ -8,10 +8,10 @@ import {
   Droppable,
   Draggable,
   DropResult,
-  DraggableProvided,
-  DroppableProvided,
 } from "react-beautiful-dnd";
 import { DetectMode } from "../../../Types/detectMode";
+import { RecordedEvent } from "../../../Types/recordedEvent";
+import { CanvasEvent } from "../../../Types/canvasEvent";
 
 const EventItemList: React.FC = () => {
   const targetContext = useContext(TargetContext);
@@ -62,6 +62,58 @@ const EventItemList: React.FC = () => {
     }
   };
 
+  const renderEventItems = (
+    items: RecordedEvent[] | CanvasEvent[],
+    isDraggable = false
+  ) => (
+    <div className="stepView__container">
+      {items.map((event, index) =>
+        isDraggable ? (
+          <Draggable key={index} draggableId={String(index)} index={index}>
+            {(provided) => (
+              <div
+                ref={(el) => {
+                  provided.innerRef(el);
+                  stepRefs.current[index] = el;
+                }}
+                {...provided.draggableProps}
+                {...provided.dragHandleProps}
+              >
+                <EventItem
+                  itemKey={index}
+                  data={event}
+                  currentReplayState={currentReplayIndex}
+                  selectedIndex={setEditEventIndex}
+                  doneEditing={sentEditedEvents}
+                  deleteItem={deleteItem}
+                />
+              </div>
+            )}
+          </Draggable>
+        ) : (
+          <div key={index} ref={(el) => (stepRefs.current[index] = el)}>
+            <EventItem
+              itemKey={index}
+              data={event}
+              currentReplayState={currentReplayIndex}
+              selectedIndex={setEditEventIndex}
+              doneEditing={sentEditedEvents}
+              deleteItem={deleteItem}
+            />
+          </div>
+        )
+      )}
+      {targetContext.addNewEventManually && (
+        <AddEvent
+          ref={bottomRef}
+          addEvent={addRecordedEvent}
+          addCanvasEvent={(event) => addCanvasEventManually(event, true)}
+        />
+      )}
+      <div ref={bottomRef} />
+    </div>
+  );
+
   return (
     <div>
       {targetContext.reorderMode ? (
@@ -73,71 +125,23 @@ const EventItemList: React.FC = () => {
                 {...provided.droppableProps}
                 ref={provided.innerRef}
               >
-                {(eventList || canvasEventList).map((event, index) => (
-                  <Draggable
-                    key={index}
-                    draggableId={String(index)}
-                    index={index}
-                  >
-                    {(provided) => (
-                      <div
-                        ref={(el) => {
-                          provided.innerRef(el);
-                          stepRefs.current[index] = el;
-                        }}
-                        {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                      >
-                        <EventItem
-                          itemKey={index}
-                          data={event}
-                          currentReplayState={currentReplayIndex}
-                          selectedIndex={setEditEventIndex}
-                          doneEditing={sentEditedEvents}
-                          deleteItem={deleteItem}
-                        />
-                      </div>
-                    )}
-                  </Draggable>
-                ))}
-                {provided.placeholder}
-                {targetContext.addNewEventManually && (
-                  <AddEvent
-                    ref={bottomRef}
-                    addEvent={(event) => addRecordedEvent(event)}
-                    addCanvasEvent={(event) =>
-                      addCanvasEventManually(event, true)
-                    }
-                  />
+                {renderEventItems(
+                  targetContext.detectMode === DetectMode.DOM
+                    ? eventList
+                    : canvasEventList,
+                  true
                 )}
-                <div ref={bottomRef} />
+                {provided.placeholder}
               </div>
             )}
           </Droppable>
         </DragDropContext>
       ) : (
-        <div className="stepView__container">
-          {(eventList || canvasEventList).map((event, index) => (
-            <div key={index} ref={(el) => (stepRefs.current[index] = el)}>
-              <EventItem
-                itemKey={index}
-                data={event}
-                currentReplayState={currentReplayIndex}
-                selectedIndex={setEditEventIndex}
-                doneEditing={sentEditedEvents}
-                deleteItem={deleteItem}
-              />
-            </div>
-          ))}
-          {targetContext.addNewEventManually && (
-            <AddEvent
-              ref={bottomRef}
-              addEvent={(event) => addRecordedEvent(event)}
-              addCanvasEvent={(event) => addCanvasEventManually(event, true)}
-            />
-          )}
-          <div ref={bottomRef} />
-        </div>
+        renderEventItems(
+          targetContext.detectMode === DetectMode.DOM
+            ? eventList
+            : canvasEventList
+        )
       )}
     </div>
   );

@@ -8,8 +8,9 @@
   /* padding: 12px; */
   padding-top: 12px;
   padding-bottom: 8px;
+  padding-left: 8px;
   gap: 12px;
-  min-width: 100%;
+  flex: 1;
 }
 
 .stepitem__container {
@@ -25,8 +26,10 @@
   display: flex;
   flex-direction: row;
   align-items: center;
-  padding-left: 12px;
-  gap: 12px;
+  padding-left: 4px;
+  gap: 4px;
+  min-width: 100%;
+  box-sizing: border-box;
 }
 
 .drag_wrapper > span {
