@@ -5,8 +5,11 @@
   position: relative;
   justify-content: space-between;
   padding-right: 2px;
-  padding: 12px;
+  /* padding: 12px; */
+  padding-top: 12px;
+  padding-bottom: 8px;
   gap: 12px;
+  min-width: 100%;
 }
 
 .stepitem__container {
@@ -18,8 +21,19 @@
   box-sizing: border-box;
   /* border-radius: var(--border-radius); */
 }
+.drag_wrapper {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  padding-left: 12px;
+  gap: 12px;
+}
 
-.stepitem__wrapper:hover {
+.drag_wrapper > span {
+  opacity: 0.3;
+}
+
+.drag_wrapper:hover {
   transition: all 0.3s;
   /* box-shadow: rgba(14, 63, 126, 0.06) 0px 0px 0px 1px,
     rgba(42, 51, 70, 0.03) 0px 1px 1px -0.5px,

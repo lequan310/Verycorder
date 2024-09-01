@@ -130,37 +130,43 @@ const EventItem = forwardRef<HTMLDivElement, EventItemProps>(
         );
       } else {
         return (
-          <div ref={ref} className={` stepitem__wrapper ${handleCaseState()}`}>
-            <div className={`stepitem__container`}>
-              <div className="oneline_spacebetween_flex">
-                <h4>{data.type}</h4>
-                {value()}
-              </div>
-              <p>{preferedTarget()}</p>
-            </div>
-            <div>
-              {targetContext.editState ? (
-                <div className="stepitem_flex_col hidden">
-                  <button
-                    disabled={!targetContext.editState}
-                    onClick={() => deleteItem(itemKey)}
-                    className="close_save_button"
-                  >
-                    <span className="material-symbols-rounded">delete</span>
-                    Delete
-                  </button>
-                  <button
-                    disabled={!targetContext.editState}
-                    onClick={() => handleToggleEditMode()}
-                    className="edit_save_button"
-                  >
-                    <span className="material-symbols-rounded">edit</span>
-                    Edit
-                  </button>
+          <div ref={ref} className={` drag_wrapper ${handleCaseState()}`}>
+            {targetContext.reorderMode ? (
+              <span className="material-symbols-rounded">menu</span>
+            ) : null}
+
+            <div className="stepitem__wrapper">
+              <div className={`stepitem__container`}>
+                <div className="oneline_spacebetween_flex">
+                  <h4>{data.type}</h4>
+                  {value()}
                 </div>
-              ) : null}
+                <p>{preferedTarget()}</p>
+              </div>
+              <div>
+                {targetContext.editState && !targetContext.reorderMode ? (
+                  <div className="stepitem_flex_col hidden">
+                    <button
+                      disabled={!targetContext.editState}
+                      onClick={() => deleteItem(itemKey)}
+                      className="close_save_button"
+                    >
+                      <span className="material-symbols-rounded">delete</span>
+                      Delete
+                    </button>
+                    <button
+                      disabled={!targetContext.editState}
+                      onClick={() => handleToggleEditMode()}
+                      className="edit_save_button"
+                    >
+                      <span className="material-symbols-rounded">edit</span>
+                      Edit
+                    </button>
+                  </div>
+                ) : null}
+              </div>
+              <div className="divider fixed_bottom"></div>
             </div>
-            <div className="divider fixed_bottom"></div>
           </div>
         );
       }

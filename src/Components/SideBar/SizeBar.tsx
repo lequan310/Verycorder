@@ -31,6 +31,14 @@ const SideBar = () => {
       });
     }
   };
+  const setGlobalReorderMode = (newRecordState: boolean) => {
+    if (dispatch) {
+      dispatch({
+        type: "SET_REORDER_MODE",
+        payload: newRecordState,
+      });
+    }
+  };
 
   return (
     <div className="sizeBar__wrapper">
@@ -68,7 +76,10 @@ const SideBar = () => {
           delay={500}
           theme="material"
         >
-          <button>
+          <button
+            className={targetContext.reorderMode ? "active" : ""}
+            onClick={() => setGlobalReorderMode(!targetContext.reorderMode)}
+          >
             <span className="material-symbols-rounded">edit</span>
           </button>
         </Tippy>

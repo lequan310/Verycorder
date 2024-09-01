@@ -43,6 +43,7 @@ const App = () => {
     testCaseSize: 0,
     addNewEventManually: false,
     detectMode: DetectMode.DOM,
+    reorderMode: false,
   };
   const [state, dispatch] = useReducer(reducer, initialState);
 
