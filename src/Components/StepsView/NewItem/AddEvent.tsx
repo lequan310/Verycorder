@@ -4,7 +4,7 @@ import {
   TargetContext,
   TargetDispatchContext,
 } from "../../../Types/targetContext";
-import HandleEventEditType from "../EventItem/handleEventEditType";
+import HandleEventEditType from "../StepItem/handleEventEditType";
 import { Channel } from "../../../Others/listenerConst";
 import {
   ClickEvent,
@@ -103,8 +103,8 @@ const AddEvent = React.forwardRef<HTMLDivElement, AddEventProps>(
     }) => {
       let event: CanvasEvent;
 
-      // ipcRenderer.send(Channel.win.CLICK_EDIT);
-      setGlobalAddEventManually(false);
+      ipcRenderer.send(Channel.win.CLICK_EDIT);
+      setGlobalAddEventManually(!targetContext.addNewEventManually);
 
       switch (data.type) {
         case EventEnum.click:
@@ -158,7 +158,7 @@ const AddEvent = React.forwardRef<HTMLDivElement, AddEventProps>(
       } | null
     ) => {
       ipcRenderer.send(Channel.win.CLICK_EDIT);
-      setGlobalAddEventManually(false);
+      setGlobalAddEventManually(!targetContext.addNewEventManually);
 
       if (
         !data ||

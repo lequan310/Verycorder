@@ -45,7 +45,9 @@ const SideBar = () => {
           <button
             className={targetContext.addNewEventManually ? "active" : ""}
             onClick={() => {
-              ipcRenderer.send(Channel.win.CLICK_EDIT);
+              targetContext.detectMode === DetectMode.DOM
+                ? ipcRenderer.send(Channel.win.CLICK_EDIT)
+                : null;
               setGlobalAddEventManually(!targetContext.addNewEventManually);
             }}
             disabled={!targetContext.editState}

@@ -101,7 +101,9 @@ const EventItem = forwardRef<HTMLDivElement, EventItemProps>(
     };
 
     const handleToggleEditMode = () => {
-      ipcRenderer.send(Channel.win.CLICK_EDIT);
+      if (targetContext.detectMode !== DetectMode.AI) {
+        ipcRenderer.send(Channel.win.CLICK_EDIT);
+      }
       setEditMode((prev) => !prev);
       selectedIndex(editMode ? -1 : itemKey);
     };
