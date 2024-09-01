@@ -103,7 +103,7 @@ const AddEvent = React.forwardRef<HTMLDivElement, AddEventProps>(
     }) => {
       let event: CanvasEvent;
 
-      ipcRenderer.send(Channel.win.CLICK_EDIT);
+      // ipcRenderer.send(Channel.win.CLICK_EDIT);
       setGlobalAddEventManually(false);
 
       switch (data.type) {
