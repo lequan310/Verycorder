@@ -1,4 +1,4 @@
-import React, { forwardRef, useContext, useState } from "react";
+import React, { forwardRef, useContext, useState, LegacyRef } from "react";
 import "./EventItem.css";
 import { RecordedEvent } from "../../../Types/recordedEvent";
 import {
@@ -8,8 +8,6 @@ import {
   Value,
 } from "../../../Types/eventComponents";
 import { TargetContext } from "../../../Types/targetContext";
-
-import { LegacyRef } from "react";
 import { Channel } from "../../../Others/listenerConst";
 import HandleEventEditType from "./handleEventEditType";
 import { CanvasEvent } from "../../../Types/canvasEvent";
@@ -38,9 +36,6 @@ const EventItem = forwardRef<HTMLDivElement, EventItemProps>(
     {
       itemKey,
       data,
-      // state,
-      // current,
-      // prevState,
       selectedIndex,
       doneEditing,
       deleteItem,
