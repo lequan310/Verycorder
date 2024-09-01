@@ -14,7 +14,6 @@ import {
 import { AppMode } from "../../../Types/appMode";
 import { EventEnum, Target, Value } from "../../../Types/eventComponents";
 import AddEvent from "../NewItem/AddEvent";
-import EventItem from "./EventItem";
 import { DetectMode } from "../../../Types/detectMode";
 import {
   CanvasClickEvent,
@@ -23,6 +22,7 @@ import {
   CanvasInputEvent,
   CanvasScrollEvent,
 } from "../../../Types/canvasEvent";
+import EventItem from "../EventItem/EventItem";
 
 const EventItemList = () => {
   const initState: { index: number; state: boolean } = {
@@ -282,9 +282,9 @@ const EventItemList = () => {
       const updatedEventList = [...eventList];
       const currentEvent =
         updatedEventList[
-        targetContext.addNewEventManually
-          ? eventList.length
-          : editEventIndexRef.current
+          targetContext.addNewEventManually
+            ? eventList.length
+            : editEventIndexRef.current
         ];
       let updatedEvent: RecordedEvent;
 

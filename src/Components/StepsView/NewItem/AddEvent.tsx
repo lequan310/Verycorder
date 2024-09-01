@@ -4,7 +4,7 @@ import {
   TargetContext,
   TargetDispatchContext,
 } from "../../../Types/targetContext";
-import HandleEventEditType from "../StepItem/handleEventEditType";
+import HandleEventEditType from "../EventItem/handleEventEditType";
 import { Channel } from "../../../Others/listenerConst";
 import {
   ClickEvent,
