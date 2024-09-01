@@ -130,7 +130,7 @@ const EventItem = forwardRef<HTMLDivElement, EventItemProps>(
       if (editMode) {
         return (
           <HandleEventEditType
-            // ref={ref}
+            scrollRef={ref}
             handleSave={handleSave}
             dataPacket={data}
           />
@@ -146,24 +146,26 @@ const EventItem = forwardRef<HTMLDivElement, EventItemProps>(
               <p>{preferedTarget()}</p>
             </div>
             <div>
-              <div className="stepitem_flex_col hidden">
-                <button
-                  disabled={!targetContext.editState}
-                  onClick={() => deleteItem(itemKey)}
-                  className="close_save_button"
-                >
-                  <span className="material-symbols-rounded">delete</span>
-                  Delete
-                </button>
-                <button
-                  disabled={!targetContext.editState}
-                  onClick={() => handleToggleEditMode()}
-                  className="edit_save_button"
-                >
-                  <span className="material-symbols-rounded">edit</span>
-                  Edit
-                </button>
-              </div>
+              {targetContext.editState ? (
+                <div className="stepitem_flex_col hidden">
+                  <button
+                    disabled={!targetContext.editState}
+                    onClick={() => deleteItem(itemKey)}
+                    className="close_save_button"
+                  >
+                    <span className="material-symbols-rounded">delete</span>
+                    Delete
+                  </button>
+                  <button
+                    disabled={!targetContext.editState}
+                    onClick={() => handleToggleEditMode()}
+                    className="edit_save_button"
+                  >
+                    <span className="material-symbols-rounded">edit</span>
+                    Edit
+                  </button>
+                </div>
+              ) : null}
             </div>
             <div className="divider fixed_bottom"></div>
           </div>

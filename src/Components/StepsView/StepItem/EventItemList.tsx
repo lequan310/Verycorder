@@ -39,10 +39,6 @@ const EventItemList = () => {
   const [captionCounter, setCaptionCounter] = useState(0);
   const [currentMode, setCurrentMode] = useState(AppMode.normal);
 
-  const listRef = useRef<HTMLDivElement>(null);
-  const bottomRef = useRef<HTMLDivElement>(null);
-  const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
-
   //Check if is not record and the event list have items----------
   const dispatch = useContext(TargetDispatchContext);
   const targetContext = useContext(TargetContext);
@@ -87,6 +83,10 @@ const EventItemList = () => {
   };
 
   // Combined useEffect hook for scroll to the bottom
+  const listRef = useRef<HTMLDivElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
+  const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
+
   useEffect(() => {
     if (bottomRef.current) {
       if (targetContext.recordState || targetContext.addNewEventManually) {
@@ -100,6 +100,8 @@ const EventItemList = () => {
     editEventIndex,
     targetContext.recordState,
     targetContext.addNewEventManually,
+    targetContext.replayState,
+    targetContext.editState,
   ]);
 
   //Reset index when switch betwen modes
@@ -427,6 +429,7 @@ const EventItemList = () => {
       })}
       {targetContext.addNewEventManually && (
         <AddEvent
+          ref={listRef}
           addEvent={(event) => {
             addRecordedEvent(event);
           }}

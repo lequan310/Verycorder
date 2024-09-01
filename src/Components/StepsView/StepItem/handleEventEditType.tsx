@@ -18,7 +18,7 @@ import { RecordedEvent } from "../../../Types/recordedEvent";
 import { CanvasEvent } from "../../../Types/canvasEvent";
 
 interface HandleEventEditTypeProps {
-  // ref: LegacyRef<HTMLDivElement>;
+  scrollRef: LegacyRef<HTMLDivElement>;
   handleSave: (
     data: {
       type: EventEnum;
@@ -31,7 +31,7 @@ interface HandleEventEditTypeProps {
 }
 
 const HandleEventEditType: React.FC<HandleEventEditTypeProps> = ({
-  // ref,
+  scrollRef,
   handleSave,
   dataPacket,
 }) => {
@@ -92,7 +92,7 @@ const HandleEventEditType: React.FC<HandleEventEditTypeProps> = ({
 
   const commonContent = (
     <>
-      <div className="event_type_wrapper">
+      <div className="event_type_wrapper" ref={scrollRef}>
         <h5>Event type</h5>
         <select
           value={eventType}
