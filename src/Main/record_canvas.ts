@@ -7,7 +7,6 @@ import {
     hasEditableContent,
     hasValueProperty,
 } from "../Others/utilities";
-import { View } from "electron/main";
 
 let bboxes: BoundingBox[] = [];
 let mouseX: number = 0;
@@ -19,7 +18,6 @@ let deltaScrollY: number = 0;
 const TIMEOUT = 250;
 
 let hoverTimer: ReturnType<typeof setTimeout>;
-let clickTimer: ReturnType<typeof setTimeout>;
 let scrollTimer: ReturnType<typeof setTimeout>;
 
 function setBBoxes(boundingBoxes: BoundingBox[]) {
@@ -55,8 +53,8 @@ function clickHandler(event: MouseEvent) {
 }
 
 function wheelHandler(event: WheelEvent) {
-    deltaScrollX += event.deltaX;
-    deltaScrollY += event.deltaY;
+    deltaScrollX += Math.round(event.deltaX);
+    deltaScrollY += Math.round(event.deltaY);
     clearTimeout(scrollTimer);
 
     scrollTimer = setTimeout(() => {
@@ -76,7 +74,7 @@ function wheelHandler(event: WheelEvent) {
         deltaScrollX = 0;
         deltaScrollY = 0;
         retakeBbox();
-    }, TIMEOUT);
+    }, TIMEOUT * 2);
 }
 
 function mouseTracker(event: MouseEvent) {
@@ -201,10 +199,10 @@ function retakeBbox() {
 
 export function recordCanvas(boundingBoxes: BoundingBox[]) {
     setBBoxes(boundingBoxes);
-    document.body.addEventListener("click", clickHandler, true);
-    document.body.addEventListener("mousemove", mouseTracker, true);
-    document.body.addEventListener("wheel", wheelHandler, {
-        passive: true,
+    window.addEventListener("click", clickHandler, true);
+    window.addEventListener("mousemove", mouseTracker, true);
+    window.addEventListener("wheel", wheelHandler, {
+        passive: false,
         capture: true,
     });
     document.body.addEventListener("change", changeHandler, true);
@@ -212,8 +210,8 @@ export function recordCanvas(boundingBoxes: BoundingBox[]) {
 
 export function stopRecordCanvas() {
     bboxes = [];
-    document.body.removeEventListener("mousemove", mouseTracker, true);
-    document.body.removeEventListener("click", clickHandler, true);
-    document.body.removeEventListener("wheel", wheelHandler, true);
+    window.removeEventListener("mousemove", mouseTracker, true);
+    window.removeEventListener("click", clickHandler, true);
+    window.removeEventListener("wheel", wheelHandler, true);
     document.body.removeEventListener("change", changeHandler, true);
 }
