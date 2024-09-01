@@ -50,6 +50,29 @@ const useEventManager = () => {
     [dispatch]
   );
 
+  const reorderEventList = useCallback(
+    (newEventList: RecordedEvent[]) => {
+      setEventList(newEventList);
+      ipcRenderer
+        .invoke(Channel.win.UPDATE_TEST_CASE, newEventList)
+        .then((updatedList: RecordedEvent[]) => {
+          setEventList(updatedList);
+        });
+    },
+    [eventList] // Dependencies: Recreate only when `eventList` changes
+  );
+
+  const reorderCanvasEventList = useCallback(
+    (newCanvasEventList: CanvasEvent[]) => {
+      setCanvasEventList(newCanvasEventList);
+      ipcRenderer.send(
+        Channel.win.UPDATE_CANVAS_EVENT_LIST,
+        newCanvasEventList
+      );
+    },
+    [canvasEventList]
+  );
+
   const addRecordedEvent = useCallback(
     (event: RecordedEvent) => {
       setEventList((prevList) => [...prevList, event]);
@@ -419,6 +442,8 @@ const useEventManager = () => {
     addCanvasEventManually,
     deleteItem,
     sentEditedEvents,
+    reorderEventList,
+    reorderCanvasEventList,
   };
 };
 
