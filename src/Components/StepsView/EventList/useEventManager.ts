@@ -250,6 +250,15 @@ const useEventManager = () => {
         : addCanvasEvent
     );
 
+    const addBulkEventIpc = ipcRenderer.on(
+      targetContext.detectMode === DetectMode.DOM
+        ? Channel.win.SEND_BULK_TEST_CASE
+        : Channel.win.SEND_BULK_CANVAS_TEST_CASE,
+      targetContext.detectMode === DetectMode.DOM
+        ? setEventList
+        : setCanvasEventList
+    );
+
     const updateCaptionCanvasEvent = ipcRenderer.on(
       Channel.win.UPDATE_EVENT_CAPTION,
       handleUpdateCaptionCanvasEvent
@@ -272,6 +281,7 @@ const useEventManager = () => {
 
     return () => {
       addEventIpc();
+      addBulkEventIpc();
       updateCaptionCanvasEvent();
       handleCurrentReplay();
       updateState();

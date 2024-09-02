@@ -40,6 +40,10 @@ export const Channel = {
     SAVE_FILE: "win-save-file",
     //Upload file from local
     UPLOAD_FILE: "win-upload-file",
+    //Send bulk test case
+    SEND_BULK_TEST_CASE: "win-send-bulk-test-case",
+    //Send bulk canvas test case
+    SEND_BULK_CANVAS_TEST_CASE: "win-send-bulk-canvas-test-case",
   },
   view: {
     replay: {

@@ -669,18 +669,17 @@ export function loadTestCase() {
       testCase.events = importedTestCase.testCase.events;
       console.log(testCase);
       //Send test case to FE
-      testCase.events.forEach((domEvent) => {
-        win.webContents.send(Channel.win.ADD_EVENT, domEvent);
-      });
+      win.webContents.send(Channel.win.SEND_BULK_TEST_CASE, testCase.events);
     } else {
       canvasTestCase = initializeCanvasTestCase();
       canvasTestCase.url = importedTestCase.testCase.url;
       canvasTestCase.events = importedTestCase.testCase.events;
       console.log(canvasTestCase);
       //Send test case to FE
-      canvasTestCase.events.forEach((canvasEvent) => {
-        win.webContents.send(Channel.win.ADD_EVENT_CANVAS, canvasEvent);
-      });
+      win.webContents.send(
+        Channel.win.SEND_BULK_CANVAS_TEST_CASE,
+        canvasTestCase.events
+      );
     }
 
     if (importedTestCase) {
