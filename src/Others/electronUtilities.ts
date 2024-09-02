@@ -574,10 +574,8 @@ export async function toggleReplay() {
     return;
 
   if (
-    (detectMode === DetectMode.DOM ? testCase.url : canvasTestCase.url) ===
-      "" ||
-    (detectMode === DetectMode.AI ? canvasTestCase.url : testCase.url) ===
-      BLANK_PAGE
+    view.webContents.getURL() === "" ||
+    view.webContents.getURL() === BLANK_PAGE
   )
     return;
 
@@ -670,6 +668,7 @@ export function loadTestCase() {
       console.log(testCase);
       //Send test case to FE
       win.webContents.send(Channel.win.SEND_BULK_TEST_CASE, testCase.events);
+      view.webContents.loadURL(testCase.url);
     } else {
       canvasTestCase = initializeCanvasTestCase();
       canvasTestCase.url = importedTestCase.testCase.url;
@@ -680,6 +679,7 @@ export function loadTestCase() {
         Channel.win.SEND_BULK_CANVAS_TEST_CASE,
         canvasTestCase.events
       );
+      view.webContents.loadURL(canvasTestCase.url);
     }
 
     if (importedTestCase) {
