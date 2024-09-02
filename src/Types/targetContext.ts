@@ -12,6 +12,7 @@ export interface TargetContext {
   testCaseSize: number;
   addNewEventManually: boolean;
   detectMode: DetectType;
+  reorderMode: boolean;
 }
 
 export const TargetContext = React.createContext<TargetContext>({
@@ -24,6 +25,7 @@ export const TargetContext = React.createContext<TargetContext>({
   testCaseSize: 0,
   addNewEventManually: false,
   detectMode: DetectMode.DOM,
+  reorderMode: false,
 });
 
 type Action =
@@ -35,7 +37,8 @@ type Action =
   | { type: "SET_RECORDING_BUTTON_ENABLE"; payload: boolean }
   | { type: "SET_EDIT_STATE"; payload: boolean }
   | { type: "SET_ADD_NEW_EVENT_MANUALLY"; payload: boolean }
-  | { type: "SET_DETECT_MODE"; payload: DetectType };
+  | { type: "SET_DETECT_MODE"; payload: DetectType }
+  | { type: "SET_REORDER_MODE"; payload: boolean };
 
 export const reducer = (
   state: TargetContext,
@@ -60,6 +63,8 @@ export const reducer = (
       return { ...state, addNewEventManually: action.payload };
     case "SET_DETECT_MODE":
       return { ...state, detectMode: action.payload };
+    case "SET_REORDER_MODE":
+      return { ...state, reorderMode: action.payload };
     default:
       return state;
   }
