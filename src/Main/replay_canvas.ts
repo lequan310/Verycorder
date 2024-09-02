@@ -72,7 +72,8 @@ async function controlEventType(event: CanvasEvent) {
     event.mousePosition.y = event.mousePosition.y / pdr;
     runCanvasScrollEvent(event);
   } else if (event.type == EventEnum.input) {
-      runCanvasInputEvent(event);
+      let inputChecker = await runCanvasInputEvent(event);
+      if (!inputChecker) return false;
   }
   else {
     const eventBBox = await getEventBoundingBox(event);
@@ -194,13 +195,35 @@ function runCanvasScrollEvent(event: CanvasEvent) {
   }
 }
 
-function runCanvasInputEvent(event: CanvasEvent) {
+async function runCanvasInputEvent(event: CanvasEvent) {
 
   const existingLength = 0;
   ipcRenderer.send(Channel.view.replay.REPLAY_INPUT, {
     value: event.value,
     prevLength: existingLength,
   });
+
+  await delay(2000); // Delay for 2 seconds before replaying
+  const inputElement = document.querySelector(event.target) as HTMLElement;
+  
+  let existingText = "";
+  if (inputElement) {
+    if (
+      inputElement instanceof HTMLInputElement ||
+      inputElement instanceof HTMLTextAreaElement
+    ) {
+      existingText = inputElement.value;
+    } else if (inputElement instanceof HTMLSelectElement) {
+      existingText = inputElement.options[inputElement.selectedIndex].text;
+    } else if (inputElement.isContentEditable) {
+      existingText = inputElement.textContent || "";
+    }
+  }
+  if (event.value != existingText) {
+    return false;
+  }
+
+  return true;
 }
 
 export async function replayCanvas() {

@@ -4,7 +4,7 @@ import {
   TargetContext,
   TargetDispatchContext,
 } from "../../../Types/targetContext";
-import HandleEventEditType from "../StepItem/handleEventEditType";
+import HandleEventEditType from "../EventItem/handleEventEditType";
 import { Channel } from "../../../Others/listenerConst";
 import {
   ClickEvent,
@@ -103,9 +103,6 @@ const AddEvent = React.forwardRef<HTMLDivElement, AddEventProps>(
     }) => {
       let event: CanvasEvent;
 
-      ipcRenderer.send(Channel.win.CLICK_EDIT);
-      setGlobalAddEventManually(!targetContext.addNewEventManually);
-
       switch (data.type) {
         case EventEnum.click:
           event = {
@@ -158,7 +155,7 @@ const AddEvent = React.forwardRef<HTMLDivElement, AddEventProps>(
       } | null
     ) => {
       ipcRenderer.send(Channel.win.CLICK_EDIT);
-      setGlobalAddEventManually(!targetContext.addNewEventManually);
+      setGlobalAddEventManually(false);
 
       if (
         !data ||
@@ -187,7 +184,6 @@ const AddEvent = React.forwardRef<HTMLDivElement, AddEventProps>(
 
     useEffect(() => {
       const handleSaveTarget = (value: Target) => {
-        // setGlobalAddEventManually(true);
         setTarget(value);
       };
       const updateTarget = ipcRenderer.on(

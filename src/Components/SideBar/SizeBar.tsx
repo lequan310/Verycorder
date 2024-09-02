@@ -31,6 +31,14 @@ const SideBar = () => {
       });
     }
   };
+  const setGlobalReorderMode = (newRecordState: boolean) => {
+    if (dispatch) {
+      dispatch({
+        type: "SET_REORDER_MODE",
+        payload: newRecordState,
+      });
+    }
+  };
 
   return (
     <div className="sizeBar__wrapper">
@@ -45,9 +53,7 @@ const SideBar = () => {
           <button
             className={targetContext.addNewEventManually ? "active" : ""}
             onClick={() => {
-              targetContext.detectMode === DetectMode.DOM
-                ? ipcRenderer.send(Channel.win.CLICK_EDIT)
-                : null;
+              ipcRenderer.send(Channel.win.CLICK_EDIT);
               setGlobalAddEventManually(!targetContext.addNewEventManually);
             }}
             disabled={!targetContext.editState}
@@ -70,7 +76,11 @@ const SideBar = () => {
           delay={500}
           theme="material"
         >
-          <button>
+          <button
+            className={targetContext.reorderMode ? "active" : ""}
+            onClick={() => setGlobalReorderMode(!targetContext.reorderMode)}
+            disabled={!targetContext.editState}
+          >
             <span className="material-symbols-rounded">edit</span>
           </button>
         </Tippy>
