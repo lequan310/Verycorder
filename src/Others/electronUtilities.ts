@@ -1,4 +1,4 @@
-import { BrowserWindow, ipcMain, dialog } from "electron";
+import { BrowserWindow, ipcMain, dialog, SaveDialogReturnValue } from "electron";
 import { handleUrl } from "./utilities";
 import { CanvasTestCase, TestCase } from "../Types/testCase";
 import { ChangeUrlResult } from "../Types/urlResult";
@@ -632,18 +632,19 @@ export async function toggleReplay() {
 }
 
 // Save test case
-export function saveTestCase() {
+export async function saveTestCase() {
   const saveFolder = "./save/";
-  const filePath: string = dialog.showSaveDialogSync({
+  const saveDialogResult = await dialog.showSaveDialog({
     title: "testCase",
     filters: [{ name: "JSON Save File", extensions: ["json"] }],
     defaultPath: saveFolder,
   });
-  if (filePath) {
+
+  if (!saveDialogResult.canceled && saveDialogResult.filePath) {
     if(detectMode === DetectMode.DOM) {
-      fs.writeFileSync(filePath, JSON.stringify({ testCase, mode: detectMode }));
+      fs.writeFileSync(saveDialogResult.filePath, JSON.stringify({ testCase, mode: detectMode }));
     } else {
-      fs.writeFileSync(filePath, JSON.stringify({ canvasTestCase, mode: detectMode }));
+      fs.writeFileSync(saveDialogResult.filePath, JSON.stringify({ canvasTestCase, mode: detectMode }));
     }
   } else {
     return;
@@ -651,8 +652,8 @@ export function saveTestCase() {
 }
 
 // Clear current test case and load test case
-export function loadTestCase() {
-  const filePath: string[] = dialog.showOpenDialogSync({
+export async function loadTestCase() {
+  const loadDialogResult = await dialog.showOpenDialog({
     properties: ["openFile"],
     filters: [
       { name: "JSON Save File", extensions: ["json"] },
@@ -660,9 +661,9 @@ export function loadTestCase() {
     ],
   });
 
-  if (filePath) {
+  if (!loadDialogResult.canceled && loadDialogResult.filePaths) {
     const importedTestCase = JSON.parse(
-      fs.readFileSync(filePath[0]).toString()
+      fs.readFileSync(loadDialogResult.filePaths[0]).toString()
     );
 
     if (importedTestCase.mode === DetectMode.DOM) {
