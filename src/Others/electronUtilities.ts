@@ -640,7 +640,11 @@ export function saveTestCase() {
     defaultPath: saveFolder,
   });
   if (filePath) {
-    fs.writeFileSync(filePath, JSON.stringify({ testCase, mode: detectMode }));
+    if(detectMode === DetectMode.DOM) {
+      fs.writeFileSync(filePath, JSON.stringify({ testCase, mode: detectMode }));
+    } else {
+      fs.writeFileSync(filePath, JSON.stringify({ canvasTestCase, mode: detectMode }));
+    }
   } else {
     return;
   }
@@ -665,15 +669,13 @@ export function loadTestCase() {
       testCase = initializeDOMTestCase();
       testCase.url = importedTestCase.testCase.url;
       testCase.events = importedTestCase.testCase.events;
-      console.log(testCase);
       //Send test case to FE
       win.webContents.send(Channel.win.SEND_BULK_TEST_CASE, testCase.events);
       view.webContents.loadURL(testCase.url);
     } else {
       canvasTestCase = initializeCanvasTestCase();
-      canvasTestCase.url = importedTestCase.testCase.url;
-      canvasTestCase.events = importedTestCase.testCase.events;
-      console.log(canvasTestCase);
+      canvasTestCase.url = importedTestCase.canvasTestCase.url;
+      canvasTestCase.events = importedTestCase.canvasTestCase.events;
       //Send test case to FE
       win.webContents.send(
         Channel.win.SEND_BULK_CANVAS_TEST_CASE,
