@@ -255,8 +255,14 @@ const useEventManager = () => {
         ? Channel.win.SEND_BULK_TEST_CASE
         : Channel.win.SEND_BULK_CANVAS_TEST_CASE,
       targetContext.detectMode === DetectMode.DOM
-        ? setEventList
-        : setCanvasEventList
+        ? (event: RecordedEvent[]) => {
+            setEventList(event);
+            setCurrentReplayIndex(initState);
+          }
+        : (event: CanvasEvent[]) => {
+            setCanvasEventList(event);
+            setCurrentReplayIndex(initState);
+          }
     );
 
     const updateCaptionCanvasEvent = ipcRenderer.on(

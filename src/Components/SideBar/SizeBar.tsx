@@ -95,6 +95,7 @@ const SideBar = () => {
             onClick={() => {
               ipcRenderer.send(Channel.win.UPLOAD_FILE);
             }}
+            // disabled={!targetContext.editState}
           >
             <span className="material-symbols-rounded">upload_file</span>
           </button>
