@@ -33,6 +33,7 @@ const useEventManager = () => {
   const [editEventIndex, setEditEventIndex] = useState(-1);
   const [captionNumber, setCaptionNumber] = useState(0);
   const [captionCounter, setCaptionCounter] = useState(0);
+  const [uploadLoader, setUploadLoader] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -264,8 +265,12 @@ const useEventManager = () => {
         if (targetContext.detectMode !== DetectMode.DOM) {
           updateDetectMode(DetectMode.DOM);
         }
-        setEventList(event);
-        setCurrentReplayIndex(initState);
+        setUploadLoader(true);
+        setTimeout(() => {
+          setUploadLoader(false);
+          setEventList(event);
+          setCurrentReplayIndex(initState);
+        }, 1000); // 1-second delay
       }
     );
 
@@ -275,9 +280,13 @@ const useEventManager = () => {
         if (targetContext.detectMode !== DetectMode.AI) {
           updateDetectMode(DetectMode.AI);
         }
-        setCanvasEventList(event);
-        setCurrentReplayIndex(initState);
-        ipcRenderer.send(Channel.all.TEST_LOG, event);
+        setUploadLoader(true);
+        setTimeout(() => {
+          setUploadLoader(false);
+          setCanvasEventList(event);
+          setCurrentReplayIndex(initState);
+          ipcRenderer.send(Channel.all.TEST_LOG, event);
+        }, 1000); // 1-second delay
       }
     );
 
@@ -478,6 +487,7 @@ const useEventManager = () => {
     sentEditedEvents,
     reorderEventList,
     reorderCanvasEventList,
+    uploadLoader,
   };
 };
 

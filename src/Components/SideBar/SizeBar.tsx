@@ -14,6 +14,7 @@ import { DetectMode } from "../../Types/detectMode";
 const SideBar = () => {
   const ipcRenderer = window.api;
   const [settingState, setSettingState] = useState(false);
+  const [uploadLoading, setUploadLoading] = useState(false);
   // const [folderState, setFolderState] = useState(true);
   const [similarity, setSimilarity] = useState(8);
 
