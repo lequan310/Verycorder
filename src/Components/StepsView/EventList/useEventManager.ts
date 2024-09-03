@@ -269,6 +269,7 @@ const useEventManager = () => {
         setTimeout(() => {
           setUploadLoader(false);
           setEventList(event);
+          if (event.length > 0) setGlobalReplayingButtonEnable(true);
           setCurrentReplayIndex(initState);
         }, 1000); // 1-second delay
       }
@@ -284,6 +285,7 @@ const useEventManager = () => {
         setTimeout(() => {
           setUploadLoader(false);
           setCanvasEventList(event);
+          if (event.length > 0) setGlobalReplayingButtonEnable(true);
           setCurrentReplayIndex(initState);
           ipcRenderer.send(Channel.all.TEST_LOG, event);
         }, 1000); // 1-second delay
