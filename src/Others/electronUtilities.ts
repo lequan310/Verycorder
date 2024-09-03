@@ -1,4 +1,9 @@
-import { BrowserWindow, ipcMain, dialog, SaveDialogReturnValue } from "electron";
+import {
+  BrowserWindow,
+  ipcMain,
+  dialog,
+  SaveDialogReturnValue,
+} from "electron";
 import { handleUrl } from "./utilities";
 import { CanvasTestCase, TestCase } from "../Types/testCase";
 import { ChangeUrlResult } from "../Types/urlResult";
@@ -641,14 +646,63 @@ export async function saveTestCase() {
   });
 
   if (!saveDialogResult.canceled && saveDialogResult.filePath) {
-    if(detectMode === DetectMode.DOM) {
-      fs.writeFileSync(saveDialogResult.filePath, JSON.stringify({ testCase, mode: detectMode }));
+    if (detectMode === DetectMode.DOM) {
+      fs.writeFileSync(
+        saveDialogResult.filePath,
+        JSON.stringify({ testCase, mode: detectMode })
+      );
     } else {
-      fs.writeFileSync(saveDialogResult.filePath, JSON.stringify({ canvasTestCase, mode: detectMode }));
+      fs.writeFileSync(
+        saveDialogResult.filePath,
+        serializeCanvasTestCase(canvasTestCase)
+      );
     }
   } else {
     return;
   }
+}
+
+//JSON Helper function
+function serializeCanvasTestCase(canvasTestCase: CanvasTestCase) {
+  return JSON.stringify({
+    canvasTestCase: {
+      ...canvasTestCase,
+      events: canvasTestCase.events.map((event) => ({
+        ...event,
+        buffer: event.buffer
+          ? { type: "Buffer", data: event.buffer.toString("hex") }
+          : null,
+      })),
+    },
+    mode: detectMode,
+  });
+}
+
+function deserializeCanvasTestCase(data: {
+  canvasTestCase: {
+    url: string;
+    events: CanvasEvent[];
+  };
+  mode: string;
+}): // {
+//   canvasTestCase: {
+//     url: string;
+//     events: CanvasEvent[];
+//   };
+// }
+any {
+  return {
+    canvasTestCase: {
+      ...data.canvasTestCase,
+      events: data.canvasTestCase.events.map((event: any) => ({
+        ...event,
+        buffer:
+          event.buffer && event.buffer.type === "Buffer"
+            ? Buffer.from(event.buffer.data, "hex")
+            : null,
+      })),
+    },
+  };
 }
 
 // Clear current test case and load test case
@@ -666,6 +720,7 @@ export async function loadTestCase() {
       fs.readFileSync(loadDialogResult.filePaths[0]).toString()
     );
 
+    console.log(importedTestCase);
     if (importedTestCase.mode === DetectMode.DOM) {
       testCase = initializeDOMTestCase();
       testCase.url = importedTestCase.testCase.url;
@@ -674,9 +729,10 @@ export async function loadTestCase() {
       win.webContents.send(Channel.win.SEND_BULK_TEST_CASE, testCase.events);
       view.webContents.loadURL(testCase.url);
     } else {
+      const importedData = deserializeCanvasTestCase(importedTestCase);
       canvasTestCase = initializeCanvasTestCase();
-      canvasTestCase.url = importedTestCase.canvasTestCase.url;
-      canvasTestCase.events = importedTestCase.canvasTestCase.events;
+      canvasTestCase.url = importedData.canvasTestCase.url;
+      canvasTestCase.events = importedData.canvasTestCase.events;
       //Send test case to FE
       win.webContents.send(
         Channel.win.SEND_BULK_CANVAS_TEST_CASE,

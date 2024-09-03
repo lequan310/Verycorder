@@ -79,7 +79,9 @@ const SideBar = () => {
           <button
             className={targetContext.reorderMode ? "active" : ""}
             onClick={() => setGlobalReorderMode(!targetContext.reorderMode)}
-            disabled={!targetContext.editState}
+            disabled={
+              !targetContext.editState || !targetContext.replayingButtonEnable
+            }
           >
             <span className="material-symbols-rounded">edit</span>
           </button>

@@ -21,6 +21,7 @@ import {
   CanvasInputEvent,
   CanvasScrollEvent,
 } from "../../../Types/canvasEvent";
+import { channel } from "diagnostics_channel";
 
 const useEventManager = () => {
   const ipcRenderer = window.api;
@@ -49,6 +50,12 @@ const useEventManager = () => {
     },
     [dispatch]
   );
+  const updateDetectMode = (event: DetectMode) => {
+    if (dispatch) {
+      ipcRenderer.send(Channel.win.UPDATE_DETECT_MODE, event);
+      dispatch({ type: "SET_DETECT_MODE", payload: event });
+    }
+  };
 
   const reorderEventList = useCallback(
     (newEventList: RecordedEvent[]) => {
@@ -100,6 +107,7 @@ const useEventManager = () => {
         setCaptionNumber((prev) => prev + 1);
       }
 
+      ipcRenderer.send(Channel.all.TEST_LOG, event + "---------");
       setCanvasEventList((prevList) => [...prevList, event]);
       setCurrentReplayIndex(initState);
     },
@@ -250,19 +258,27 @@ const useEventManager = () => {
         : addCanvasEvent
     );
 
-    const addBulkEventIpc = ipcRenderer.on(
-      targetContext.detectMode === DetectMode.DOM
-        ? Channel.win.SEND_BULK_TEST_CASE
-        : Channel.win.SEND_BULK_CANVAS_TEST_CASE,
-      targetContext.detectMode === DetectMode.DOM
-        ? (event: RecordedEvent[]) => {
-            setEventList(event);
-            setCurrentReplayIndex(initState);
-          }
-        : (event: CanvasEvent[]) => {
-            setCanvasEventList(event);
-            setCurrentReplayIndex(initState);
-          }
+    const addBulkDomEventIpc = ipcRenderer.on(
+      Channel.win.SEND_BULK_TEST_CASE,
+      (event: RecordedEvent[]) => {
+        if (targetContext.detectMode !== DetectMode.DOM) {
+          updateDetectMode(DetectMode.DOM);
+        }
+        setEventList(event);
+        setCurrentReplayIndex(initState);
+      }
+    );
+
+    const addBulkAIEventIpc = ipcRenderer.on(
+      Channel.win.SEND_BULK_CANVAS_TEST_CASE,
+      (event: CanvasEvent[]) => {
+        if (targetContext.detectMode !== DetectMode.AI) {
+          updateDetectMode(DetectMode.AI);
+        }
+        setCanvasEventList(event);
+        setCurrentReplayIndex(initState);
+        ipcRenderer.send(Channel.all.TEST_LOG, event);
+      }
     );
 
     const updateCaptionCanvasEvent = ipcRenderer.on(
@@ -287,7 +303,8 @@ const useEventManager = () => {
 
     return () => {
       addEventIpc();
-      addBulkEventIpc();
+      addBulkDomEventIpc();
+      addBulkAIEventIpc();
       updateCaptionCanvasEvent();
       handleCurrentReplay();
       updateState();

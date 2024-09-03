@@ -69,7 +69,13 @@ const SearchBar = ({ response, disable }: SearchBarProps) => {
         onChange={onChangeHandler}
         disabled={!disable}
       />
-      <button type="submit" value="Submit" form="form" className="search_Btn">
+      <button
+        type="submit"
+        value="Submit"
+        form="form"
+        className="search_Btn"
+        disabled={!disable}
+      >
         <span className="material-symbols-rounded">arrow_forward</span>
       </button>
     </form>
