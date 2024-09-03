@@ -265,13 +265,15 @@ const useEventManager = () => {
         if (targetContext.detectMode !== DetectMode.DOM) {
           updateDetectMode(DetectMode.DOM);
         }
-        setUploadLoader(true);
-        setTimeout(() => {
-          setUploadLoader(false);
-          setEventList(event);
-          if (event.length > 0) setGlobalReplayingButtonEnable(true);
-          setCurrentReplayIndex(initState);
-        }, 1000); // 1-second delay
+        if (event.length > 0) {
+          setUploadLoader(true);
+          setTimeout(() => {
+            setUploadLoader(false);
+            setEventList(event);
+            setGlobalReplayingButtonEnable(true);
+            setCurrentReplayIndex(initState);
+          }, 1000); // 1-second delay
+        }
       }
     );
 
@@ -281,14 +283,16 @@ const useEventManager = () => {
         if (targetContext.detectMode !== DetectMode.AI) {
           updateDetectMode(DetectMode.AI);
         }
-        setUploadLoader(true);
-        setTimeout(() => {
-          setUploadLoader(false);
-          setCanvasEventList(event);
-          if (event.length > 0) setGlobalReplayingButtonEnable(true);
-          setCurrentReplayIndex(initState);
-          ipcRenderer.send(Channel.all.TEST_LOG, event);
-        }, 1000); // 1-second delay
+        if (event.length > 0) {
+          setUploadLoader(true);
+          setTimeout(() => {
+            setUploadLoader(false);
+            setCanvasEventList(event);
+            setGlobalReplayingButtonEnable(true);
+            setCurrentReplayIndex(initState);
+            ipcRenderer.send(Channel.all.TEST_LOG, event);
+          }, 1000); // 1-second delay
+        }
       }
     );
 
