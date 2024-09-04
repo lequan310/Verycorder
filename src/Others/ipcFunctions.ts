@@ -148,7 +148,6 @@ export function handleRecordCanvasClick(win: BrowserWindow) {
         target: "Waiting for caption...",
         value: null,
         mousePosition: { x: mouseX, y: mouseY },
-        buffer: croppedImageBuffer,
       };
 
       win.webContents.send(Channel.win.ADD_EVENT_CANVAS, clickEvent);
@@ -171,7 +170,6 @@ export function handleRecordCanvasScroll(win: BrowserWindow) {
         value: `${deltaScrollX} ${deltaScrollY}`,
         scrollValue: { x: deltaScrollX, y: deltaScrollY },
         mousePosition: { x: mouseX, y: mouseY },
-        buffer: null,
       };
 
       win.webContents.send(Channel.win.ADD_EVENT_CANVAS, scrollEvent);
@@ -197,7 +195,6 @@ export function handleRecordCanvasHover(win: BrowserWindow) {
         target: "Waiting for caption...",
         value: null,
         mousePosition: { x: mouseX, y: mouseY },
-        buffer: croppedImageBuffer,
       };
 
       win.webContents.send(Channel.win.ADD_EVENT_CANVAS, hoverEvent);
@@ -219,7 +216,6 @@ export function handleRecordCanvasInput(win: BrowserWindow) {
         target: cssSelector,
         value: value,
         mousePosition: null,
-        buffer: null,
       };
 
       win.webContents.send(Channel.win.ADD_EVENT_CANVAS, inputEvent);

@@ -2,7 +2,6 @@ import {
   BrowserWindow,
   ipcMain,
   dialog,
-  SaveDialogReturnValue,
 } from "electron";
 import { handleUrl } from "./utilities";
 import { CanvasTestCase, TestCase } from "../Types/testCase";
@@ -443,12 +442,12 @@ export async function getViewScreenshotBuffer() {
 export function handleFindCanvasReplayTarget() {
   ipcMain.handle(
     Channel.view.replay.GET_TARGET_BBOX,
-    async (event, clickedBuffer, locator) => {
+    async (event, locator) => {
       console.log("hanlding find canvas replay target");
       const image = await getViewScreenshotBuffer();
       console.log(locator);
 
-      const result = await getReplayTargetBBox(image, locator, clickedBuffer);
+      const result = await getReplayTargetBBox(image, locator);
       return result;
     }
   );
@@ -638,11 +637,10 @@ export async function toggleReplay() {
 
 // Save test case
 export async function saveTestCase() {
-  const saveFolder = "./save/";
   const saveDialogResult = await dialog.showSaveDialog({
     title: "testCase",
     filters: [{ name: "JSON Save File", extensions: ["json"] }],
-    defaultPath: saveFolder,
+    defaultPath: "./",
   });
 
   if (!saveDialogResult.canceled && saveDialogResult.filePath) {
@@ -654,55 +652,12 @@ export async function saveTestCase() {
     } else {
       fs.writeFileSync(
         saveDialogResult.filePath,
-        serializeCanvasTestCase(canvasTestCase)
+        JSON.stringify({ canvasTestCase, mode: detectMode })
       );
     }
   } else {
     return;
   }
-}
-
-//JSON Helper function
-function serializeCanvasTestCase(canvasTestCase: CanvasTestCase) {
-  return JSON.stringify({
-    canvasTestCase: {
-      ...canvasTestCase,
-      events: canvasTestCase.events.map((event) => ({
-        ...event,
-        buffer: event.buffer
-          ? { type: "Buffer", data: event.buffer.toString("hex") }
-          : null,
-      })),
-    },
-    mode: detectMode,
-  });
-}
-
-function deserializeCanvasTestCase(data: {
-  canvasTestCase: {
-    url: string;
-    events: CanvasEvent[];
-  };
-  mode: string;
-}): // {
-//   canvasTestCase: {
-//     url: string;
-//     events: CanvasEvent[];
-//   };
-// }
-any {
-  return {
-    canvasTestCase: {
-      ...data.canvasTestCase,
-      events: data.canvasTestCase.events.map((event: any) => ({
-        ...event,
-        buffer:
-          event.buffer && event.buffer.type === "Buffer"
-            ? Buffer.from(event.buffer.data, "hex")
-            : null,
-      })),
-    },
-  };
 }
 
 // Clear current test case and load test case
@@ -729,10 +684,9 @@ export async function loadTestCase() {
       win.webContents.send(Channel.win.SEND_BULK_TEST_CASE, testCase.events);
       view.webContents.loadURL(testCase.url);
     } else {
-      const importedData = deserializeCanvasTestCase(importedTestCase);
       canvasTestCase = initializeCanvasTestCase();
-      canvasTestCase.url = importedData.canvasTestCase.url;
-      canvasTestCase.events = importedData.canvasTestCase.events;
+      canvasTestCase.url = importedTestCase.canvasTestCase.url;
+      canvasTestCase.events = importedTestCase.canvasTestCase.events;
       //Send test case to FE
       win.webContents.send(
         Channel.win.SEND_BULK_CANVAS_TEST_CASE,

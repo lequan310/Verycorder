@@ -4,7 +4,6 @@ import { zodResponseFormat } from "openai/helpers/zod";
 import { z } from "zod";
 import { getAndDrawBoxes } from "./inference";
 import { BoundingBox } from "../Types/bbox";
-import { cropImageBuffer } from "./inference";
 import Jimp from "jimp";
 import { saveData } from "./file";
 
@@ -123,7 +122,6 @@ export async function getCaption(base64image: string) {
 export async function getReplayTargetBBox(
     imageBuffer: Buffer,
     locator: string,
-    clickedBuffer: Buffer = null,
 ): Promise<BoundingBox> {
     try {
         console.log("Getting target bounding box");
@@ -132,14 +130,8 @@ export async function getReplayTargetBBox(
         let factor = jimp.getWidth() / width;
         jimp.resize(width, Jimp.AUTO);
 
-        let clickedJimp = await Jimp.read(Buffer.from(clickedBuffer));
-        clickedJimp.resize(clickedJimp.getWidth() / factor, Jimp.AUTO);
-        clickedJimp.writeAsync("./logs/clickedImage.png");
-
         let result = await getAndDrawBoxes(await jimp.getBufferAsync(Jimp.MIME_PNG));
-
         saveData("./logs/drawnForReplay.png", result.buffer);
-
         let bbox = await getReplayBoundingBox(result.buffer, result.bboxes, locator);
 
         if (bbox == null) {

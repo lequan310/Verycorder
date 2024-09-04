@@ -5,8 +5,6 @@ import { CanvasTestCase } from "../Types/testCase";
 import { CanvasEvent } from "../Types/canvasEvent";
 import { EventEnum } from "../Types/eventComponents";
 import { BoundingBox } from "../Types/bbox";
-import Jimp from "jimp";
-import { run } from "node:test";
 
 let abortController: AbortController;
 let isReplaying = true; // Flag to control the replay
@@ -47,11 +45,9 @@ async function delayWithAbort(ms: number, signal: AbortSignal) {
 }
 
 async function getEventBoundingBox(event: CanvasEvent): Promise<BoundingBox> {
-  const clickedBuffer = event.buffer;
   const locator = event.target;
   const result: BoundingBox = await ipcRenderer.invoke(
     Channel.view.replay.GET_TARGET_BBOX,
-    clickedBuffer,
     locator,
   );
   if (!result)
@@ -72,8 +68,8 @@ async function controlEventType(event: CanvasEvent) {
     event.mousePosition.y = event.mousePosition.y / pdr;
     runCanvasScrollEvent(event);
   } else if (event.type == EventEnum.input) {
-      let inputChecker = await runCanvasInputEvent(event);
-      if (!inputChecker) return false;
+    let inputChecker = await runCanvasInputEvent(event);
+    if (!inputChecker) return false;
   }
   else {
     const eventBBox = await getEventBoundingBox(event);
@@ -84,7 +80,7 @@ async function controlEventType(event: CanvasEvent) {
         (eventBBox.x + eventBBox.width) / pdr,
         eventBBox.y / pdr,
         (eventBBox.y + eventBBox.height) / pdr
-      ); 
+      );
       if (event.type == EventEnum.click) runCanvasClickEvent(scaledBbox);
       else if (event.type == EventEnum.hover) runCanvasHoverEvent(scaledBbox);
     }
@@ -205,7 +201,7 @@ async function runCanvasInputEvent(event: CanvasEvent) {
 
   await delay(2000); // Delay for 2 seconds before replaying
   const inputElement = document.querySelector(event.target) as HTMLElement;
-  
+
   let existingText = "";
   if (inputElement) {
     if (
