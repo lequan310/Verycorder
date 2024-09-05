@@ -70,6 +70,10 @@ export async function getImageBuffer(imagePath: string): Promise<Buffer> {
 }
 
 export async function getBBoxes(imageBuffer: Buffer): Promise<BoundingBox[]> {
+  if (!session || !session.inputNames) {
+    return [];
+  }
+
   let bboxes: BoundingBox[] = [];
 
   try {
