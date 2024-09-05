@@ -14,6 +14,7 @@ import { DetectMode } from "../../Types/detectMode";
 const SideBar = () => {
   const ipcRenderer = window.api;
   const [settingState, setSettingState] = useState(false);
+  const [uploadLoading, setUploadLoading] = useState(false);
   // const [folderState, setFolderState] = useState(true);
   const [similarity, setSimilarity] = useState(8);
 
@@ -79,7 +80,9 @@ const SideBar = () => {
           <button
             className={targetContext.reorderMode ? "active" : ""}
             onClick={() => setGlobalReorderMode(!targetContext.reorderMode)}
-            disabled={!targetContext.editState}
+            disabled={
+              !targetContext.editState || !targetContext.replayingButtonEnable
+            }
           >
             <span className="material-symbols-rounded">edit</span>
           </button>
@@ -91,7 +94,12 @@ const SideBar = () => {
           delay={500}
           theme="material"
         >
-          <button>
+          <button
+            onClick={() => {
+              ipcRenderer.send(Channel.win.UPLOAD_FILE);
+            }}
+            // disabled={!targetContext.editState}
+          >
             <span className="material-symbols-rounded">upload_file</span>
           </button>
         </Tippy>
@@ -102,7 +110,12 @@ const SideBar = () => {
           delay={500}
           theme="material"
         >
-          <button>
+          <button
+            disabled={!targetContext.replayingButtonEnable}
+            onClick={() => {
+              ipcRenderer.send(Channel.win.SAVE_FILE);
+            }}
+          >
             <span className="material-symbols-rounded">download</span>
           </button>
         </Tippy>

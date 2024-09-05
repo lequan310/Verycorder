@@ -21,6 +21,7 @@ import {
   CanvasInputEvent,
   CanvasScrollEvent,
 } from "../../../Types/canvasEvent";
+import { channel } from "diagnostics_channel";
 
 const useEventManager = () => {
   const ipcRenderer = window.api;
@@ -32,6 +33,7 @@ const useEventManager = () => {
   const [editEventIndex, setEditEventIndex] = useState(-1);
   const [captionNumber, setCaptionNumber] = useState(0);
   const [captionCounter, setCaptionCounter] = useState(0);
+  const [uploadLoader, setUploadLoader] = useState(false);
 
   const bottomRef = useRef<HTMLDivElement>(null);
   const stepRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -49,6 +51,12 @@ const useEventManager = () => {
     },
     [dispatch]
   );
+  const updateDetectMode = (event: DetectMode) => {
+    if (dispatch) {
+      ipcRenderer.send(Channel.win.UPDATE_DETECT_MODE, event);
+      dispatch({ type: "SET_DETECT_MODE", payload: event });
+    }
+  };
 
   const reorderEventList = useCallback(
     (newEventList: RecordedEvent[]) => {
@@ -100,6 +108,7 @@ const useEventManager = () => {
         setCaptionNumber((prev) => prev + 1);
       }
 
+      ipcRenderer.send(Channel.all.TEST_LOG, event + "---------");
       setCanvasEventList((prevList) => [...prevList, event]);
       setCurrentReplayIndex(initState);
     },
@@ -250,6 +259,43 @@ const useEventManager = () => {
         : addCanvasEvent
     );
 
+    const addBulkDomEventIpc = ipcRenderer.on(
+      Channel.win.SEND_BULK_TEST_CASE,
+      (event: RecordedEvent[]) => {
+        if (targetContext.detectMode !== DetectMode.DOM) {
+          updateDetectMode(DetectMode.DOM);
+        }
+        if (event.length > 0) {
+          setUploadLoader(true);
+          setTimeout(() => {
+            setUploadLoader(false);
+            setEventList(event);
+            setGlobalReplayingButtonEnable(true);
+            setCurrentReplayIndex(initState);
+          }, 1000); // 1-second delay
+        }
+      }
+    );
+
+    const addBulkAIEventIpc = ipcRenderer.on(
+      Channel.win.SEND_BULK_CANVAS_TEST_CASE,
+      (event: CanvasEvent[]) => {
+        if (targetContext.detectMode !== DetectMode.AI) {
+          updateDetectMode(DetectMode.AI);
+        }
+        if (event.length > 0) {
+          setUploadLoader(true);
+          setTimeout(() => {
+            setUploadLoader(false);
+            setCanvasEventList(event);
+            setGlobalReplayingButtonEnable(true);
+            setCurrentReplayIndex(initState);
+            ipcRenderer.send(Channel.all.TEST_LOG, event);
+          }, 1000); // 1-second delay
+        }
+      }
+    );
+
     const updateCaptionCanvasEvent = ipcRenderer.on(
       Channel.win.UPDATE_EVENT_CAPTION,
       handleUpdateCaptionCanvasEvent
@@ -272,6 +318,8 @@ const useEventManager = () => {
 
     return () => {
       addEventIpc();
+      addBulkDomEventIpc();
+      addBulkAIEventIpc();
       updateCaptionCanvasEvent();
       handleCurrentReplay();
       updateState();
@@ -445,6 +493,7 @@ const useEventManager = () => {
     sentEditedEvents,
     reorderEventList,
     reorderCanvasEventList,
+    uploadLoader,
   };
 };
 

@@ -8,6 +8,8 @@ import {
   createWindow,
   toggleRecord,
   toggleReplay,
+  saveTestCase,
+  loadTestCase,
 } from "./Others/electronUtilities";
 import { handleReplayEvents } from "./Main/replay_functions";
 
@@ -30,6 +32,16 @@ menu.append(new MenuItem({
       label: 'Replay',
       accelerator: 'CommandOrControl+P',
       click: toggleReplay
+    },
+    {
+      label: 'Save',
+      accelerator: 'CommandOrControl+S',
+      click: saveTestCase
+    },
+    {
+      label: 'Load',
+      accelerator: 'CommandOrControl+L',
+      click: loadTestCase
     },
   ]
 }));

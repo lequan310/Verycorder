@@ -28,6 +28,7 @@ const EventItemList: React.FC = () => {
     sentEditedEvents,
     reorderEventList,
     reorderCanvasEventList,
+    uploadLoader,
   } = useEventManager();
 
   // Handle drag end
@@ -116,6 +117,14 @@ const EventItemList: React.FC = () => {
 
   return (
     <div>
+      {uploadLoader ? (
+        <div className="loader_container">
+          <span className="loader"></span>
+        </div>
+      ) : (
+        <></>
+      )}
+
       {targetContext.reorderMode ? (
         <DragDropContext onDragEnd={onDragEnd}>
           <Droppable droppableId="eventList">
