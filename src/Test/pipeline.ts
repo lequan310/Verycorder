@@ -59,7 +59,9 @@ async function main() {
         const jimpImg = await Jimp.read(`${pathPrefix}/${test.imagePath}`);
         jimpImg.resize(1248, Jimp.AUTO);
         const buffer = await jimpImg.getBufferAsync(Jimp.MIME_PNG);
+        const getAndDrawBoxesStartTime = performance.now();
         const { buffer: drawnBuffer, bboxes } = await getAndDrawBoxes(buffer);
+        console.log("time to get and draw boxes:", performance.now() - getAndDrawBoxesStartTime);
         const logDrawnBuffer = await drawBoxes(buffer, bboxes, true);
         saveData(`${outputDir}/drawn.png`, logDrawnBuffer);
 
@@ -102,10 +104,14 @@ async function main() {
                 const clickedBuffer = await clickedJimp.getBufferAsync(Jimp.MIME_PNG);
                 saveData(`${outputDir}/click${i}/clicked.png`, clickedBuffer);
 
+                const getCaptionStartTime = performance.now();
                 const caption = await openai.getCaption((await clickedJimp.getBufferAsync(Jimp.MIME_PNG)).toString("base64"));
+                console.log("time to get original caption:", performance.now() - getCaptionStartTime);
                 result.caption = caption;
 
+                const getReplayBoundingBoxStartTime = performance.now();
                 const resultBox = await openai.getReplayBoundingBox(drawnBuffer, bboxes, caption);
+                console.log("get replay bounding box time:", performance.now() - getReplayBoundingBoxStartTime);
                 result.resultBox = resultBox;
 
                 if (resultBox) {
@@ -116,9 +122,9 @@ async function main() {
                     const resultJimp = jimpImg.clone().crop(resultBox.x + offsetX, resultBox.y + offsetY, resultBox.width + offsetWidth, resultBox.height + offsetHeight);
                     const resultBuffer = await resultJimp.getBufferAsync(Jimp.MIME_PNG);
 
-                    // const score = await compareImages(clickedBuffer, resultBuffer);
-                    // const score = await getSimilarityScoreFromLocator(caption, resultBuffer);
+                    const resultCaptionStartTime = performance.now();
                     const resultCaption = await openai.getCaption((await resultJimp.getBufferAsync(Jimp.MIME_PNG)).toString("base64"));
+                    console.log("time to get result caption:", performance.now() - resultCaptionStartTime);
                     const score = await getSimilarity(caption, resultCaption);
 
                     console.log("simularity score:", score);
@@ -135,7 +141,9 @@ async function main() {
             }
 
             saveData(`${outputDir}/click${i}/result.json`, JSON.stringify(result, null, "\t"));
+            console.log("Done with click:", i);
         }
+        console.log("Done with test:", test.name, "\n");
     }
 
     await releaseOnnxSession();
