@@ -23,6 +23,36 @@
                     "y": 438.5
                 }
             ]
+        },
+        {
+            "name": "Test 3",
+            "imagePath": "Test 3/image.png",
+            "testClicks": [
+                {
+                    "x": 113,
+                    "y": 438.5
+                }
+            ]
+        },
+        {
+            "name": "Test 4",
+            "imagePath": "Test 4/image.png",
+            "testClicks": [
+                {
+                    "x": 113,
+                    "y": 438.5
+                }
+            ]
+        },
+        {
+            "name": "Test 5",
+            "imagePath": "Test 5/image.png",
+            "testClicks": [
+                {
+                    "x": 719,
+                    "y": 376.5
+                }
+            ]
         }
     ]
 }

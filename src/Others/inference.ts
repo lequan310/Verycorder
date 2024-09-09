@@ -82,8 +82,6 @@ export async function getBBoxes(imageBuffer: Buffer): Promise<BoundingBox[]> {
     const image = await Jimp.create(imageBuffer);
     const originalWidth = image.getWidth(),
       originalHeight = image.getHeight();
-    console.log(originalWidth);
-    console.log(originalHeight);
     image.resize(640, 640, Jimp.RESIZE_BICUBIC);
     const imageTensor = imageBufferToTensor(
       image.bitmap.data,
@@ -126,7 +124,6 @@ export async function getBBoxes(imageBuffer: Buffer): Promise<BoundingBox[]> {
     }
     const endTime = performance.now();
     const timeTaken = endTime - startTime;
-    console.log(`Time taken: ${timeTaken} milliseconds`);
   } catch (error) {
     console.error(error);
   }
