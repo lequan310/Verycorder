@@ -20,31 +20,52 @@ if (require("electron-squirrel-startup")) {
 
 // Set menu for local shortcuts
 const menu = new Menu();
-menu.append(new MenuItem({
-  label: 'Electron',
-  submenu: [
-    {
-      label: 'Record',
-      accelerator: 'CommandOrControl+R',
-      click: toggleRecord
-    },
-    {
-      label: 'Replay',
-      accelerator: 'CommandOrControl+P',
-      click: toggleReplay
-    },
-    {
-      label: 'Save',
-      accelerator: 'CommandOrControl+S',
-      click: saveTestCase
-    },
-    {
-      label: 'Load',
-      accelerator: 'CommandOrControl+L',
-      click: loadTestCase
-    },
-  ]
-}));
+menu.append(
+  new MenuItem({
+    label: "Electron",
+  })
+);
+menu.append(
+  new MenuItem({
+    label: "Action",
+    submenu: [
+      {
+        label: "Record",
+        accelerator: "CommandOrControl+R",
+        click: toggleRecord,
+      },
+      {
+        label: "Replay",
+        accelerator: "CommandOrControl+P",
+        click: toggleReplay,
+      },
+      {
+        label: "Save",
+        accelerator: "CommandOrControl+S",
+        click: saveTestCase,
+      },
+      {
+        label: "Load",
+        accelerator: "CommandOrControl+L",
+        click: loadTestCase,
+      },
+    ],
+  })
+);
+menu.append(
+  new MenuItem({
+    label: "Edit",
+    submenu: [
+      { label: "Undo", accelerator: "CmdOrCtrl+Z", role: "undo" },
+      { label: "Redo", accelerator: "Shift+CmdOrCtrl+Z", role: "redo" },
+      { type: "separator" },
+      { label: "Cut", accelerator: "CmdOrCtrl+X", role: "cut" },
+      { label: "Copy", accelerator: "CmdOrCtrl+C", role: "copy" },
+      { label: "Paste", accelerator: "CmdOrCtrl+V", role: "paste" },
+      { label: "Select All", accelerator: "CmdOrCtrl+A", role: "selectAll" },
+    ],
+  })
+);
 Menu.setApplicationMenu(menu);
 
 // This method will be called when Electron has finished
