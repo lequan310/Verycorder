@@ -21,7 +21,7 @@ The recorder utilizes 3 state-of-the-art ML models to record and replay test cas
 git clone https://github.com/lequan310/Verycorder.git
 ```
 
-2. Install packages
+2. Install packages (Make sure node is up-to-date)
 
 ```bash
 npm install
