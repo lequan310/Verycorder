@@ -1,7 +1,7 @@
 # Summary
 
 The purpose of this project is to tackle the challenges when performing UI Testing on canvas-based web application, such as those using Flutter framework. 
-The main idea is to generate a a locator that describes the visual aspect of the web element during record, and find the corresponding element during replay using the recorded visual-based locator.
+The main idea is to generate a locator that describes the visual aspect of the web element during record, and find the corresponding element during replay using the recorded visual-based locator.
 The recorder utilizes 3 state-of-the-art ML models to record and replay test cases: YOLOv10, OpenAI GPT-4o, and OpenAI text-embedding-3-large.
 
 ## Record Workflow: 
