@@ -76,6 +76,9 @@ const SearchBar = ({ response, disable }: SearchBarProps) => {
         className="search_Btn"
         disabled={!disable}
       >
+      <p>
+        asdasd
+      </p>
         <span className="material-symbols-rounded">arrow_forward</span>
       </button>
     </form>
